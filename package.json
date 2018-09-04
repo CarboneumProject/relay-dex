@@ -1,0 +1,10 @@
+{
+  "name": "relay",
+  "description": "",
+  "version": "0.0.1",
+  "dependencies": {
+    "web3": "^1.0.0-beta.35"
+  },
+  "author": "",
+  "license": "ISC"
+}
