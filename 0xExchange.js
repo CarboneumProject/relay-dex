@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-const abi = require('./0x-abi-v1.json');
+const abi = require('./0x-abi-v0.json');
 const config = require('./config');
 
 const ZeroEx = require('0x.js');
@@ -19,12 +19,12 @@ const web3 = new Web3(
 );
 
 const provider = infuraProvider('kovan');
-const c8Contract = new web3.eth.Contract(
+const zxContract = new web3.eth.Contract(
   abi,
   config.zxExchangeContractKovan.address,
 );
 
-const logfill = c8Contract.events
+const logfill = zxContract.events
   .LogFill(async function (error, event) {
     if (error) return console.error(error);
     console.log('Successfully logfill!');
@@ -85,13 +85,12 @@ const logfill = c8Contract.events
     let zeroEx = new ZeroEx.ZeroEx(provider, {networkId:42});
     order.ecSignature = await zeroEx.signOrderHashAsync(orderHash, order.maker, false);
 
-    console.dir(order);
     let orderPromise = await rp({
-        method: 'POST',
-        uri: relayBaseURL + '/v0/order',
-        body: order,
-        json: true,
-      })
+      method: 'POST',
+      uri: relayBaseURL + '/v0/order',
+      body: order,
+      json: true,
+    })
   })
   .on('error', console.error);
 
