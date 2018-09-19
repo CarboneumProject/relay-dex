@@ -3,7 +3,7 @@
   "description": "",
   "version": "0.0.1",
   "dependencies": {
-    "0x.js": "^1.0.1",
+    "0x.js": "0.37.2",
     "@0xproject/connect": "^2.0.0",
     "@0xproject/json-schemas": "^1.0.1",
     "@radarrelay/sdk": "^0.4.4",

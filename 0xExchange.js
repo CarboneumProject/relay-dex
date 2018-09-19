@@ -19,7 +19,6 @@ const web3 = new Web3(
 );
 
 const provider = infuraProvider('kovan');
-const contractWrappers = new ZeroEx.ContractWrappers(provider, { networkId: 42, gasPrice: new BigNumber(4000000000)});
 const c8Contract = new web3.eth.Contract(
   abi,
   config.zxExchangeContractKovan.address,
@@ -66,7 +65,7 @@ const logfill = c8Contract.events
       ).toString(),
       // We need a random salt to distinguish different orders made by
       // the same user for the same quantities of the same tokens.
-      salt: ZeroEx.generatePseudoRandomSalt().toString()
+      salt: ZeroEx.ZeroEx.generatePseudoRandomSalt().toString()
     };
 
     order.exchangeContractAddress = config.zxExchangeContractKovan.address;
@@ -78,44 +77,21 @@ const logfill = c8Contract.events
       json: true,
     });
 
-    let tokenAllowance =  await contractWrappers.erc20Token.setUnlimitedProxyAllowanceAsync(
-        order.makerTokenAddress.toLowerCase(),
-        order.maker,
-      );
-    // let feeAllowance =  await contractWrappers.erc20Token.setUnlimitedProxyAllowanceAsync(
-    //     '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa',
-    //     order.maker,
-    //   );
+    order.feeRecipient = feeResponse.feeRecipient;
+    order.makerFee = feeResponse.makerFee;
+    order.takerFee = feeResponse.takerFee;
 
+    let orderHash = ZeroEx.ZeroEx.getOrderHashHex(order);
+    let zeroEx = new ZeroEx.ZeroEx(provider, {networkId:42});
+    order.ecSignature = await zeroEx.signOrderHashAsync(orderHash, order.maker, false);
 
-    order.makerAddress = '0xa4f0e5b6c0bbc0e9b26fd011f95e509e5334d2c4';
-    order.takerAddress = '0x0000000000000000000000000000000000000000';
-    order.feeRecipientAddress = feeResponse.feeRecipient;
-    order.senderAddress = '0x0000000000000000000000000000000000000000';
-    order.makerAssetAmount =order.makerTokenAmount;
-    order.takerAssetAmount =order.takerTokenAmount;
-    order.makerFee = new BigNumber(feeResponse.makerFee);
-    order.takerFee = new BigNumber(feeResponse.takerFee);
-
-    order.makerAssetData = ZeroEx.assetDataUtils.encodeERC20AssetData(event.returnValues.makerToken.toLowerCase());
-    order.takerAssetData = ZeroEx.assetDataUtils.encodeERC20AssetData(event.returnValues.takerToken.toLowerCase());
-    order.exchangeAddress =order.exchangeContractAddress;
-    order.expirationTimeSeconds =order.expirationUnixTimestampSec;
-
-    let orderHash = ZeroEx.orderHashUtils.getOrderHashHex(order);
-    order.signature = await ZeroEx.signatureUtils.ecSignOrderHashAsync(
-      provider,
-      orderHash,
-      order.maker,
-      ZeroEx.SignerType.Ledger);
-
+    console.dir(order);
     let orderPromise = await rp({
         method: 'POST',
-        uri: relayBaseURL + '/v2/order',
+        uri: relayBaseURL + '/v0/order',
         body: order,
         json: true,
       })
   })
   .on('error', console.error);
-
 
