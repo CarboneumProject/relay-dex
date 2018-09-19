@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-const abi = require('./0x-abi-v0.json');
+const abi = require('./abi/0x/v0/exchange.json');
 const config = require('./config');
 
 const ZeroEx = require('0x.js');
