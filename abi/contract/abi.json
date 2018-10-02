@@ -15,7 +15,7 @@
       }
     ],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": " view",
     "type": "function"
   },
   {

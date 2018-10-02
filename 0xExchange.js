@@ -24,73 +24,153 @@ const zxContract = new web3.eth.Contract(
   config.zxExchangeContractKovan.address,
 );
 
-const logfill = zxContract.events
+
+var redis = require("redis"), client = redis.createClient();
+
+zxContract.events
   .LogFill(async function (error, event) {
     if (error) return console.error(error);
-    console.log('Successfully logfill!');
 
+    client.hgetall("leader:" + event.returnValues.maker, async function (err, results) {
+      if (results) {
 
-    let followingAddress = config.followingAddress;
-    let isMaker = false;
-    let contractAddress = '';
-    let tokenTradeAmount = 0;
+        Object.keys(results).forEach(async function (key) {
+          let isMaker = false;
+          let makerTradeAmount = 0;
+          let takerTradeAmount = 0;
 
-    if (event.returnValues.maker === followingAddress) {
-      isMaker = true;
-      contractAddress = event.returnValues.makerToken;
-      tokenTradeAmount = event.returnValues.filledMakerTokenAmount;
-    } else if (event.returnValues.taker === followingAddress) {
-      isMaker = false;
-      contractAddress = event.returnValues.takerToken;
-      tokenTradeAmount = event.returnValues.filledTakerTokenAmount;
-    }
+          isMaker = true;
+          makerTradeAmount = event.returnValues.filledMakerTokenAmount * results[key] / 100;
+          takerTradeAmount = event.returnValues.filledTakerTokenAmount * results[key] / 100;
 
-    // Order will be valid 1 hour.
-    let duration = 3600;
+          // Order will be valid 1 hour.
+          let duration = 3600;
 
+          let order = {
+            // The default web3 account address
+            maker: '0xa4f0e5b6c0bbc0e9b26fd011f95e509e5334d2c4',
+            // Anyone may fill the order
+            taker: '0x0000000000000000000000000000000000000000',
+            makerTokenAddress: event.returnValues.makerToken.toLowerCase(),
+            takerTokenAddress: event.returnValues.takerToken.toLowerCase(),
+            makerTokenAmount: makerTradeAmount.toString(),
+            takerTokenAmount: takerTradeAmount.toString(),
+            // Add the duration (above) to the current time to get the unix
+            // timestamp
+            expirationUnixTimestampSec: parseInt(
+              (new Date().getTime() / 1000) + duration
+            ).toString(),
+            // We need a random salt to distinguish different orders made by
+            // the same user for the same quantities of the same tokens.
+            salt: ZeroEx.ZeroEx.generatePseudoRandomSalt().toString()
+          };
 
-    let order = {
-      // The default web3 account address
-      maker: '0xa4f0e5b6c0bbc0e9b26fd011f95e509e5334d2c4',
-      // Anyone may fill the order
-      taker: '0x0000000000000000000000000000000000000000',
-      makerTokenAddress: event.returnValues.makerToken.toLowerCase(),
-      takerTokenAddress: event.returnValues.takerToken.toLowerCase(),
-      makerTokenAmount: event.returnValues.filledMakerTokenAmount,
-      takerTokenAmount: event.returnValues.filledTakerTokenAmount,
-      // Add the duration (above) to the current time to get the unix
-      // timestamp
-      expirationUnixTimestampSec: parseInt(
-        (new Date().getTime() / 1000) + duration
-      ).toString(),
-      // We need a random salt to distinguish different orders made by
-      // the same user for the same quantities of the same tokens.
-      salt: ZeroEx.ZeroEx.generatePseudoRandomSalt().toString()
-    };
+          order.exchangeContractAddress = config.zxExchangeContractKovan.address;
+          let relayBaseURL = config.relayBaseURL;
+          let feeResponse = await
+          rp({
+            method: 'POST',
+            uri: relayBaseURL + '/v0/fees',
+            body: order,
+            json: true,
+          });
 
-    order.exchangeContractAddress = config.zxExchangeContractKovan.address;
-    let relayBaseURL = config.relayBaseURL;
-    let feeResponse = await rp({
-      method: 'POST',
-      uri: relayBaseURL + '/v0/fees',
-      body: order,
-      json: true,
+          order.feeRecipient = feeResponse.feeRecipient;
+          order.makerFee = feeResponse.makerFee;
+          order.takerFee = feeResponse.takerFee;
+
+          let orderHash = ZeroEx.ZeroEx.getOrderHashHex(order);
+          let zeroEx = new ZeroEx.ZeroEx(provider, {networkId: 42});
+          order.ecSignature = await
+          zeroEx.signOrderHashAsync(orderHash, order.maker, false);
+
+          let orderPromise = await
+          rp({
+            method: 'POST',
+            uri: relayBaseURL + '/v0/order',
+            body: order,
+            json: true,
+          })
+
+        });
+      } else {
+        console.log(results, " null 1")
+      }
     });
 
-    order.feeRecipient = feeResponse.feeRecipient;
-    order.makerFee = feeResponse.makerFee;
-    order.takerFee = feeResponse.takerFee;
 
-    let orderHash = ZeroEx.ZeroEx.getOrderHashHex(order);
-    let zeroEx = new ZeroEx.ZeroEx(provider, {networkId:42});
-    order.ecSignature = await zeroEx.signOrderHashAsync(orderHash, order.maker, false);
+    client.hgetall("leader:" + event.returnValues.taker, async function (err, results) {
+      if (results) {
 
-    let orderPromise = await rp({
-      method: 'POST',
-      uri: relayBaseURL + '/v0/order',
-      body: order,
-      json: true,
-    })
-  })
-  .on('error', console.error);
 
+        Object.keys(results).forEach(async function (key) {
+          let isTaker = false;
+          let makerTradeAmount = 0;
+          let takerTradeAmount = 0;
+
+          isMaker = false;
+          takerTradeAmount = event.returnValues.filledMakerTokenAmount * results[key] / 100;
+          makerTradeAmount = event.returnValues.filledTakerTokenAmount * results[key] / 100;
+
+          // Order will be valid 1 hour.
+          let duration = 3600;
+
+          let order = {
+            // The default web3 account address
+            maker: '0xa4f0e5b6c0bbc0e9b26fd011f95e509e5334d2c4',
+            // Anyone may fill the order
+            taker: '0x0000000000000000000000000000000000000000',
+            makerTokenAddress: event.returnValues.takerToken.toLowerCase(),
+            takerTokenAddress: event.returnValues.makerToken.toLowerCase(),
+            makerTokenAmount: makerTradeAmount.toString(),
+            takerTokenAmount: takerTradeAmount.toString(),
+            // Add the duration (above) to the current time to get the unix
+            // timestamp
+            expirationUnixTimestampSec: parseInt(
+              (new Date().getTime() / 1000) + duration
+            ).toString(),
+            // We need a random salt to distinguish different orders made by
+            // the same user for the same quantities of the same tokens.
+            salt: ZeroEx.ZeroEx.generatePseudoRandomSalt().toString()
+          };
+
+          order.exchangeContractAddress = config.zxExchangeContractKovan.address;
+          let relayBaseURL = config.relayBaseURL;
+          let feeResponse = await
+          rp({
+            method: 'POST',
+            uri: relayBaseURL + '/v0/fees',
+            body: order,
+            json: true,
+          });
+
+          order.feeRecipient = feeResponse.feeRecipient;
+          order.makerFee = feeResponse.makerFee;
+          order.takerFee = feeResponse.takerFee;
+
+          let orderHash = ZeroEx.ZeroEx.getOrderHashHex(order);
+          let zeroEx = new ZeroEx.ZeroEx(provider, {networkId: 42});
+          order.ecSignature = await
+          zeroEx.signOrderHashAsync(orderHash, order.maker, false);
+
+          let orderPromise = await
+          rp({
+            method: 'POST',
+            uri: relayBaseURL + '/v0/order',
+            body: order,
+            json: true,
+          });
+          console.log(orderPromise, 'xxx');
+          console.dir(orderPromise, 'xxx');
+          console.log(orderHash, 'xxx');
+
+        });
+
+      }
+      else {
+        console.log(results, " null 2")
+      }
+    });
+
+
+  });
