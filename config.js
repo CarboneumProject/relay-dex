@@ -3,9 +3,18 @@ module.exports = {
     address: '0xd598AC2393Ea26a9b1AA391ba8c4b55F77C278D0',
     provider: 'wss://kovan.infura.io/_ws',
   },
-  zxExchangeContractKovan: {
-    address: '0x90fe2af704b34e0224bf2299c838e04d4dcf1364',
+  IExchangeContractKovan: {
+    sender: '0xa250a55a282af49809b7be653631f12603c3797b',
+    address: '0x87b63ceb66eeb507bcb307983e961bd82023fbfe',
     provider: 'wss://kovan.infura.io/_ws',
+  },
+  zxExchangeContractKovan: {
+    address: '0x35dD2932454449b14Cee11A94d3674a936d5d7b2',
+    provider: 'wss://kovan.infura.io/_ws',
+  },
+  zxExchangeContractRinkeby: {
+    address: '0x22ebc052f43a88efa06379426120718170f2204e',
+    provider: 'wss://rinkeby.infura.io/_ws',
   },
   mnemonic: process.env.MNEMONIC || '', //Your mnemonic
   relayBaseURL: 'https://api.kovan.radarrelay.com/0x',
