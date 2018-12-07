@@ -16,6 +16,10 @@ module.exports = {
     address: '0x22ebc052f43a88efa06379426120718170f2204e',
     provider: 'wss://rinkeby.infura.io/_ws',
   },
+  zxExchangeContractMainnet: {
+    address: '0x4f833a24e1f95d70f028921e27040ca56e09ab0b',
+    provider: 'wss://mainnet.infura.io/_ws',
+  },
   mnemonic: process.env.MNEMONIC || '', //Your mnemonic
-  relayBaseURL: 'https://api.kovan.radarrelay.com/0x',
+  relayBaseURL: 'https://api.kovan.radarrelay.com'
 };
