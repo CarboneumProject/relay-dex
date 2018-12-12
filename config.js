@@ -5,7 +5,7 @@ module.exports = {
   },
   IExchangeContractKovan: {
     sender: '0xa250a55a282af49809b7be653631f12603c3797b',
-    address: '0x87b63ceb66eeb507bcb307983e961bd82023fbfe',
+    address: '0xfa2de623035c7e068d4346857bb62ce98aa7b728',
     provider: 'wss://kovan.infura.io/_ws',
   },
   zxExchangeContractKovan: {

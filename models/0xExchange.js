@@ -20,13 +20,13 @@ async function sendOrder(){
     takerAddress: "0x0000000000000000000000000000000000000000",
     makerFee: new bigNumber.BigNumber("0"),
     takerFee: new bigNumber.BigNumber("0"),
-    makerAssetAmount: new bigNumber.BigNumber(100000000000000000),
+    makerAssetAmount: new bigNumber.BigNumber(90000000000000000),
     takerAssetAmount: new bigNumber.BigNumber(1000000000000000000),
     takerAssetData:'0xf47261b00000000000000000000000006ff6c0ff1d68b964901f986d4c9fa3ac68346570',
     makerAssetData:'0xf47261b0000000000000000000000000d0a1e359811322d97991e03f863a0c30c2cf029c',
     // salt: Date.now().toString(),
     salt: new bigNumber.BigNumber(Date.now().toString()),
-    exchangeAddress: config.IExchangeContractKovan.address.toLowerCase(),
+    exchangeAddress: "0xfa2de623035c7e068d4346857bb62ce98aa7b728",  //0x35dd2932454449b14cee11a94d3674a936d5d7b2 Kovan
     feeRecipientAddress: "0xa258b39954cef5cb142fd567a46cddb31a670124",
     expirationTimeSeconds: new bigNumber.BigNumber(parseInt(
       (new Date().getTime() / 1000) + duration
@@ -36,15 +36,11 @@ async function sendOrder(){
   let orderHashHex = ZeroEx.orderHashUtils.getOrderHashHex(order);
 
   const contractWrappers = new ZeroEx.ContractWrappers(provider, { networkId: 42});
-
-
-  console.log(orderHashHex, ' here2');
-  order.signature = await
+  let Signature = await
     ZeroEx.signatureUtils.ecSignHashAsync(provider, orderHashHex, config.IExchangeContractKovan.sender.toLowerCase());
-
-  await contractWrappers.exchange.validateOrderFillableOrThrowAsync(order);
-  console.log('eiei2');
-  let orderPromise = await
+  order.signature = ZeroEx.signatureUtils.convertToSignatureWithType(Signature, ZeroEx.SignatureType.EthSign);
+  console.log(await contractWrappers.exchange.validateOrderFillableOrThrowAsync(order));
+  await
     rp({
       method: 'POST',
       uri: config.relayBaseURL + '/v2/orders',
