@@ -4,8 +4,8 @@ module.exports = {
     provider: 'wss://kovan.infura.io/_ws',
   },
   IExchangeContractKovan: {
-    sender: '0xa250a55a282af49809b7be653631f12603c3797b',
-    address: '0xfa2de623035c7e068d4346857bb62ce98aa7b728',
+    sender: '0xa250a55a282af49809b7be653631f12603c3797b',//	0xa4f0e5b6c0bbc0e9b26fd011f95e509e5334d2c4
+    address: '0xa250a55a282af49809b7be653631f12603c3797b',// 0xa4f0e5b6c0bbc0e9b26fd011f95e509e5334d2c4
     provider: 'wss://kovan.infura.io/_ws',
   },
   zxExchangeContractKovan: {
@@ -21,5 +21,5 @@ module.exports = {
     provider: 'wss://mainnet.infura.io/_ws',
   },
   mnemonic: process.env.MNEMONIC || '', //Your mnemonic
-  relayBaseURL: 'https://api.kovan.radarrelay.com'
+  relayBaseURL: 'https://api.openrelay.xyz'
 };
