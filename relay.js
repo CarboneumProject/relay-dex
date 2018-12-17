@@ -1,17 +1,17 @@
 const Web3 = require('web3');
-const abi = require('./abi/contract/abi.json');
+const abi = require('./abi/socialtrading/SocialTrading.json');
 const config = require('./config');
-
+const Provider = config.getProvider();
 
 var redis = require("redis"), client = redis.createClient();
 
 const web3 = new Web3(
-  new Web3.providers.WebsocketProvider(config.contract.provider),
+  new Web3.providers.WebsocketProvider(Provider.ws_url),
 );
 
 const c8Contract = new web3.eth.Contract(
   abi,
-  config.contract.address,
+  Provider.socialtrading,
 );
 
 c8Contract.getPastEvents({

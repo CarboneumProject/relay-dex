@@ -1,4 +1,6 @@
 const config = require('../config');
+const Provider = config.getProvider();
+
 const ZeroEx = require('0x.js');
 const rp = require('request-promise');
 const bigNumber = require('bignumber.js');
@@ -16,7 +18,7 @@ async function sendOrder(){
   let duration = 3600;
   let order = {
     senderAddress: "0x0000000000000000000000000000000000000000",
-    makerAddress: config.IExchangeContractKovan.address.toLowerCase(),
+    makerAddress: Provider.IExchange.address.toLowerCase(),
     takerAddress: "0x0000000000000000000000000000000000000000",
     makerFee: new bigNumber.BigNumber("0"),
     takerFee: new bigNumber.BigNumber("0"),
@@ -43,7 +45,7 @@ async function sendOrder(){
   await
     rp({
       method: 'POST',
-      uri: config.relayBaseURL + '/v2/orders',
+      uri: Provider.radarrelay_url + '/v2/orders',
       body: order,
       json: true,
     });
