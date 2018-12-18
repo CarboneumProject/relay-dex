@@ -1,7 +1,7 @@
 const providers = {
   rinkeby: {
     ws_url: 'wss://rinkeby.infura.io/_ws',
-    socialtrading: '',
+    socialtrading: '0x02bc0cf6311bb8033cf2d8cef08af89c28bc9add',
     IExchange: '',
     zxExchange: '0x22ebc052f43a88efa06379426120718170f2204e',
     relayWallet: '0xd4a62064c58abe1d115f5a52f304df801d01dd61',

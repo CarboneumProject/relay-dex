@@ -15,23 +15,24 @@ const c8Contract = new web3.eth.Contract(
 );
 
 c8Contract.getPastEvents({
-  fromBlock:  8800000,
+  fromBlock:  3527027,  //block number when contract created.
   toBlock: 'latest'
 }, (error, eventResult) => {
   if (error) {
     console.log('Error in myEvent event handler: ' + error);
   }
-  console.log(eventResult);
-  eventResult.forEach(function (entry) {
-    if (entry.event === 'Follow' && entry.removed === false) {
-      let leader = entry.returnValues.leader;
-      let follower = entry.returnValues.follower;
-      let percentage = entry.returnValues.percentage;
-      console.log(leader, follower, percentage);
+  eventResult.forEach(function (event) {
+    if (event.event === 'Follow' && event.removed === false) {
+      let leader = event.returnValues.leader;
+      let follower = event.returnValues.follower;
+      let percentage = event.returnValues.percentage;
       client.hset('leader:'+leader, follower, percentage);
+    } else if (event.event === 'UnFollow' && event.removed === false) {
+      let leader = event.returnValues.leader;
+      let follower = event.returnValues.follower;
+      client.hdel('leader:' + leader, follower);
     }
   });
-
   let lastBlockNumber = '0';
   for (let i=0; i<eventResult.length; i++) {
     lastBlockNumber = (++eventResult[i].blockNumber).toString();
