@@ -23,6 +23,43 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "name": "_custodian",
@@ -34,8 +71,8 @@
     "type": "constructor"
   },
   {
-    "payable": false,
-    "stateMutability": "nonpayable",
+    "payable": true,
+    "stateMutability": "payable",
     "type": "fallback"
   },
   {
@@ -93,6 +130,49 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "previousOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipRenounced",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawByAdmin",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [],
     "name": "deposit",
@@ -103,11 +183,16 @@
   },
   {
     "constant": false,
-    "inputs": [],
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
     "name": "withdraw",
     "outputs": [],
-    "payable": true,
-    "stateMutability": "payable",
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
