@@ -15,4 +15,8 @@ erc20.check_allowance = async function check_allowance(_ERC20Contract, _owner, _
   return await _ERC20Contract.methods.allowance(_owner, _spender).call();
 };
 
+erc20.check_balance = async function check_balance(_ERC20Contract, _owner) {
+  return await _ERC20Contract.methods.balanceOf(_owner).call();
+};
+
 module.exports = erc20;

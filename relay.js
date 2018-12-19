@@ -23,13 +23,13 @@ c8Contract.getPastEvents({
   }
   eventResult.forEach(function (event) {
     if (event.event === 'Follow' && event.removed === false) {
-      let leader = event.returnValues.leader;
-      let follower = event.returnValues.follower;
+      let leader = event.returnValues.leader.toLowerCase();
+      let follower = event.returnValues.follower.toLowerCase();
       let percentage = event.returnValues.percentage;
       client.hset('leader:'+leader, follower, percentage);
     } else if (event.event === 'UnFollow' && event.removed === false) {
-      let leader = event.returnValues.leader;
-      let follower = event.returnValues.follower;
+      let leader = event.returnValues.leader.toLowerCase();
+      let follower = event.returnValues.follower.toLowerCase();
       client.hdel('leader:' + leader, follower);
     }
   });
@@ -48,8 +48,8 @@ const follow = c8Contract.events
     console.log('Successfully followed!', event);
 
     if (event.event === 'Follow' && event.removed === false) {
-      let leader = event.returnValues.leader;
-      let follower = event.returnValues.follower;
+      let leader = event.returnValues.leader.toLowerCase();
+      let follower = event.returnValues.follower.toLowerCase();
       let percentage = event.returnValues.percentage;
       console.log(leader, follower, percentage);
       client.hset('leader:'+leader, follower, percentage);
@@ -63,8 +63,8 @@ const unfollow = c8Contract.events
     if (error) return console.error(error, 'sad');
     console.log('Successfully unfollowed!', event);
     if (event.event === 'UnFollow' && event.removed === false) {
-      let leader = event.returnValues.leader;
-      let follower = event.returnValues.follower;
+      let leader = event.returnValues.leader.toLowerCase();
+      let follower = event.returnValues.follower.toLowerCase();
       client.hdel('leader:'+leader, follower);
     }
   })

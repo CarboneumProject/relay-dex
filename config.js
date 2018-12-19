@@ -19,7 +19,7 @@ const providers = {
     },
     zxExchange: '0x35dD2932454449b14Cee11A94d3674a936d5d7b2',
     relayWallet: '',
-    IDEX_exchange: '',
+    IDEX_exchange: '0x2a0c0dbecc7e4d658f48e01e3fa353f44050c208',
     radarrelay_url: 'https://api.kovan.radarrelay.com',
     openrelay_url: 'https://api.openrelay.xyz'
 
@@ -46,4 +46,5 @@ module.exports = {
   getProvider:getProvider,
   mnemonic: process.env.MNEMONIC || '', //Your mnemonic
   owner: '0xa250a55a282af49809b7be653631f12603c3797b',
+  idex_1: '0x2a0c0dbecc7e4d658f48e01e3fa353f44050c208',
 };
