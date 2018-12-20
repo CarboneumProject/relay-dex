@@ -1,5 +1,6 @@
 const idex = require("./models/idex");
 const erc20 = require("./models/erc20");
+const utils = require("./models/utils");
 const BN = require('bignumber.js');
 const MAX_ALLOWANCE = new BN(10).pow(55).toPrecision();
 const erc20_abi = require('./abi/ERC20/token.json');
@@ -8,18 +9,10 @@ const relayWallet_abi = require('./abi/relaywallet/RelayWalletIDEX.json');
 const config = require('./config');
 const custodian_address = config.owner;   //custodian
 const Provider = config.getProvider();
-const HDWalletProvider = require('truffle-hdwallet-provider');
-const providerWithMnemonic = (mnemonic, rpcEndpoint) =>
-  new HDWalletProvider(mnemonic, rpcEndpoint);
-const infuraProvider = network => providerWithMnemonic(
-  process.env.MNEMONIC || config.mnemonic,
-  `https://${network}.infura.io/${process.env.INFURA_API_KEY}`,
-);
-const provider = infuraProvider('rinkeby');
 
 const Web3 = require('web3');
 const web3 = new Web3(
-  provider,
+  utils.provider,
 );
 
 const web3_readonly = new Web3(

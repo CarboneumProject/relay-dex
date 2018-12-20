@@ -40,7 +40,7 @@ idex.send_order = async function send_order(_provider, _tokenBuy, _tokenSell, _a
   let tokenSell = _tokenSell;
   let amountSell = _amountSell;
   let expires = 0;
-  let nonce = new Date().getMilliseconds();
+  let nonce = new Date().getTime() * 2000;
   let address = config.owner;
   let privateKeyBuffer = _provider.wallets[config.owner]['_privKey'];
 
@@ -95,6 +95,29 @@ idex.send_order = async function send_order(_provider, _tokenBuy, _tokenSell, _a
     }
   }, function (err, resp, body) {
     console.log(body);
+    if (body.hasOwnProperty('error')) {
+      console.log('error' + body);
+    } else {
+
+      // { orderNumber: 273185968,
+      //   orderHash: '0xc05a9e4178a5c3731b2683b1fb879459ffdb2e28357177834c128879a9eeb996',
+      //   timestamp: 1545298940,
+      //   price: '0.0162',
+      //   amount: '10',
+      //   total: '0.162',
+      //   type: 'sell',
+      //   params:
+      //   { tokenBuy: '0x0000000000000000000000000000000000000000',
+      //     buyPrecision: 18,
+      //     amountBuy: '162000000000000000',
+      //     tokenSell: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
+      //     sellPrecision: 18,
+      //     amountSell: '10000000000000000000',
+      //     nonce: 2000000000010101,
+      //     user: '0xa250a55a282af49809b7be653631f12603c3797b' } }
+
+      console.log(body)
+    }
   })
 };
 
