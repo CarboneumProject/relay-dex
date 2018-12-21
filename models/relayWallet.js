@@ -2,7 +2,7 @@ const relayWallet = {};
 
 
 relayWallet.wallet_balance = async function wallet_balance(_relayWalletContract, _token, _user) {
-  return await _relayWalletContract.methods.balanceOf(_token, _user).call();
+  return await _relayWalletContract.methods.availableBalanceOf(_token, _user).call();
 };
 
 relayWallet.adjust_balance = async function adjust_balance(

@@ -4,7 +4,7 @@ const providers = {
     socialtrading: '0x02bc0cf6311bb8033cf2d8cef08af89c28bc9add',
     IExchange: '',
     zxExchange: '0x22ebc052f43a88efa06379426120718170f2204e',
-    relayWallet: '0x45d562ddbd0639293a6b1d731e8fcd6392673200',
+    relayWallet: '0xb45b4702187894a605893a260aab1103b3784a70',
     IDEX_exchange: '0x2e404de9faebc4b94d7e21366bdf96534cd76585',
     radarrelay_url: '',
     openrelay_url: ''

@@ -46,6 +46,29 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      },
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "locked",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -133,6 +156,65 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "tokenBuy",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "tokenSell",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amountBuy",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "amountSell",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "balanceBuy",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "balanceSell",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "transactionHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "Trade",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "AdminWithdraw",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "name": "previousOwner",
         "type": "address"
@@ -174,11 +256,90 @@
   },
   {
     "constant": false,
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "tokenSell",
+        "type": "address"
+      },
+      {
+        "name": "amountSell",
+        "type": "uint256"
+      }
+    ],
+    "name": "lockBalance",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "tokenSell",
+        "type": "address"
+      }
+    ],
+    "name": "islocked",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
     "inputs": [],
     "name": "deposit",
     "outputs": [],
     "payable": true,
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "tokenBuy",
+        "type": "address"
+      },
+      {
+        "name": "tokenSell",
+        "type": "address"
+      },
+      {
+        "name": "amountBuy",
+        "type": "uint256"
+      },
+      {
+        "name": "amountSell",
+        "type": "uint256"
+      },
+      {
+        "name": "transactionHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "adjustBalance",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -244,6 +405,29 @@
       }
     ],
     "name": "balanceOf",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "availableBalanceOf",
     "outputs": [
       {
         "name": "",
