@@ -1,5 +1,7 @@
 const idex = {};
 const config = require('../config');
+const custodian_address = config.custodian;   //custodian
+
 const Web3 = require('web3');
 const { soliditySha3 } = require('web3-utils');
 const {
@@ -10,9 +12,48 @@ const {
 } = require('ethereumjs-util');
 
 const { mapValues } = require('lodash');
+const request = require('request');
+
+var redis = require("redis"), client = redis.createClient();
+const relayWallet = require("./models/relayWallet");
 
 idex.IDEX_balance = async function IDEX_balance(_IDEXContract, _token, _user) {
   return await _IDEXContract.methods.balanceOf(_token, _user).call();
+};
+
+idex.is_order_matched = async function is_order_matched(_IDEXContract, _orderHash) {  //_orderHash: bytes32 (66 chars)['0x+64']
+  return await _IDEXContract.methods.orderFills(_orderHash).call();
+};
+
+idex.target_orderHash = async function target_orderHash(_relayWalletContract, txHash){
+  request({
+    method: 'POST',
+    url: 'https://api.idex.market/returnTradeHistory',
+    json: {
+      address: custodian_address
+    }
+  }, async function (err, resp, body) {
+    for (let key in body){
+      for (let i = 0; i < body[key].length; i++) {
+        if(body[key][i].transactionHash === txHash){
+          let orderHash = await body[key][i].orderHash;
+
+          client.get(orderHash, async function (err, reservedData) {
+            if (reservedData !== null) {
+              let data = reservedData.split(",");
+              let user = data[0];
+              let tokenBuy = data[1];
+              let tokenSell = data[2];
+              let amountBuy = data[3];
+              let amountSell = data[4];
+
+              await relayWallet.adjust_balance(_relayWalletContract, user, tokenBuy, tokenSell, amountBuy, amountSell);
+            }
+          });
+        }
+      }
+    }
+  });
 };
 
 idex.deposit_eth_idex = async function deposit_eth(_IDEXContract, _ether) {
@@ -33,12 +74,13 @@ idex.deposit_token_idex = async function deposit_token(_IDEXContract, _token, _a
   });
 };
 
-idex.send_order = async function send_order(_provider, _tokenBuy, _tokenSell, _amountBuy, _amountSell) {
+idex.send_order = async function send_order(_provider, _relayWalletContract, _tokenBuy, _tokenSell, _amountBuy, _amountSell, _follower) {
   let contractAddress = config.idex_1;
   let tokenBuy = _tokenBuy;
   let amountBuy = _amountBuy;
   let tokenSell = _tokenSell;
   let amountSell = _amountSell;
+  let follower = _follower;
   let expires = 0;
   let nonce = new Date().getTime() * 2000;
   let address = config.owner;
@@ -93,30 +135,13 @@ idex.send_order = async function send_order(_provider, _tokenBuy, _tokenSell, _a
       r: r,
       s: s
     }
-  }, function (err, resp, body) {
+  }, async function (err, resp, body) {
     console.log(body);
     if (body.hasOwnProperty('error')) {
       console.log('error' + body);
     } else {
-      //TODO updated lock balance
-      // { orderNumber: 273185968,
-      //   orderHash: '0xc05a9e4178a5c3731b2683b1fb879459ffdb2e28357177834c128879a9eeb996',
-      //   timestamp: 1545298940,
-      //   price: '0.0162',
-      //   amount: '10',
-      //   total: '0.162',
-      //   type: 'sell',
-      //   params:
-      //   { tokenBuy: '0x0000000000000000000000000000000000000000',
-      //     buyPrecision: 18,
-      //     amountBuy: '162000000000000000',
-      //     tokenSell: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
-      //     sellPrecision: 18,
-      //     amountSell: '10000000000000000000',
-      //     nonce: 2000000000010101,
-      //     user: '0xa250a55a282af49809b7be653631f12603c3797b' } }
-
-      console.log(body)
+      client.set(body.orderHash, follower + ',' + tokenBuy + ',' + tokenSell + ',' + amountBuy + ',' + amountSell);
+      await relayWallet.lock_balance(_relayWalletContract, follower, tokenSell, amountSell);
     }
   })
 };

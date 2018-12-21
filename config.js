@@ -30,7 +30,7 @@ const providers = {
     IExchange: '',
     zxExchange: '0x4f833a24e1f95d70f028921e27040ca56e09ab0b',
     relayWallet: '',
-    IDEX_exchange: '',
+    IDEX_exchange: '0x2a0c0dbecc7e4d658f48e01e3fa353f44050c208',
     radarrelay_url: 'https://api.radarrelay.com',
     openrelay_url: 'https://api.openrelay.xyz'
   },
@@ -38,7 +38,7 @@ const providers = {
 
 
 function getProvider(network){
-  return providers[process.env.NETWORK || network || 'rinkeby']
+  return providers[process.env.NETWORK || network || 'mainnet']
 }
 
 

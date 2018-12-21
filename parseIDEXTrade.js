@@ -87,7 +87,7 @@ async function watchIDEXTransfers(blockNumber) {
                   let txHash = trx.hash;
                   let amountNetSell = amountSell;
                   if (maker === custodian_address || taker === custodian_address) {
-                    //TODO updated unlock balance
+                    await idex.target_orderHash(relayWalletContract, txHash);
                   }
                   else {
                     if (amountBuy !== amountNetBuy) {
@@ -100,7 +100,7 @@ async function watchIDEXTransfers(blockNumber) {
                           await Object.keys(follow_dict).forEach(async function (follower) {
                             let volAbleTrade = await relayWallet.wallet_balance(relayWalletContract, tokenSell, follower);
                             if (volAbleTrade >= parseInt(amountNetSell)) {
-                              await idex.send_order(utils.provider, tokenBuy, tokenSell, amountNetBuy, amountNetSell);
+                              await idex.send_order(utils.provider, relayWalletContract, tokenBuy, tokenSell, amountNetBuy, amountNetSell, follower);
                             }
                           });
                         }
@@ -111,7 +111,7 @@ async function watchIDEXTransfers(blockNumber) {
                           await Object.keys(follow_dict).forEach(async function (follower) {
                             let volAbleTrade = await relayWallet.wallet_balance(relayWalletContract, tokenBuy, follower);
                             if (volAbleTrade >= parseInt(amountNetBuy)) {
-                              await idex.send_order(utils.provider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
+                              await idex.send_order(utils.provider, relayWalletContract, tokenSell, tokenBuy, amountNetSell, amountNetBuy, follower);
                             }
                           });
                         }
@@ -123,7 +123,7 @@ async function watchIDEXTransfers(blockNumber) {
                           await Object.keys(follow_dict).forEach(async function (follower) {
                             let volAbleTrade = await relayWallet.wallet_balance(relayWalletContract, tokenSell, follower);
                             if (volAbleTrade >= parseInt(amountNetSell)) {
-                              await idex.send_order(utils.provider, tokenBuy, tokenSell, amountNetBuy, amountNetSell);
+                              await idex.send_order(utils.provider, relayWalletContract, tokenBuy, tokenSell, amountNetBuy, amountNetSell, follower);
                             }
                           });
                         }
@@ -134,7 +134,7 @@ async function watchIDEXTransfers(blockNumber) {
                           await Object.keys(follow_dict).forEach(async function (follower) {
                             let volAbleTrade = await relayWallet.wallet_balance(relayWalletContract, tokenBuy, follower);
                             if (volAbleTrade >= parseInt(amountNetBuy)) {
-                              await idex.send_order(utils.provider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
+                              await idex.send_order(utils.provider, relayWalletContract, tokenSell, tokenBuy, amountNetSell, amountNetBuy, follower);
                             }
                           });
                         }
