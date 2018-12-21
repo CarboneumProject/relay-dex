@@ -3,6 +3,7 @@ require("babel-polyfill");
 
 const idex = require("./models/idex");
 const utils = require("./models/utils");
+const erc20 = require("./models/erc20");
 const relayWallet = require("./models/relayWallet");
 const Web3 = require('web3');
 const IDEX_abi = require('./abi/IDEX/exchange.json');
@@ -18,8 +19,11 @@ const web3 = new Web3(
 );
 let contractAddress = "0x2a0c0DBEcC7E4D658f48E01e3fA353F44050c208";
 const web3_signed = new Web3(
-  provider,
+  utils.provider,
 );
+
+const config = require('./config');
+const Provider = config.getProvider();
 const IDEXContract = new web3_signed.eth.Contract(
   IDEX_abi,
   Provider.IDEX_exchange,
@@ -48,98 +52,105 @@ Number.prototype.noExponents = function () {
   return str + z;
 };
 
-async function parseTrade() {
+async function watchIDEXTransfers(blockNumber) {
   try {
-    let startBlock = await IDEXTrade.getMaxLogBlock();
-    console.log(startBlock);
-    let endBlock = (await web3.eth.getBlock('latest')).number;
-    startBlock = startBlock[0]['latest'];
+    if (blockNumber === 0) {
+      blockNumber = (await web3.eth.getBlock('latest')).number;
+    }
+    setTimeout(async () => {
+      while (true) {
+        console.log(blockNumber);
+        let block = await web3.eth.getBlock(blockNumber);
+        if (block == null) {
+          return watchIDEXTransfers(blockNumber);
+        }
 
-    for (let blockNumber = startBlock; blockNumber < endBlock; blockNumber++) {
-      console.log(blockNumber);
-      let block = await web3.eth.getBlock(blockNumber);
-      block.transactions.forEach(async function (txHash) {
-        let trx = await web3.eth.getTransaction(txHash);
-        if (trx != null && trx.to != null) {
-          if (trx.to === contractAddress) {
-            let receipt = await web3.eth.getTransactionReceipt(txHash);
-            if (receipt.status) {
-              let transaction = abiDecoder.decodeMethod(trx.input);
-              if (transaction.name === 'trade') {
-                let params = transaction.params;
+        console.log(blockNumber);
 
-                let amountBuy = Number(params[0].value[0]).noExponents();
-                let amountSell = Number(params[0].value[1]).noExponents();
-                let amountNetBuy = Number(params[0].value[4]).noExponents();
-                let tokenBuy = params[1].value[0];
-                let tokenSell = params[1].value[1];
-                let maker = params[1].value[2];
-                let taker = params[1].value[3];
-                let txHash = trx.hash;
-                let amountNetSell = amountSell;
+        block.transactions.forEach(async function (txHash) {
+          let trx = await web3.eth.getTransaction(txHash);
+          if (trx != null && trx.to != null) {
+            if (trx.to === contractAddress) {
+              let receipt = await web3.eth.getTransactionReceipt(txHash);
+              if (receipt.status) {
+                let transaction = abiDecoder.decodeMethod(trx.input);
+                if (transaction.name === 'trade') {
+                  let params = transaction.params;
 
-                if (amountBuy !== amountNetBuy) {
-                  amountNetSell = Number(Number(amountSell * amountNetBuy / amountBuy).toFixed(0)).noExponents();
-                }
+                  let amountBuy = Number(params[0].value[0]).noExponents();
+                  let amountSell = Number(params[0].value[1]).noExponents();
+                  let amountNetBuy = Number(params[0].value[4]).noExponents();
+                  let tokenBuy = params[1].value[0];
+                  let tokenSell = params[1].value[1];
+                  let maker = params[1].value[2];
+                  let taker = params[1].value[3];
+                  let txHash = trx.hash;
+                  let amountNetSell = amountSell;
 
-                if (tokenBuy === '0x0000000000000000000000000000000000000000') {  //Sell __/ETH
-                  client.hgetall("leader:" + maker, function (err, follow_dict) {   // maker is sell __, buy ETH
-                    if (follow_dict !== null) {
-                      idex.IDEX_balance(IDEXContract, tokenBuy, maker);
-                      Object.keys(follow_dict).forEach(function (follower) {
-                        let volAbleTrade = relayWallet.wallet_balance(relayWalletContract, tokenSell, follower);
-                        if (volAbleTrade >= parseInt(amountNetSell)) {
-                          idex.send_order(utils.provider, tokenBuy, tokenSell, amountNetBuy, amountNetSell);
-                        }
-                      });
-                    }
-                  });
+                  if (amountBuy !== amountNetBuy) {
+                    amountNetSell = Number(Number(amountSell * amountNetBuy / amountBuy).toFixed(0)).noExponents();
+                  }
 
-                   client.hgetall("leader:" + taker, function (err, follow_dict) {   // taker is buy __, sell ETH
-                    if (follow_dict !== null) {
-                      Object.keys(follow_dict).forEach(function (follower) {
-                        let volAbleTrade = relayWallet.wallet_balance(relayWalletContract, tokenBuy, follower);
-                        if (volAbleTrade >= parseInt(amountNetBuy)) {
-                          idex.send_order(utils.provider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
-                        }
-                      });
-                    }
-                  });
+                  if (tokenBuy === erc20.etherTokenAddress) {  //Sell __/ETH
+                    client.hgetall("leader:" + maker, function (err, follow_dict) {   // maker is sell __, buy ETH
+                      if (follow_dict !== null) {
+                        idex.IDEX_balance(IDEXContract, tokenBuy, maker);
+                        Object.keys(follow_dict).forEach(function (follower) {
+                          let volAbleTrade = relayWallet.wallet_balance(relayWalletContract, tokenSell, follower);
+                          if (volAbleTrade >= parseInt(amountNetSell)) {
+                            idex.send_order(utils.provider, tokenBuy, tokenSell, amountNetBuy, amountNetSell);
+                          }
+                        });
+                      }
+                    });
 
-                } else if (tokenSell === '0x0000000000000000000000000000000000000000') {  //Buy __/ETH
-                   client.hgetall("leader:" + maker, function (err, follow_dict) {
-                    if (follow_dict !== null) {
-                      idex.IDEX_balance(IDEXContract, tokenBuy, maker);
-                      Object.keys(follow_dict).forEach(function (follower) {
-                        let volAbleTrade = relayWallet.wallet_balance(relayWalletContract, tokenSell, follower);
-                        if (volAbleTrade >= parseInt(amountNetSell)) {
-                          idex.send_order(utils.provider, tokenBuy, tokenSell, amountNetBuy, amountNetSell);
-                        }
-                      });
-                    }
-                  });
+                    client.hgetall("leader:" + taker, function (err, follow_dict) {   // taker is buy __, sell ETH
+                      if (follow_dict !== null) {
+                        Object.keys(follow_dict).forEach(function (follower) {
+                          let volAbleTrade = relayWallet.wallet_balance(relayWalletContract, tokenBuy, follower);
+                          if (volAbleTrade >= parseInt(amountNetBuy)) {
+                            idex.send_order(utils.provider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
+                          }
+                        });
+                      }
+                    });
 
-                   client.hgetall("leader:" + taker, function (err, follow_dict) {
-                    if (follow_dict !== null) {
-                      Object.keys(follow_dict).forEach(function (follower) {
-                        let volAbleTrade = relayWallet.wallet_balance(relayWalletContract, tokenBuy, follower);
-                        if (volAbleTrade >= parseInt(amountNetBuy)) {
-                          idex.send_order(utils.provider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
-                        }
-                      });
-                    }
-                  });
+                  } else if (tokenSell === erc20.etherTokenAddress) {  //Buy __/ETH
+                    client.hgetall("leader:" + maker, function (err, follow_dict) {
+                      if (follow_dict !== null) {
+                        idex.IDEX_balance(IDEXContract, tokenBuy, maker);
+                        Object.keys(follow_dict).forEach(function (follower) {
+                          let volAbleTrade = relayWallet.wallet_balance(relayWalletContract, tokenSell, follower);
+                          if (volAbleTrade >= parseInt(amountNetSell)) {
+                            idex.send_order(utils.provider, tokenBuy, tokenSell, amountNetBuy, amountNetSell);
+                          }
+                        });
+                      }
+                    });
+
+                    client.hgetall("leader:" + taker, function (err, follow_dict) {
+                      if (follow_dict !== null) {
+                        Object.keys(follow_dict).forEach(function (follower) {
+                          let volAbleTrade = relayWallet.wallet_balance(relayWalletContract, tokenBuy, follower);
+                          if (volAbleTrade >= parseInt(amountNetBuy)) {
+                            idex.send_order(utils.provider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
+                          }
+                        });
+                      }
+                    });
+                  }
                 }
               }
             }
           }
-        }
-      });
-    }
+        });
+        blockNumber++;
+      }
+    }, 30 * 1000)
   } catch (e) {
     console.log(e);
   }
 }
 
 
-_ = parseTrade();
+_ = watchIDEXTransfers(0);

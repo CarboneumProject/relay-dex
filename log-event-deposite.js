@@ -67,7 +67,7 @@ relayWalletContract.events
     let amount = event.returnValues.amount;
     let token = event.returnValues.token;
     // let address = event.returnValues.user;
-    if (token === '0x0000000000000000000000000000000000000000') {
+    if (token === erc20.etherTokenAddress) {
       await IDEXContract.methods.deposit().send({
         from: config.owner,
         value: amount,

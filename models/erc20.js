@@ -19,4 +19,6 @@ erc20.check_balance = async function check_balance(_ERC20Contract, _owner) {
   return await _ERC20Contract.methods.balanceOf(_owner).call();
 };
 
+erc20.etherTokenAddress = '0x0000000000000000000000000000000000000000';
+
 module.exports = erc20;
