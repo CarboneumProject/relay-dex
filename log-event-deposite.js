@@ -7,7 +7,7 @@ const erc20_abi = require('./abi/ERC20/token.json');
 const IDEX_abi = require('./abi/IDEX/exchange.json');
 const relayWallet_abi = require('./abi/relaywallet/RelayWalletIDEX.json');
 const config = require('./config');
-const custodian_address = config.owner;   //custodian
+const custodian_address = config.custodian;   //custodian
 const Provider = config.getProvider();
 
 const Web3 = require('web3');

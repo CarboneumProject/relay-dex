@@ -98,7 +98,7 @@ idex.send_order = async function send_order(_provider, _tokenBuy, _tokenSell, _a
     if (body.hasOwnProperty('error')) {
       console.log('error' + body);
     } else {
-
+      //TODO updated lock balance
       // { orderNumber: 273185968,
       //   orderHash: '0xc05a9e4178a5c3731b2683b1fb879459ffdb2e28357177834c128879a9eeb996',
       //   timestamp: 1545298940,

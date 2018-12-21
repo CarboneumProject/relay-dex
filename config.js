@@ -46,5 +46,6 @@ module.exports = {
   getProvider:getProvider,
   mnemonic: process.env.MNEMONIC || '', //Your mnemonic
   owner: '0xa250a55a282af49809b7be653631f12603c3797b',
+  custodian: '0xa250a55a282af49809b7be653631f12603c3797b',
   idex_1: '0x2a0c0dbecc7e4d658f48e01e3fa353f44050c208',
 };
