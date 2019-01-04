@@ -2,7 +2,7 @@ const erc20 = {};
 const config = require('../config');
 const Web3 = require('web3');
 
-erc20.approved = async function approved(_ERC20Contract, _spender, _value) {
+erc20.approve = async function approve(_ERC20Contract, _spender, _value) {
   return await _ERC20Contract.methods.approve(_spender, _value).send({
     from: config.owner,
     value: 0,
@@ -11,11 +11,11 @@ erc20.approved = async function approved(_ERC20Contract, _spender, _value) {
   });
 };
 
-erc20.check_allowance = async function check_allowance(_ERC20Contract, _owner, _spender) {
+erc20.allowance = async function allowance(_ERC20Contract, _owner, _spender) {
   return await _ERC20Contract.methods.allowance(_owner, _spender).call();
 };
 
-erc20.check_balance = async function check_balance(_ERC20Contract, _owner) {
+erc20.balance = async function balance(_ERC20Contract, _owner) {
   return await _ERC20Contract.methods.balanceOf(_owner).call();
 };
 

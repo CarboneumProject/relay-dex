@@ -1,5 +1,6 @@
-const providers = {
+const networks = {
   rinkeby: {
+    name : 'rinkeby',
     ws_url: 'wss://rinkeby.infura.io/_ws',
     socialtrading: '0x02bc0cf6311bb8033cf2d8cef08af89c28bc9add',
     IExchange: '',
@@ -11,6 +12,7 @@ const providers = {
   },
 
   kovan: {
+    name : 'kovan',
     ws_url: 'wss://kovan.infura.io/_ws',
     socialtrading: '0xd598AC2393Ea26a9b1AA391ba8c4b55F77C278D0',
     IExchange: {
@@ -24,7 +26,9 @@ const providers = {
     openrelay_url: 'https://api.openrelay.xyz'
 
   },
+
   mainnet: {
+    name : 'mainnet',
     ws_url: 'wss://mainnet.infura.io/_ws',
     socialtrading: '',
     IExchange: '',
@@ -37,15 +41,12 @@ const providers = {
 };
 
 
-function getProvider(network){
-  return providers[process.env.NETWORK || network || 'mainnet']
+function getNetwork(network){
+  return networks[process.env.NETWORK || network || 'mainnet'];
 }
 
 
 module.exports = {
-  getProvider:getProvider,
-  mnemonic: process.env.MNEMONIC || '', //Your mnemonic
-  owner: '0xa250a55a282af49809b7be653631f12603c3797b',
-  custodian: '0xa250a55a282af49809b7be653631f12603c3797b',
-  idex_1: '0x2a0c0dbecc7e4d658f48e01e3fa353f44050c208',
+  getNetwork:getNetwork,
+  mnemonic: process.env.MNEMONIC || 'spend magic guild rug employ upgrade disorder sight leopard mean truck few', //Your mnemonic
 };

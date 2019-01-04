@@ -8,7 +8,7 @@ const infuraProvider = network => providerWithMnemonic(
   process.env.MNEMONIC || config.mnemonic,
   `https://${network}.infura.io/${process.env.INFURA_API_KEY}`,
 );
-const provider = infuraProvider('mainnet');
+const provider = infuraProvider(config.getNetwork().name);
 
 utils.provider = provider;
 

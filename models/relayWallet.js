@@ -1,41 +1,27 @@
 const relayWallet = {};
+const config = require('../config');
+const network = config.getNetwork();
 
-
-relayWallet.wallet_balance = async function wallet_balance(_relayWalletContract, _token, _user) {
-  return await _relayWalletContract.methods.availableBalanceOf(_token, _user).call();
+String.prototype.hashCode = function () {
+  let hash = 0, i, chr;
+  if (this.length === 0) return hash;
+  for (i = 0; i < this.length; i++) {
+    chr = this.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
 };
 
-relayWallet.lock_balance = async function lock_balance(_relayWalletContract, _user, _token, _amount) {
-  return await _relayWalletContract.methods.lockBalance(_user, _token, _amount).send({
-    from: config.owner,
-    value: 0,
-    gasLimit: 42000,
-    gasPrice: Web3.utils.toWei('2', 'gwei')
-  });
-};
+relayWallet.getUserWalletProvider = function getUserWalletProvider(userAddress) {
+  let accountIndex = Math.abs(userAddress.toLowerCase().hashCode()); // use absolute to fit HD wallet limit 0x80000000
 
-relayWallet.adjust_balance = async function adjust_balance(
-  _relayWalletContract,
-  _user,
-  _tokenBuy,
-  _tokenSell,
-  _amountBuy,
-  _amountSell
-) {
-  return await _relayWalletContract.methods.adjustBalance(
-    _token,
-    _user,
-    _tokenBuy,
-    _tokenSell,
-    _amountBuy,
-    _amountSell
-  ).send({
-    from: config.owner,
-    value: 0,
-    gasLimit: 42000,
-    gasPrice: Web3.utils.toWei('2', 'gwei')
-  });
+  return new HDWalletProvider(
+    process.env.MNEMONIC || config.mnemonic,
+    `https://${network.name}.infura.io/${process.env.INFURA_API_KEY}`,
+    accountIndex,
+    1
+  );
 };
-
 
 module.exports = relayWallet;
