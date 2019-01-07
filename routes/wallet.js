@@ -4,11 +4,11 @@ const router = express.Router();
 
 router.post('/register', async (req, res, next) => {
   try {
-    const walletAddress = req.query['wallet_address'];
-    const signature = req.query['signature'];
+    const walletAddress = req.body.walletAddress;
+    const signature = req.body.signature;
     // TODO check signature.
     const linkedWallet = relayWallet.getUserWalletProvider(walletAddress).addresses[0];
-    return res.send({'address': walletAddress, 'linkedAddress': linkedWallet});
+    return res.send({'walletAddress': walletAddress, 'linkedAddress': linkedWallet});
   } catch (e) {
     console.error(e);
     return next(e);
@@ -17,10 +17,11 @@ router.post('/register', async (req, res, next) => {
 
 router.post('/withdraw', async (req, res, next) => {
   try {
-    const walletAddress = req.query['wallet_address'];
-    const tokenAddress = req.query['token'];
-    const amount = req.query['amount'];
-    const signature = req.query['signature'];
+    const walletAddress =  req.body.walletAddress;
+    const tokenAddress = req.body.tokenAddress;
+    const amount = req.body.amount;
+    const nonce = req.body.nonce;
+    const signature = req.body.signature;
     // TODO check signature.
     const provider = relayWallet.getUserWalletProvider(walletAddress);
     // TODO Withdraw from IDEX
