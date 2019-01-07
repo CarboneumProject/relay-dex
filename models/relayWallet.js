@@ -1,6 +1,8 @@
-const relayWallet = {};
+const HDWalletProvider = require('truffle-hdwallet-provider');
 const config = require('../config');
 const network = config.getNetwork();
+
+const relayWallet = {};
 
 String.prototype.hashCode = function () {
   let hash = 0, i, chr;
