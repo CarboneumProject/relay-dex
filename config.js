@@ -48,5 +48,5 @@ function getNetwork(network){
 
 module.exports = {
   getNetwork:getNetwork,
-  mnemonic: process.env.MNEMONIC || 'spend magic guild rug employ upgrade disorder sight leopard mean truck few', //Your mnemonic
+  mnemonic: process.env.MNEMONIC || '', //Your mnemonic
 };
