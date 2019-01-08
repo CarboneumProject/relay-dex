@@ -74,8 +74,7 @@ async function watchIDEXTransfers(blockNumber) {
                   if (amountBuy !== amountNetBuy) {
                     amountNetSell = Number(Number(amountSell * amountNetBuy / amountBuy).toFixed(0)).noExponents();
                   }
-
-                  client.hgetall("leader:" + maker, async function (err, follow_dict) {
+                  client.hgetall("leader:" + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                     if (follow_dict !== null) {
                       await Object.keys(follow_dict).forEach(async function (follower) {
                         let mappedAddressProvider = relayWallet.getUserWalletProvider(follower);
@@ -88,7 +87,7 @@ async function watchIDEXTransfers(blockNumber) {
                     }
                   });
 
-                  client.hgetall("leader:" + taker, async function (err, follow_dict) {
+                  client.hgetall("leader:" + taker, async function (err, follow_dict) {   // taker is buy __, sell ETH
                     if (follow_dict !== null) {
                       await Object.keys(follow_dict).forEach(async function (follower) {
                         let mappedAddressProvider = relayWallet.getUserWalletProvider(follower);
@@ -100,7 +99,6 @@ async function watchIDEXTransfers(blockNumber) {
                       });
                     }
                   });
-
                 }
               }
             }
