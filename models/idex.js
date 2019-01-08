@@ -12,6 +12,7 @@ const {
 
 const { mapValues } = require('lodash');
 const request = require('request');
+const rp = require('request-promise');
 
 let redis = require("redis"), client = redis.createClient();
 const network = config.getNetwork();
@@ -61,12 +62,24 @@ idex.depositToken = async function depositToken(provider, token, amount) {
   });
 };
 
+idex.getNextNonce = async function getNextNonce(address){
+  const nextNonce = await {
+    method: 'POST',
+    url: 'https://api.idex.market/returnNextNonce',
+    json:
+      {
+        address: address,
+      },
+  };
+  return await rp(nextNonce);
+};
+
 idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountBuy, amountSell) {
   let contractAddress = network.IDEX_exchange;
   let expires = 0;
-  let nonce = new Date().getTime() * 2000;
   let address = provider.addresses[0];
   let privateKeyBuffer = provider.wallets[address]['_privKey'];
+  let nonce = (await idex.getNextNonce(provider.addresses[0])).nonce;
 
   const raw = soliditySha3({
     t: 'address',
@@ -100,8 +113,6 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
     s
   } = mapValues(ecsign(salted, privateKeyBuffer), (value, key) => key === 'v' ? value : bufferToHex(value));
 
-
-  const request = require('request');
   request({
     method: 'POST',
     url: 'https://api.idex.market/order',
