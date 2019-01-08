@@ -95,7 +95,7 @@ async function watchIDEXTransfers(blockNumber) {
                         let followerWallet = mappedAddressProvider.addresses[0];
                         let volAbleTrade = await idex.balance(tokenBuy, followerWallet);
                         if (volAbleTrade >= parseInt(amountNetBuy)) {
-                          await idex.sendOrder(utils.provider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
+                          await idex.sendOrder(mappedAddressProvider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
                         }
                       });
                     }
