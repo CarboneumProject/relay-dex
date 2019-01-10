@@ -146,4 +146,60 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
   })
 };
 
+idex.withdraw = async function withdraw(provider, token, amount) {
+  let contractAddress = network.IDEX_exchange;
+  let address = provider.addresses[0];
+  let privateKeyBuffer = provider.wallets[address]['_privKey'];
+  let nonce = (await idex.getNextNonce(provider.addresses[0])).nonce;
+
+  const raw = soliditySha3({
+    t: 'address',
+    v: contractAddress
+  }, {
+    t: 'address',
+    v: token
+  }, {
+    t: 'uint256',
+    v: amount
+  }, {
+    t: 'address',
+    v: address
+  }, {
+    t: 'uint256',
+    v: nonce
+  });
+  const salted = hashPersonalMessage(toBuffer(raw));
+  const {
+    v,
+    r,
+    s
+  } = mapValues(ecsign(salted, privateKeyBuffer), (value, key) => key === 'v' ? value : bufferToHex(value));
+
+  request({
+    method: 'POST',
+    url: 'https://api.idex.market/withdraw',
+    json: {
+      address: address,
+      amount: amount,
+      token: token,
+      nonce: nonce,
+      v: v,
+      r: r,
+      s: s
+    }
+  }, async function (err, resp, body) {
+    console.log(body);
+    if (body.hasOwnProperty('error')) {
+      console.log('error' + body);
+    } else {
+      console.log('Success withdraw ', {
+        token: token,
+        amount: amount,
+        address: address,
+        nonce: nonce
+      })
+    }
+  })
+};
+
 module.exports = idex;
