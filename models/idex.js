@@ -13,6 +13,8 @@ const {
 const { mapValues } = require('lodash');
 const request = require('request');
 const rp = require('request-promise');
+const WebSocket = require('ws');
+const ws = new WebSocket('wss://v1.idex.market');
 
 let redis = require("redis"), client = redis.createClient();
 const network = config.getNetwork();
@@ -175,31 +177,53 @@ idex.withdraw = async function withdraw(provider, token, amount) {
     s
   } = mapValues(ecsign(salted, privateKeyBuffer), (value, key) => key === 'v' ? value : bufferToHex(value));
 
-  request({
-    method: 'POST',
-    url: 'https://api.idex.market/withdraw',
-    json: {
-      address: address,
-      amount: amount,
-      token: token,
-      nonce: nonce,
-      v: v,
-      r: r,
-      s: s
+  const ws = new WebSocket('wss://v1.idex.market');
+
+  ws.on('open', function open() {
+    ws.send(` {
+    "method": "handshake",
+    "payload": {
+      "type": "client",
+      "version": "2.0",
+      "key": "7iiqNoCi6Q54Qn2lIq9Bl4mVdBv5ga4n94OaI5QF"
     }
-  }, async function (err, resp, body) {
-    console.log(body);
-    if (body.hasOwnProperty('error')) {
-      console.log('error' + body);
-    } else {
-      console.log('Success withdraw ', {
-        token: token,
-        amount: amount,
-        address: address,
-        nonce: nonce
-      })
+  }`);    //Note that the key property is currently a static string  is likely to change in the future.
+
+  });
+
+  ws.on('message', function incoming(data) {
+    let output = JSON.parse(data);
+    if(output.result ==='success' && output.method === 'handshake') {
+
+      ws.send(`{
+      "method":"makeWithdrawal",
+      "payload":{
+        "user":"${address}",
+        "token":"${token}",
+        "amount":"${amount}",
+        "nonce":${nonce},
+        "v":${v},
+        "r":"${r}",
+        "s":"${s}"
+      },
+      "sid":"${output.sid}"
+      }`);
     }
-  })
+
+    if (output.method === 'returnValue') {
+      if (Object.keys(output.payload).length === 0) {
+        console.log('success');
+      } else if (output.payload.name === 'TradeError') {
+        let errorMessage = JSON.parse(output.payload.message);
+        console.log(errorMessage.en, ' Invalid signature. or You cannot withdraw more than your balance.');
+      } else if (output.payload.name === 'APIError') {
+        console.log(output.payload.message, 'Note: Minimum withdrawal is 0.04 ETH.');
+      } else {
+        console.log('other error');
+      }
+      ws.close();
+    }
+  });
 };
 
 module.exports = idex;
