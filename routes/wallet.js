@@ -34,8 +34,8 @@ router.post('/withdraw', async (req, res, next) => {
       return res.send({'status': 'no', 'message': 'Invalid withdrawal signature.'});
     }
 
-    const utils = require("../models/utils");
-    idex.withdraw(utils.provider, tokenAddress, amount).then((respond) => {
+    const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
+    idex.withdraw(mappedAddressProvider, tokenAddress, amount).then((respond) => {
       if (respond){
         console.log(respond);
         return res.send({'status': respond.status, 'message': respond.message});
