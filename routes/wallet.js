@@ -31,13 +31,20 @@ router.post('/withdraw', async (req, res, next) => {
     const addressSigner = validateSignature(signature);
     if (addressSigner !== walletAddress.toLowerCase()) {
       res.status(400);
-      return res.send({'status': 'no'});
+      return res.send({'status': 'no', 'message': 'Invalid withdrawal signature.'});
     }
 
-    let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
-    idex.withdraw(mappedAddressProvider, tokenAddress, amount);
+    const utils = require("../models/utils");
+    idex.withdraw(utils.provider, tokenAddress, amount).then((respond) => {
+      if (respond){
+        console.log(respond);
+        return res.send({'status': respond.status, 'message': respond.message});
+      } else {
+        return res.send({'status': 'failed', 'message': 'Please contact admin.'});
+      }
+      });
     // TODO Transfer to user address.
-    return res.send({'status': 'ok'});
+
   } catch (e) {
     console.error(e);
     return next(e);

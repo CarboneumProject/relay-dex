@@ -2,7 +2,7 @@ const idex = {};
 const config = require('../config');
 const IDEX_abi = require('../abi/IDEX/exchange.json');
 const Web3 = require('web3');
-const { soliditySha3 } = require('web3-utils');
+const {soliditySha3} = require('web3-utils');
 const {
   hashPersonalMessage,
   bufferToHex,
@@ -10,7 +10,7 @@ const {
   ecsign
 } = require('ethereumjs-util');
 
-const { mapValues } = require('lodash');
+const {mapValues} = require('lodash');
 const request = require('request');
 const rp = require('request-promise');
 const WebSocket = require('ws');
@@ -64,7 +64,7 @@ idex.depositToken = async function depositToken(provider, token, amount) {
   });
 };
 
-idex.getNextNonce = async function getNextNonce(address){
+idex.getNextNonce = async function getNextNonce(address) {
   const nextNonce = await {
     method: 'POST',
     url: 'https://api.idex.market/returnNextNonce',
@@ -149,81 +149,99 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
 };
 
 idex.withdraw = async function withdraw(provider, token, amount) {
-  let contractAddress = network.IDEX_exchange;
-  let address = provider.addresses[0];
-  let privateKeyBuffer = provider.wallets[address]['_privKey'];
-  let nonce = (await idex.getNextNonce(provider.addresses[0])).nonce;
+  try {
+    let contractAddress = network.IDEX_exchange;
+    let address = provider.addresses[0];
+    let privateKeyBuffer = provider.wallets[address]['_privKey'];
+    let nonce = (await idex.getNextNonce(provider.addresses[0])).nonce;
 
-  const raw = soliditySha3({
-    t: 'address',
-    v: contractAddress
-  }, {
-    t: 'address',
-    v: token
-  }, {
-    t: 'uint256',
-    v: amount
-  }, {
-    t: 'address',
-    v: address
-  }, {
-    t: 'uint256',
-    v: nonce
-  });
-  const salted = hashPersonalMessage(toBuffer(raw));
-  const {
-    v,
-    r,
-    s
-  } = mapValues(ecsign(salted, privateKeyBuffer), (value, key) => key === 'v' ? value : bufferToHex(value));
+    const raw = soliditySha3({
+      t: 'address',
+      v: contractAddress
+    }, {
+      t: 'address',
+      v: token
+    }, {
+      t: 'uint256',
+      v: amount
+    }, {
+      t: 'address',
+      v: address
+    }, {
+      t: 'uint256',
+      v: nonce
+    });
+    const salted = hashPersonalMessage(toBuffer(raw));
+    const {
+      v,
+      r,
+      s
+    } = mapValues(ecsign(salted, privateKeyBuffer), (value, key) => key === 'v' ? value : bufferToHex(value));
 
-  const ws = new WebSocket('wss://v1.idex.market');
+    const args = {
+      address,
+      token,
+      amount,
+      nonce,
+      v,
+      r,
+      s,
+    };
 
-  ws.on('open', function open() {
-    ws.send(` {
-    "method": "handshake",
-    "payload": {
-      "type": "client",
-      "version": "2.0",
-      "key": "7iiqNoCi6Q54Qn2lIq9Bl4mVdBv5ga4n94OaI5QF"
+    function connect(args) {
+      return new Promise(function (resolve, reject) {
+        const ws = new WebSocket('wss://v1.idex.market');
+        ws.on('open', function open() {
+          ws.send(` {
+          "method": "handshake",
+          "payload": {
+            "type": "client",
+            "version": "2.0",
+            "key": "7iiqNoCi6Q54Qn2lIq9Bl4mVdBv5ga4n94OaI5QF"
+          }
+        }`);    //Note that the key property is currently a static string  is likely to change in the future.
+
+        });
+
+        ws.on('message', function incoming(data) {
+          let output = JSON.parse(data);
+          if (output.result === 'success' && output.method === 'handshake') {
+
+            ws.send(`{
+          "method":"makeWithdrawal",
+          "payload":{
+            "user":"${args.address}",
+            "token":"${args.token}",
+            "amount":"${args.amount}",
+            "nonce":${args.nonce},
+            "v":${args.v},
+            "r":"${args.r}",
+            "s":"${args.s}"
+          },
+          "sid":"${output.sid}"
+          }`);
+          }
+
+          if (output.method === 'returnValue') {
+            if (Object.keys(output.payload).length === 0) {
+              console.log('success');
+              resolve({status: 'yes', message: 'withdraw success'});
+            } else {
+              resolve({status: 'no', message: output.payload.message});
+            }
+            ws.close();
+
+          }
+        });
+      });
     }
-  }`);    //Note that the key property is currently a static string  is likely to change in the future.
+    return await connect(args);
 
-  });
+  } catch (error) {
+    console.log("Unknown error: ", error)
+  }
 
-  ws.on('message', function incoming(data) {
-    let output = JSON.parse(data);
-    if(output.result ==='success' && output.method === 'handshake') {
 
-      ws.send(`{
-      "method":"makeWithdrawal",
-      "payload":{
-        "user":"${address}",
-        "token":"${token}",
-        "amount":"${amount}",
-        "nonce":${nonce},
-        "v":${v},
-        "r":"${r}",
-        "s":"${s}"
-      },
-      "sid":"${output.sid}"
-      }`);
-    }
-
-    if (output.method === 'returnValue') {
-      if (Object.keys(output.payload).length === 0) {
-        console.log('success');
-      } else if (output.payload.name === 'TradeError') {
-        let errorMessage = JSON.parse(output.payload.message);
-        console.log(errorMessage.en, ' Invalid signature. or You cannot withdraw more than your balance.');
-      } else if (output.payload.name === 'APIError') {
-        console.log(output.payload.message, 'Note: Minimum withdrawal is 0.04 ETH.');
-      } else {
-        console.log('other error');
-      }
-      ws.close();
-    }
-  });
 };
 
 module.exports = idex;
