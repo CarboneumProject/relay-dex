@@ -53,21 +53,21 @@ router.post('/withdraw', async (req, res, next) => {
 
 router.post('/deposit_idex', async (req, res, next) => {
   try {
-    const walletAddress =  req.body.walletAddress;
-    const tokenAddress = req.body.tokenAddress;
+    const walletAddress =  req.body.walletAddress.toLowerCase();
+    const tokenAddress = req.body.tokenAddress.toLowerCase();
     const txHash = req.body.txHash;
     const signature = req.body.signature;
     const addressSigner = validateSignature(signature);
-    if (addressSigner !== walletAddress.toLowerCase()) {
+    if (addressSigner !== walletAddress) {
       res.status(400);
       return res.send({'status': 'no', 'message': 'Invalid withdrawal signature.'});
     }
 
     const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
 
-    idex.getDepositAmount(walletAddress.toLowerCase(), txHash).then((wei) => {
+    idex.getDepositAmount(walletAddress, txHash).then((wei) => {
       if (wei) {
-        if(tokenAddress.toLowerCase() === '0x0000000000000000000000000000000000000000') {
+        if(tokenAddress === '0x0000000000000000000000000000000000000000') {
           idex.depositEth(mappedAddressProvider, wei).then((respond) => {
             if (respond) {
               return res.send({'status': 'ok', 'message': 'success'});
@@ -76,7 +76,13 @@ router.post('/deposit_idex', async (req, res, next) => {
             }
           });
         } else {
-          // TODO deposit token to idex.
+          idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
+            if (respond) {
+              return res.send({'status': 'ok', 'message': 'success'});
+            } else {
+              return res.send({'status': 'no', 'message': 'Please contact admin.'});
+            }
+          });
         }
       } else {
         res.status(400);
