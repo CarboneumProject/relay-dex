@@ -22,6 +22,9 @@ const web3 = new Web3(
   new Web3.providers.WebsocketProvider(network.ws_url),
 );
 
+const abiDecoder = require('abi-decoder');
+abiDecoder.addABI(IDEX_abi);
+
 const idexContract = new web3.eth.Contract(
   IDEX_abi,
   network.IDEX_exchange,
@@ -36,7 +39,7 @@ idex.isOrderMatched = async function isOrderMatched(orderHash) {  //orderHash: b
   return await idexContract.methods.orderFills(orderHash).call();
 };
 
-idex.depositEth = async function depositEth(provider, ether) {
+idex.depositEth = async function depositEth(provider, wei) {
   let web3Sign = new Web3(provider);
   let idexContractSign = new web3Sign.eth.Contract(
     IDEX_abi,
@@ -44,9 +47,34 @@ idex.depositEth = async function depositEth(provider, ether) {
   );
   return await idexContractSign.methods.deposit().send({
     from: provider.addresses[0],
-    value: ether,
-    gasLimit: 42000,
+    value: wei,
+    gasLimit: 100000,
     gasPrice: web3Sign.eth.gasPrice
+  });
+};
+
+idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      let trx = await web3.eth.getTransaction(txHash);
+      if (trx != null && trx.to != null) {
+        if (trx.to.toLowerCase() === network.IDEX_exchange.toLowerCase()) {
+          let receipt = await web3.eth.getTransactionReceipt(txHash);
+          if (receipt.status) {
+            let transaction = abiDecoder.decodeMethod(trx.input);
+            if (trx.from.toLowerCase() === walletAddress) {
+              if (transaction.name === 'deposit') {
+                let amount = trx.value;
+                resolve(amount);
+              }
+            }
+          }
+        }
+      }
+      resolve(0);
+    } catch (e) {
+      reject();
+    }
   });
 };
 
