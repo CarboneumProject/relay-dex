@@ -16,7 +16,8 @@ const rp = require('request-promise');
 const WebSocket = require('ws');
 const ws = new WebSocket('wss://v1.idex.market');
 
-let redis = require("redis"), client = redis.createClient();
+const useRedis = require('../models/useRedis');
+
 const network = config.getNetwork();
 const web3 = new Web3(
   new Web3.providers.WebsocketProvider(network.ws_url),
@@ -59,19 +60,16 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
       let trx = await web3.eth.getTransaction(txHash);
       if (trx != null && trx.to != null) {
         if (trx.to.toLowerCase() === network.IDEX_exchange.toLowerCase()) {
-          let receipt = await web3.eth.getTransactionReceipt(txHash);
-          if (receipt.status) {
-            let transaction = abiDecoder.decodeMethod(trx.input);
-            if (trx.from.toLowerCase() === walletAddress) {
-              if (transaction.name === 'deposit') {
-                let amount = trx.value;
-                resolve(amount);
-              }
+          let transaction = abiDecoder.decodeMethod(trx.input);
+          if (trx.from.toLowerCase() === walletAddress) {
+            if (transaction.name === 'deposit') {
+              useRedis.saveHash(txHash, walletAddress);
+              resolve(true);
             }
           }
         }
       }
-      resolve(0);
+      resolve(false);
     } catch (e) {
       reject();
     }

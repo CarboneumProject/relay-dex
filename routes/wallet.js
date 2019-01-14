@@ -63,30 +63,12 @@ router.post('/deposit_idex', async (req, res, next) => {
       return res.send({'status': 'no', 'message': 'Invalid withdrawal signature.'});
     }
 
-    const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
-
-    idex.getDepositAmount(walletAddress, txHash).then((wei) => {
-      if (wei) {
-        if(tokenAddress === '0x0000000000000000000000000000000000000000') {
-          idex.depositEth(mappedAddressProvider, wei).then((respond) => {
-            if (respond) {
-              return res.send({'status': 'ok', 'message': 'success'});
-            } else {
-              return res.send({'status': 'no', 'message': 'Please contact admin.'});
-            }
-          });
-        } else {
-          idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
-            if (respond) {
-              return res.send({'status': 'ok', 'message': 'success'});
-            } else {
-              return res.send({'status': 'no', 'message': 'Please contact admin.'});
-            }
-          });
-        }
+    idex.getDepositAmount(walletAddress, txHash).then((response) => {
+      if (response) {
+        return res.send({'status': 'ok', 'message': 'success'});
       } else {
         res.status(400);
-        return res.send({'status': 'no', 'message': 'Can not deposit 0 wei, Or Invalid wallet address.'});
+        return res.send({'status': 'no', 'message': 'failed.'});
       }
     });
     // TODO wait for transaction complete.
