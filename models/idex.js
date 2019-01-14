@@ -71,7 +71,7 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
       }
       resolve(false);
     } catch (e) {
-      reject();
+      resolve(false);
     }
   });
 };
