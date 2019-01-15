@@ -1,7 +1,7 @@
 const idex = {};
 const config = require('../config');
 const IDEX_abi = require('../abi/IDEX/exchange.json');
-const ERC20_abi = require('./abi/ERC20/token.json');
+const ERC20_abi = require('../abi/ERC20/token.json');
 const Web3 = require('web3');
 const {soliditySha3} = require('web3-utils');
 const {
