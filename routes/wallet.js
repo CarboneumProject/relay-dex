@@ -71,7 +71,6 @@ router.post('/deposit_idex', async (req, res, next) => {
         return res.send({'status': 'no', 'message': 'failed.'});
       }
     });
-    // TODO wait for transaction complete.
   } catch (e) {
     console.error(e);
     return res.send({'status': 'failed', 'message': 'Please contact admin.'});
