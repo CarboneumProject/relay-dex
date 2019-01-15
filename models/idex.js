@@ -60,13 +60,20 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
       let trx = await web3.eth.getTransaction(txHash);
       if (trx != null && trx.to != null) {
         if (trx.to.toLowerCase() === network.IDEX_exchange.toLowerCase()) {
-          let transaction = abiDecoder.decodeMethod(trx.input);
-          if (trx.from.toLowerCase() === walletAddress) {
-            if (transaction.name === 'deposit') {
-              useRedis.saveHash(txHash, walletAddress);
-              resolve(true);
+          let receipt = await web3.eth.getTransactionReceipt(txHash);
+          if (receipt.status) {
+            let transaction = abiDecoder.decodeMethod(trx.input);
+            if (trx.from.toLowerCase() === walletAddress) {
+              if (transaction.name === 'deposit') {
+                useRedis.saveHash(txHash, walletAddress);
+                resolve(true);
+              }
+
+              if (transaction.name === 'depositToken') {
+                useRedis.saveHash(txHash, walletAddress);
+                resolve(true);
+              }
             }
-            // TODO depositToken 's event.
           }
         }
       }
@@ -89,9 +96,18 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
             if (transaction.name === 'deposit') {
               let amount = trx.value;
               let walletAddress = trx.from.toLowerCase();
-              resolve([walletAddress, amount]);
+              let tokenAddress = '0x0000000000000000000000000000000000000000';
+              resolve([walletAddress, amount, tokenAddress]);
             }
-            // TODO depositToken 's event.
+
+            if (transaction.name === 'depositToken') {
+              let walletAddress = trx.from.toLowerCase();
+              let params = transaction.params;
+
+              let tokenAddress = params[0].value;
+              let amount = params[1].value;
+              resolve([walletAddress, Number(amount).noExponents(), tokenAddress]);
+            }
           }
         }
       }
