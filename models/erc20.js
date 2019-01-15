@@ -1,13 +1,33 @@
 const erc20 = {};
-const config = require('../config');
-const Web3 = require('web3');
 
-erc20.approve = async function approve(_ERC20Contract, _spender, _value) {
-  return await _ERC20Contract.methods.approve(_spender, _value).send({
-    from: config.owner,
+const Web3 = require('web3');
+const erc20_abi = require('../abi/ERC20/token.json');
+
+erc20.transfer = async function transfer(provider, tokenAddress, to, value) {
+  let web3Sign = new Web3(provider);
+  let erc20ContractSign = new web3Sign.eth.Contract(
+    erc20_abi,
+    tokenAddress,
+  );
+  return await erc20ContractSign.methods.transfer(to, value).send({
+    from: provider.addresses[0],
     value: 0,
     gasLimit: 210000,
-    gasPrice: Web3.utils.toWei('21', 'gwei')
+    gasPrice: web3Sign.eth.gasPrice
+  });
+};
+
+erc20.approve = async function approve(provider, tokenAddress, spender, value) {
+  let web3Sign = new Web3(provider);
+  let erc20ContractSign = new web3Sign.eth.Contract(
+    erc20_abi,
+    tokenAddress,
+  );
+  return await erc20ContractSign.methods.approve(spender, value).send({
+    from: provider.addresses[0],
+    value: 0,
+    gasLimit: 210000,
+    gasPrice: web3Sign.eth.gasPrice
   });
 };
 
