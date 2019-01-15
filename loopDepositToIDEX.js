@@ -22,6 +22,7 @@ client.keys("txHash:*", function (err, txHash_dict) {
                   if (respond) {
                     console.log({'status': 'ok', 'message': 'success'});
                   } else {
+                    useRedis.saveHash(txHash, walletAddress);
                     console.log({'status': 'no', 'message': 'Please contact admin.'});
                   }
                 });
@@ -30,6 +31,7 @@ client.keys("txHash:*", function (err, txHash_dict) {
                   if (respond) {
                     console.log({'status': 'ok', 'message': 'success'});
                   } else {
+                    useRedis.saveHash(txHash, walletAddress);
                     console.log({'status': 'no', 'message': 'Please contact admin.'});
                   }
                 });
