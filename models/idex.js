@@ -100,20 +100,19 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
       if (trx != null && trx.to != null) {
         let receipt = await web3.eth.getTransactionReceipt(txHash);
         if (receipt.status) {
-          if (trx.from.toLowerCase() === walletAddress) {
-            if (trx.input === '0x') {
-              let tokenAddress = '0x0000000000000000000000000000000000000000';
+          if (trx.input === '0x') {
+            let tokenAddress = '0x0000000000000000000000000000000000000000';
+            let fromAddress = trx.from.toLowerCase();
+            let wei = trx.value;
+            resolve([fromAddress, wei, tokenAddress]);
+          } else {
+            let transaction = abiDecoder.decodeMethod(trx.input);
+
+            if (transaction.name === 'transfer') {
+              let tokenAddress = trx.to.toLowerCase();
               let fromAddress = trx.from.toLowerCase();
-              let wei = trx.value;
+              let wei = transaction.params[1].value;
               resolve([fromAddress, wei, tokenAddress]);
-            } else {
-              let transaction = abiDecoder.decodeMethod(trx.input);
-              if (transaction.name === 'transfer') {
-                let tokenAddress = trx.to.toLowerCase();
-                let fromAddress = trx.from.toLowerCase();
-                let wei = transaction.params[1].value;
-                resolve([fromAddress, wei, tokenAddress]);
-              }
             }
           }
         }
