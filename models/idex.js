@@ -66,12 +66,38 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
               useRedis.saveHash(txHash, walletAddress);
               resolve(true);
             }
+            // TODO depositToken 's event.
           }
         }
       }
       resolve(false);
     } catch (e) {
       resolve(false);
+    }
+  });
+};
+
+idex.verifyTxHash = async function verifyTxHash(txHash) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      let trx = await web3.eth.getTransaction(txHash);
+      if (trx != null && trx.to != null) {
+        if (trx.to.toLowerCase() === network.IDEX_exchange.toLowerCase()) {
+          let receipt = await web3.eth.getTransactionReceipt(txHash);
+          if (receipt.status) {
+            let transaction = abiDecoder.decodeMethod(trx.input);
+            if (transaction.name === 'deposit') {
+              let amount = trx.value;
+              let walletAddress = trx.from.toLowerCase();
+              resolve([walletAddress, amount]);
+            }
+            // TODO depositToken 's event.
+          }
+        }
+      }
+      resolve(0);
+    } catch (e) {
+      resolve(0);
     }
   });
 };
