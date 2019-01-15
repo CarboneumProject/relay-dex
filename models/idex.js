@@ -61,30 +61,26 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
     try {
       let trx = await web3.eth.getTransaction(txHash);
       if (trx != null && trx.to != null) {
-        let receipt = await web3.eth.getTransactionReceipt(txHash);
 
-        if (receipt.status) {
-          if (trx.from.toLowerCase() === walletAddress) {
-            //TODO check in redis if status:1 must not saveHash()
-            //TODO check if transaction is pending.
-            const linkedWallet = relayWallet.getUserWalletProvider(walletAddress).addresses[0];
+        if (trx.from.toLowerCase() === walletAddress) {
+          //TODO check in redis if status:1 must not saveHash()
+          const linkedWallet = relayWallet.getUserWalletProvider(walletAddress).addresses[0];
 
-            if (trx.input === '0x') {
+          if (trx.input === '0x') {
+            let fromAddress = trx.from.toLowerCase();
+            let toAddress = trx.to.toLowerCase();
+            if (linkedWallet === toAddress) {
+              useRedis.saveHash(txHash, fromAddress);
+              resolve(true);
+            }
+          } else {
+            let transaction = abiDecoder.decodeMethod(trx.input);
+            if (transaction.name === 'transfer') {
               let fromAddress = trx.from.toLowerCase();
-              let toAddress = trx.to.toLowerCase();
+              let toAddress = transaction.params[0].value.toLowerCase();
               if (linkedWallet === toAddress) {
                 useRedis.saveHash(txHash, fromAddress);
                 resolve(true);
-              }
-            } else {
-              let transaction = abiDecoder.decodeMethod(trx.input);
-              if (transaction.name === 'transfer') {
-                let fromAddress = trx.from.toLowerCase();
-                let toAddress = transaction.params[0].value.toLowerCase();
-                if (linkedWallet === toAddress) {
-                  useRedis.saveHash(txHash, fromAddress);
-                  resolve(true);
-                }
               }
             }
           }
@@ -97,7 +93,6 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
   });
 };
 
-//TODO handle this
 idex.verifyTxHash = async function verifyTxHash(txHash) {
   return new Promise(async function (resolve, reject) {
     try {
