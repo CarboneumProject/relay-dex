@@ -5,6 +5,8 @@ const router = express.Router();
 const idex = require("../models/idex");
 const erc20 = require("../models/erc20");
 const transfer = require("../models/transfer");
+const BN = require('bignumber.js');
+const MAX_ALLOWANCE = new BN(10).pow(55).toPrecision();
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -43,8 +45,19 @@ router.post('/withdraw', async (req, res, next) => {
         if (tokenAddress === '0x0000000000000000000000000000000000000000') {
           transfer.sendEth(mappedAddressProvider, mappedAddressProvider.addresses[0], walletAddress, amount);
         } else {
-          //TODO set approve max.
-          erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
+          erc20.allowance(
+            mappedAddressProvider,
+            tokenAddress,
+            mappedAddressProvider.addresses[0],
+            walletAddress
+          ).then((allowance) =>{
+              if(allowance <= MAX_ALLOWANCE/2){
+                erc20.approve(mappedAddressProvider, tokenAddress, walletAddress, MAX_ALLOWANCE);
+              }
+              else  {
+                erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
+              }
+          });
         }
         //TODO check error.
         return res.send({'status': respond.status, 'message': respond.message});
@@ -52,8 +65,6 @@ router.post('/withdraw', async (req, res, next) => {
         return res.send({'status': 'failed', 'message': 'Please contact admin.'});
       }
       });
-    // TODO Transfer to user address.
-
   } catch (e) {
     console.error(e);
     return next(e);
