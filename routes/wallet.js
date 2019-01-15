@@ -3,6 +3,8 @@ const relayWallet = require('../models/relayWallet');
 const validateSignature = require('../models/validate-signature');
 const router = express.Router();
 const idex = require("../models/idex");
+const erc20 = require("../models/erc20");
+const transfer = require("../models/transfer");
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -38,6 +40,13 @@ router.post('/withdraw', async (req, res, next) => {
     idex.withdraw(mappedAddressProvider, tokenAddress, amount).then((respond) => {
       if (respond){
         console.log(respond);
+        if (tokenAddress === '0x0000000000000000000000000000000000000000') {
+          transfer.sendEth(mappedAddressProvider, mappedAddressProvider.addresses[0], walletAddress, amount);
+        } else {
+          //TODO set approve max.
+          erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
+        }
+        //TODO check error.
         return res.send({'status': respond.status, 'message': respond.message});
       } else {
         return res.send({'status': 'failed', 'message': 'Please contact admin.'});
