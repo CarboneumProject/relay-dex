@@ -4,7 +4,7 @@ const useRedis = require('./models/useRedis');
 const erc20 = require("./models/erc20");
 const BN = require('bignumber.js');
 const MAX_ALLOWANCE = new BN(10).pow(55).toPrecision();
-const config = require('../config');
+const config = require('./config');
 const network = config.getNetwork();
 
 let redis = require("redis"), client = redis.createClient();
