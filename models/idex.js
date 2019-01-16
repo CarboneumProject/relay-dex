@@ -49,8 +49,8 @@ idex.depositEth = async function depositEth(provider, wei) {
   );
   return await idexContractSign.methods.deposit().send({
     from: provider.addresses[0],
-    value: web3Sign.utils.fromWei(wei),
-    gasLimit: 100000,
+    value: wei,
+    gasLimit: 42000,
     gasPrice: web3Sign.eth.gasPrice
   });
 };
