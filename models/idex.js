@@ -63,7 +63,12 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
       if (trx != null && trx.to != null) {
 
         if (trx.from.toLowerCase() === walletAddress) {
-          //TODO check in redis if status:1 must not saveHash()
+          useRedis.isValidHash(txHash, walletAddress).then((response) => {
+            if (response === '1') {
+              resolve(false);
+            }
+          });
+
           const linkedWallet = relayWallet.getUserWalletProvider(walletAddress).addresses[0];
 
           if (trx.input === '0x') {
