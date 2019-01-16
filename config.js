@@ -2,7 +2,7 @@ const networks = {
   rinkeby: {
     name : 'rinkeby',
     ws_url: 'wss://rinkeby.infura.io/_ws',
-    socialtrading: '0x02bc0cf6311bb8033cf2d8cef08af89c28bc9add',
+    socialtrading: '0xb5cb474368d03ffda12cb60fde515221fb2029bb',
     IExchange: '',
     zxExchange: '0x22ebc052f43a88efa06379426120718170f2204e',
     relayWallet: '0xb45b4702187894a605893a260aab1103b3784a70',
@@ -30,7 +30,7 @@ const networks = {
   mainnet: {
     name : 'mainnet',
     ws_url: 'wss://mainnet.infura.io/_ws',
-    socialtrading: '',
+    socialtrading: '0xef2fa25285eac7f29def15d6ec0375f478c2f3ee',
     IExchange: '',
     zxExchange: '0x4f833a24e1f95d70f028921e27040ca56e09ab0b',
     relayWallet: '',
