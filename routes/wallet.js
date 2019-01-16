@@ -52,7 +52,9 @@ router.post('/withdraw', async (req, res, next) => {
             walletAddress
           ).then((allowance) =>{
               if(allowance <= MAX_ALLOWANCE/2){
-                erc20.approve(mappedAddressProvider, tokenAddress, walletAddress, MAX_ALLOWANCE);
+                erc20.approve(mappedAddressProvider, tokenAddress, walletAddress, MAX_ALLOWANCE).then(() => {
+                  erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
+                });
               }
               else  {
                 erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
