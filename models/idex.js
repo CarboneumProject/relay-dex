@@ -15,7 +15,6 @@ const {mapValues} = require('lodash');
 const request = require('request');
 const rp = require('request-promise');
 const WebSocket = require('ws');
-const ws = new WebSocket('wss://v1.idex.market');
 
 const useRedis = require('../models/useRedis');
 const relayWallet = require('../models/relayWallet');
@@ -51,7 +50,7 @@ idex.depositEth = async function depositEth(provider, wei) {
   return await idexContractSign.methods.deposit().send({
     from: provider.addresses[0],
     value: wei,
-    gasLimit: 100000,
+    gasLimit: 42000,
     gasPrice: web3Sign.eth.gasPrice
   });
 };
