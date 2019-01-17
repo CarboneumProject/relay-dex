@@ -30,7 +30,7 @@ const networks = {
   mainnet: {
     name : 'mainnet',
     ws_url: 'wss://mainnet.infura.io/_ws',
-    socialtrading: '0xef2fa25285eac7f29def15d6ec0375f478c2f3ee',
+    socialtrading: '0x53742f3184cea2378de14e4402c7fd9e1c6ad97b',
     IExchange: '',
     zxExchange: '0x4f833a24e1f95d70f028921e27040ca56e09ab0b',
     relayWallet: '',

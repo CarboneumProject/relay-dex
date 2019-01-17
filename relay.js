@@ -15,7 +15,7 @@ const c8Contract = new web3.eth.Contract(
 );
 
 c8Contract.getPastEvents({
-  fromBlock:  7070528,  //block number when contract created.
+  fromBlock:  6919620,  //block number when contract created.
   toBlock: 'latest'
 }, (error, eventResult) => {
   if (error) {
