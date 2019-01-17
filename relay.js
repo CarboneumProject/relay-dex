@@ -45,7 +45,7 @@ c8Contract.getPastEvents({
 });
 
 const follow = c8Contract.events
-  .Follow({ filter: { _appId: 1 } }, (error, event) => {
+  .Follow({}, (error, event) => {
     const redis = require("redis"), client = redis.createClient();
     if (error) return console.error(error);
     console.log('Successfully followed!', event);
@@ -62,7 +62,7 @@ const follow = c8Contract.events
 
 
 const unfollow = c8Contract.events
-  .UnFollow({ filter: { _appId: 1 } }, (error, event) => {
+  .UnFollow({}, (error, event) => {
     const redis = require("redis"), client = redis.createClient();
     if (error) return console.error(error, 'sad');
     console.log('Successfully unfollowed!', event);
