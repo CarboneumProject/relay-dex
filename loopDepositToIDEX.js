@@ -30,10 +30,9 @@ async function watchDepositedToLinkWallet() {
                     useRedis.markDeposited(txHash, walletAddress);
                     const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
                     if (tokenAddress === '0x0000000000000000000000000000000000000000') {
-                      //TODO respond === UnhandledPromiseRejectionWarning: Error: insufficient funds for gas * price + value  => but not else case
 
                       idex.depositEth(mappedAddressProvider, wei).then((respond) => {
-                        if (respond) {
+                        if (typeof respond === 'object'){
                           console.log({'status': 'ok', 'message': 'success'});
                         } else {
                           useRedis.saveHash(txHash, walletAddress);
@@ -50,7 +49,7 @@ async function watchDepositedToLinkWallet() {
                         if (allowance <= MAX_ALLOWANCE / 2) {
                           erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then(() => {
                             idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
-                              if (respond) {
+                              if (typeof respond === 'object'){
                                 console.log({'status': 'ok', 'message': 'success'});
                               } else {
                                 useRedis.saveHash(txHash, walletAddress);
@@ -61,7 +60,7 @@ async function watchDepositedToLinkWallet() {
                         }
                         else {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
-                            if (respond) {
+                            if (typeof respond === 'object'){
                               console.log({'status': 'ok', 'message': 'success'});
                             } else {
                               useRedis.saveHash(txHash, walletAddress);

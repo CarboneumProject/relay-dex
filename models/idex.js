@@ -42,17 +42,22 @@ idex.isOrderMatched = async function isOrderMatched(orderHash) {  //orderHash: b
 };
 
 idex.depositEth = async function depositEth(provider, wei) {
-  let web3Sign = new Web3(provider);
-  let idexContractSign = new web3Sign.eth.Contract(
-    IDEX_abi,
-    network.IDEX_exchange,
-  );
-  return await idexContractSign.methods.deposit().send({
-    from: provider.addresses[0],
-    value: wei,
-    gasLimit: 42000,
-    gasPrice: web3Sign.eth.gasPrice
-  });
+  try {
+    let web3Sign = new Web3(provider);
+    let idexContractSign = new web3Sign.eth.Contract(
+      IDEX_abi,
+      network.IDEX_exchange,
+    );
+    return await idexContractSign.methods.deposit().send({
+      from: provider.addresses[0],
+      value: wei,
+      gasLimit: 42000,
+      gasPrice: web3Sign.eth.gasPrice
+    });
+  }
+  catch (error) {
+    return error.message;
+  }
 };
 
 idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
@@ -129,17 +134,21 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
 };
 
 idex.depositToken = async function depositToken(provider, token, amount) {
-  let web3Sign = new Web3(provider);
-  let idexContractSign = new web3Sign.eth.Contract(
-    IDEX_abi,
-    network.IDEX_exchange,
-  );
-  return await idexContractSign.methods.depositToken(token, amount).send({
-    from: provider.addresses[0],
-    value: 0,
-    gasLimit: 210000,
-    gasPrice: web3Sign.eth.gasPrice
-  });
+  try {
+    let web3Sign = new Web3(provider);
+    let idexContractSign = new web3Sign.eth.Contract(
+      IDEX_abi,
+      network.IDEX_exchange,
+    );
+    return await idexContractSign.methods.depositToken(token, amount).send({
+      from: provider.addresses[0],
+      value: 0,
+      gasLimit: 210000,
+      gasPrice: web3Sign.eth.gasPrice
+    });
+  } catch (error) {
+    return error.message;
+  }
 };
 
 idex.getNextNonce = async function getNextNonce(address) {
