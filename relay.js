@@ -21,20 +21,23 @@ c8Contract.getPastEvents({
   if (error) {
     console.log('Error in myEvent event handler: ' + error);
   }
-  eventResult.forEach(function (event) {
-    const redis = require("redis"), client = redis.createClient();
+
+  for (let i=0; i < eventResult.length; i++) {
+    event = eventResult[i];
     if (event.event === 'Follow' && event.removed === false) {
+      const redis = require("redis"), client = redis.createClient();
       let leader = event.returnValues.leader.toLowerCase();
       let follower = event.returnValues.follower.toLowerCase();
       let percentage = event.returnValues.percentage / 10 ** 18;
       client.hset('leader:'+leader, follower, percentage);
     }
     else if (event.event === 'UnFollow' && event.removed === false) {
+      const redis = require("redis"), client = redis.createClient();
       let leader = event.returnValues.leader.toLowerCase();
       let follower = event.returnValues.follower.toLowerCase();
       client.hdel('leader:' + leader, follower);
     }
-  });
+  }
   let lastBlockNumber = '0';
   for (let i=0; i<eventResult.length; i++) {
     lastBlockNumber = (++eventResult[i].blockNumber).toString();
