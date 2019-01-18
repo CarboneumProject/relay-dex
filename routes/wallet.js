@@ -87,7 +87,7 @@ router.post('/deposit_idex', async (req, res, next) => {
 
     idex.getDepositAmount(walletAddress, txHash).then((response) => {
       if (response) {
-        return res.send({'status': 'ok', 'message': 'success'});
+        return res.send({'status': 'yes', 'message': 'success'});
       } else {
         res.status(400);
         return res.send({'status': 'no', 'message': 'failed.'});
