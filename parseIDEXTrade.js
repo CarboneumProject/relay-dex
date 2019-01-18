@@ -54,7 +54,7 @@ async function watchIDEXTransfers(blockNumber) {
         block.transactions.forEach(async function (txHash) {
           let trx = await web3.eth.getTransaction(txHash);
           if (trx != null && trx.to != null) {
-            if (trx.to === contractAddress_IDEX_1) {
+            if (trx.to.toLowerCase() === contractAddress_IDEX_1) {
               let receipt = await web3.eth.getTransactionReceipt(txHash);
               if (receipt.status) {
                 let transaction = abiDecoder.decodeMethod(trx.input);
