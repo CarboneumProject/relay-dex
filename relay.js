@@ -15,24 +15,29 @@ const c8Contract = new web3.eth.Contract(
 );
 
 c8Contract.getPastEvents({
-  fromBlock:  7070528,  //block number when contract created.
+  fromBlock:  7080770 ,  //block number when contract created.
   toBlock: 'latest'
 }, (error, eventResult) => {
   if (error) {
     console.log('Error in myEvent event handler: ' + error);
   }
-  eventResult.forEach(function (event) {
+
+  for (let i=0; i < eventResult.length; i++) {
+    event = eventResult[i];
     if (event.event === 'Follow' && event.removed === false) {
+      const redis = require("redis"), client = redis.createClient();
       let leader = event.returnValues.leader.toLowerCase();
       let follower = event.returnValues.follower.toLowerCase();
-      let percentage = event.returnValues.percentage;
+      let percentage = event.returnValues.percentage / 10 ** 18;
       client.hset('leader:'+leader, follower, percentage);
-    } else if (event.event === 'UnFollow' && event.removed === false) {
+    }
+    else if (event.event === 'UnFollow' && event.removed === false) {
+      const redis = require("redis"), client = redis.createClient();
       let leader = event.returnValues.leader.toLowerCase();
       let follower = event.returnValues.follower.toLowerCase();
       client.hdel('leader:' + leader, follower);
     }
-  });
+  }
   let lastBlockNumber = '0';
   for (let i=0; i<eventResult.length; i++) {
     lastBlockNumber = (++eventResult[i].blockNumber).toString();
@@ -40,26 +45,26 @@ c8Contract.getPastEvents({
 
   console.log('lastBlockNumber', lastBlockNumber);
 
-}).then();
+});
 
-const follow = c8Contract.events
-  .Follow((error, event) => {
+const follow = c8Contract.events.Follow({}, (error, event) => {
+    const redis = require("redis"), client = redis.createClient();
     if (error) return console.error(error);
     console.log('Successfully followed!', event);
 
     if (event.event === 'Follow' && event.removed === false) {
       let leader = event.returnValues.leader.toLowerCase();
       let follower = event.returnValues.follower.toLowerCase();
-      let percentage = event.returnValues.percentage;
-      console.log(leader, follower, percentage);
+      let percentage = event.returnValues.percentage / 10 ** 18;
       client.hset('leader:'+leader, follower, percentage);
     }
 
   })
   .on('error', console.error);
 
-const unfollow = c8Contract.events
-  .UnFollow((error, event) => {
+
+const unfollow = c8Contract.events.UnFollow({ }, (error, event) => {
+    const redis = require("redis"), client = redis.createClient();
     if (error) return console.error(error, 'sad');
     console.log('Successfully unfollowed!', event);
     if (event.event === 'UnFollow' && event.removed === false) {

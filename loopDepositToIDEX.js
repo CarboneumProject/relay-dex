@@ -4,6 +4,10 @@ const useRedis = require('./models/useRedis');
 const erc20 = require("./models/erc20");
 const BN = require('bignumber.js');
 const MAX_ALLOWANCE = new BN(10).pow(55).toPrecision();
+const RESERVED_ETH = '2100000000000000';
+const RESERVED_ETH_WITH_APPROVE = '2000000000';
+const RESERVED_Token_WO_APPROVE = '1000000000';
+
 const config = require('./config');
 const network = config.getNetwork();
 const Web3 = require('web3');
@@ -30,10 +34,9 @@ async function watchDepositedToLinkWallet() {
                     useRedis.markDeposited(txHash, walletAddress);
                     const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
                     if (tokenAddress === '0x0000000000000000000000000000000000000000') {
-                      //TODO respond === UnhandledPromiseRejectionWarning: Error: insufficient funds for gas * price + value  => but not else case
 
-                      idex.depositEth(mappedAddressProvider, wei).then((respond) => {
-                        if (respond) {
+                      idex.depositEth(mappedAddressProvider, wei - RESERVED_ETH).then((respond) => {
+                        if (typeof respond === 'object'){
                           console.log({'status': 'ok', 'message': 'success'});
                         } else {
                           useRedis.saveHash(txHash, walletAddress);
@@ -50,7 +53,7 @@ async function watchDepositedToLinkWallet() {
                         if (allowance <= MAX_ALLOWANCE / 2) {
                           erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then(() => {
                             idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
-                              if (respond) {
+                              if (typeof respond === 'object'){
                                 console.log({'status': 'ok', 'message': 'success'});
                               } else {
                                 useRedis.saveHash(txHash, walletAddress);
@@ -61,7 +64,7 @@ async function watchDepositedToLinkWallet() {
                         }
                         else {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
-                            if (respond) {
+                            if (typeof respond === 'object'){
                               console.log({'status': 'ok', 'message': 'success'});
                             } else {
                               useRedis.saveHash(txHash, walletAddress);
