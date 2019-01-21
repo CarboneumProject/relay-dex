@@ -69,7 +69,7 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
         if (trx.from.toLowerCase() === walletAddress) {
           useRedis.isValidHash(txHash, walletAddress).then((response) => {
             if (response === '1') {
-              resolve(false);
+              resolve([false, 'Already deposited.']);
             }
           });
 
@@ -80,7 +80,7 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
             let toAddress = trx.to.toLowerCase();
             if (linkedWallet === toAddress) {
               useRedis.saveHash(txHash, fromAddress);
-              resolve(true);
+              resolve([true, true]);
             }
           } else {
             let transaction = abiDecoder.decodeMethod(trx.input);
@@ -89,15 +89,15 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
               let toAddress = transaction.params[0].value.toLowerCase();
               if (linkedWallet === toAddress) {
                 useRedis.saveHash(txHash, fromAddress);
-                resolve(true);
+                resolve([true, true]);
               }
             }
           }
         }
       }
-      resolve(false);
+      resolve([false, 'Invalid transaction.']);
     } catch (e) {
-      resolve(false);
+      resolve([false, e.message]);
     }
   });
 };
@@ -312,7 +312,7 @@ idex.withdraw = async function withdraw(provider, token, amount) {
           if (output.method === 'returnValue') {
             if (Object.keys(output.payload).length === 0) {
               console.log('success');
-              resolve({status: 'yes', message: 'withdraw success'});
+              resolve({status: 'yes', message: 'success'});
             } else {
               resolve({status: 'no', message: output.payload.message});
             }
@@ -325,7 +325,8 @@ idex.withdraw = async function withdraw(provider, token, amount) {
     return await connect(args);
 
   } catch (error) {
-    console.log("Unknown error: ", error)
+    console.log("Unknown error: ", error);
+    // return {status: 'no', message: error.message};
   }
 
 

@@ -15,14 +15,14 @@ router.post('/register', async (req, res, next) => {
     const addressSigner = validateSignature(signature);
     if (addressSigner !== walletAddress.toLowerCase()) {
       res.status(400);
-      return res.send({'status': 'no'});
+      return res.send({'status': 'no','message': 'Invalid signature.'});
     }
 
     const linkedWallet = relayWallet.getUserWalletProvider(walletAddress).addresses[0];
     return res.send({'walletAddress': walletAddress, 'linkedAddress': linkedWallet});
   } catch (e) {
     console.error(e);
-    return next(e);
+    return res.send({'status': 'no','message': e.message});
   }
 });
 
@@ -35,7 +35,7 @@ router.post('/withdraw', async (req, res, next) => {
     const addressSigner = validateSignature(signature);
     if (addressSigner !== walletAddress.toLowerCase()) {
       res.status(400);
-      return res.send({'status': 'no', 'message': 'Invalid withdrawal signature.'});
+      return res.send({'status': 'no', 'message': 'Invalid signature.'});
     }
 
     const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
@@ -64,12 +64,12 @@ router.post('/withdraw', async (req, res, next) => {
         //TODO check error.
         return res.send({'status': respond.status, 'message': respond.message});
       } else {
-        return res.send({'status': 'failed', 'message': 'Please contact admin.'});
+        return res.send({'status': 'no', 'message': 'Please contact admin.'});
       }
       });
   } catch (e) {
     console.error(e);
-    return next(e);
+    return res.send({'status': 'no', 'message': e.message});
   }
 });
 
@@ -82,20 +82,20 @@ router.post('/deposit_idex', async (req, res, next) => {
     const addressSigner = validateSignature(signature);
     if (addressSigner !== walletAddress) {
       res.status(400);
-      return res.send({'status': 'no', 'message': 'Invalid withdrawal signature.'});
+      return res.send({'status': 'no', 'message': 'Invalid signature.'});
     }
 
     idex.getDepositAmount(walletAddress, txHash).then((response) => {
-      if (response) {
+      let [status, errorMsg] = response;
+      if (status) {
         return res.send({'status': 'yes', 'message': 'success'});
       } else {
-        res.status(400);
-        return res.send({'status': 'no', 'message': 'failed.'});
+        return res.send({'status': 'no', 'message': errorMsg});
       }
     });
   } catch (e) {
     console.error(e);
-    return res.send({'status': 'failed', 'message': 'Please contact admin.'});
+    return res.send({'status': 'no', 'message': e.message});
   }
 });
 
