@@ -37,7 +37,7 @@ async function watchDepositedToLinkWallet() {
 
                       idex.depositEth(mappedAddressProvider, wei - RESERVED_ETH).then((respond) => {
                         if (typeof respond === 'object'){
-                          console.log({'status': 'ok', 'message': 'success'});
+                          console.log({'status': 'yes', 'message': 'success'});
                         } else {
                           useRedis.saveHash(txHash, walletAddress);
                           console.log({'status': 'no', 'message': 'Please contact admin.'});
@@ -54,7 +54,7 @@ async function watchDepositedToLinkWallet() {
                           erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then(() => {
                             idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                               if (typeof respond === 'object'){
-                                console.log({'status': 'ok', 'message': 'success'});
+                                console.log({'status': 'yes', 'message': 'success'});
                               } else {
                                 useRedis.saveHash(txHash, walletAddress);
                                 console.log({'status': 'no', 'message': 'Please contact admin.'});
@@ -65,7 +65,7 @@ async function watchDepositedToLinkWallet() {
                         else {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                             if (typeof respond === 'object'){
-                              console.log({'status': 'ok', 'message': 'success'});
+                              console.log({'status': 'yes', 'message': 'success'});
                             } else {
                               useRedis.saveHash(txHash, walletAddress);
                               console.log({'status': 'no', 'message': 'Please contact admin.'});
