@@ -91,11 +91,14 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
                 useRedis.saveHash(txHash, fromAddress);
                 resolve([true, true]);
               }
+            } else {
+              resolve([false, 'Not transfer function.']);
             }
           }
         }
+      } else {
+        resolve([false, 'Invalid transaction.']);
       }
-      resolve([false, 'Invalid transaction.']);
     } catch (e) {
       resolve([false, e.message]);
     }
