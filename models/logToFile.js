@@ -2,7 +2,7 @@ const logToFile = {};
 
 const {transports, createLogger, format} = require('winston');
 
-logToFile.writeLog = function writeLog(data) {
+logToFile.writeLog = function writeLog(filename, data) {
   const logger = createLogger({
     format: format.combine(
       format.timestamp(),
