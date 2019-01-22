@@ -14,7 +14,7 @@ logToFile.writeLog = function writeLog(filename, data) {
       new transports.File({filename: '../logs/activity.log', level: 'info'})
     ]
   });
-  logger.info(data);
+  logger.info('[' + filename + '] ' + data);
 };
 
 module.exports = logToFile;
