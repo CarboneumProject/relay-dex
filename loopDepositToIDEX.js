@@ -9,7 +9,7 @@ const logToFile = require("./models/logToFile");
 const config = require('./config');
 const network = config.getNetwork();
 
-const RESERVED_ETH = '210000000000000';
+const RESERVED_ETH = '2100000000000000';
 
 let redis = require("redis"), client = redis.createClient();
 
