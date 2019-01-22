@@ -4,6 +4,7 @@ const useRedis = require('./models/useRedis');
 const erc20 = require("./models/erc20");
 const BN = require('bignumber.js');
 const MAX_ALLOWANCE = new BN(10).pow(55).toPrecision();
+const logToFile = require("../models/logToFile");
 
 const config = require('./config');
 const network = config.getNetwork();
@@ -30,9 +31,11 @@ async function watchDepositedToLinkWallet() {
 
                       idex.depositEth(mappedAddressProvider, wei).then((respond) => {
                         if (typeof respond === 'object'){
+                          logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Success.');
                           console.log({'status': 'yes', 'message': 'success'});
                         } else {
                           useRedis.saveHash(txHash, walletAddress);
+                          logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Failed.');
                           console.log({'status': 'no', 'message': 'Please contact admin.'});
                         }
                       });
@@ -47,9 +50,11 @@ async function watchDepositedToLinkWallet() {
                           erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then(() => {
                             idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                               if (typeof respond === 'object'){
+                                logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress +' Success.');
                                 console.log({'status': 'yes', 'message': 'success'});
                               } else {
                                 useRedis.saveHash(txHash, walletAddress);
+                                logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress +' Failed.');
                                 console.log({'status': 'no', 'message': 'Please contact admin.'});
                               }
                             });
@@ -58,9 +63,11 @@ async function watchDepositedToLinkWallet() {
                         else {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                             if (typeof respond === 'object'){
+                              logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress +' Success.');
                               console.log({'status': 'yes', 'message': 'success'});
                             } else {
                               useRedis.saveHash(txHash, walletAddress);
+                              logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress +' Failed.');
                               console.log({'status': 'no', 'message': 'Please contact admin.'});
                             }
                           });
@@ -68,13 +75,16 @@ async function watchDepositedToLinkWallet() {
                       });
                     }
                   } else if (response === '1') {
+                    logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' have been deposited.');
                     console.log(txHash, ': have been deposited.');
                   } else {
+                    logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' not found.');
                     console.log('Not found.');
                   }
                 });
 
               } else {
+                logToFile.writeLog('loopDepoist.txt', txHash + ' Invalid signature.');
                 console.log(res, 'Invalid signature');
               }
             });

@@ -18,6 +18,7 @@ const WebSocket = require('ws');
 
 const useRedis = require('../models/useRedis');
 const relayWallet = require('../models/relayWallet');
+const logToFile = require("../models/logToFile");
 
 const network = config.getNetwork();
 const web3 = new Web3(
@@ -204,7 +205,11 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
     console.log(body);
     if (body.hasOwnProperty('error')) {
       console.log('error' + body);
+      logToFile.writeLog('trade.txt',
+        address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Error.' + body);
     } else {
+      logToFile.writeLog('trade.txt',
+        address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Success.');
       console.log('Success sending order', {
         tokenBuy: tokenBuy,
         amountBuy: amountBuy,

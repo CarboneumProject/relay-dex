@@ -5,8 +5,7 @@ const router = express.Router();
 const idex = require("../models/idex");
 const erc20 = require("../models/erc20");
 const transfer = require("../models/transfer");
-const BN = require('bignumber.js');
-const MAX_ALLOWANCE = new BN(10).pow(55).toPrecision();
+const logToFile = require("../models/logToFile");
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -35,6 +34,7 @@ router.post('/withdraw', async (req, res, next) => {
     const addressSigner = validateSignature(signature);
     if (addressSigner !== walletAddress.toLowerCase()) {
       res.status(400);
+      logToFile.writeLog('withdraw.txt', signature + ' ' + walletAddress + ' ' + 'Invalid signature.');
       return res.send({'status': 'no', 'message': 'Invalid signature.'});
     }
 
@@ -47,12 +47,15 @@ router.post('/withdraw', async (req, res, next) => {
         } else {
           erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
         }
+        logToFile.writeLog('withdraw.txt', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
         return res.send({'status': respond.status, 'message': respond.message});
       } else {
+        logToFile.writeLog('withdraw.txt', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Failed.');
         return res.send({'status': 'no', 'message': 'Please contact admin.'});
       }
       });
   } catch (e) {
+    logToFile.writeLog('withdraw.txt', 'Failed.' + ' ' + e.message);
     console.error(e);
     return res.send({'status': 'no', 'message': e.message});
   }
@@ -67,19 +70,23 @@ router.post('/deposit_idex', async (req, res, next) => {
     const addressSigner = validateSignature(signature);
     if (addressSigner !== walletAddress) {
       res.status(400);
+      logToFile.writeLog('deposit.txt', signature + ' ' + walletAddress + ' ' + 'Invalid signature.');
       return res.send({'status': 'no', 'message': 'Invalid signature.'});
     }
 
     idex.getDepositAmount(walletAddress, txHash).then((response) => {
       let [status, errorMsg] = response;
       if (status) {
+        logToFile.writeLog('deposit.txt', txHash + ' ' + walletAddress + ' ' + 'Success.');
         return res.send({'status': 'yes', 'message': 'success'});
       } else {
+        logToFile.writeLog('deposit.txt', txHash + ' ' + walletAddress + ' ' + 'Fail.' + errorMsg);
         return res.send({'status': 'no', 'message': errorMsg});
       }
     });
   } catch (e) {
     console.error(e);
+    logToFile.writeLog('deposit.txt', 'Failed.' + ' ' + e.message);
     return res.send({'status': 'no', 'message': e.message});
   }
 });
