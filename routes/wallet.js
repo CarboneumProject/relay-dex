@@ -45,22 +45,7 @@ router.post('/withdraw', async (req, res, next) => {
         if (tokenAddress === '0x0000000000000000000000000000000000000000') {
           transfer.sendEth(mappedAddressProvider, mappedAddressProvider.addresses[0], walletAddress, amount);
         } else {
-          erc20.allowance(
-            mappedAddressProvider,
-            tokenAddress,
-            mappedAddressProvider.addresses[0],
-            walletAddress
-          ).then((allowance) =>{
-              if(allowance <= MAX_ALLOWANCE/2){
-                erc20.approve(mappedAddressProvider, tokenAddress, walletAddress, MAX_ALLOWANCE).then(() => {
-                  erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
-                });
-              }
-              else  {
-                erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
-              }
-          });
-        }
+          erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
         //TODO check error.
         return res.send({'status': respond.status, 'message': respond.message});
       } else {
