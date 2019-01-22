@@ -7,10 +7,6 @@ const MAX_ALLOWANCE = new BN(10).pow(55).toPrecision();
 
 const config = require('./config');
 const network = config.getNetwork();
-const Web3 = require('web3');
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider(network.ws_url),
-);
 
 let redis = require("redis"), client = redis.createClient();
 
