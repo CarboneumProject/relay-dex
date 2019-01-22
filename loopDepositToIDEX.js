@@ -4,9 +4,6 @@ const useRedis = require('./models/useRedis');
 const erc20 = require("./models/erc20");
 const BN = require('bignumber.js');
 const MAX_ALLOWANCE = new BN(10).pow(55).toPrecision();
-const RESERVED_ETH = '2100000000000000';
-const RESERVED_ETH_WITH_APPROVE = '2000000000';
-const RESERVED_Token_WO_APPROVE = '1000000000';
 
 const config = require('./config');
 const network = config.getNetwork();
@@ -35,7 +32,7 @@ async function watchDepositedToLinkWallet() {
                     const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
                     if (tokenAddress === '0x0000000000000000000000000000000000000000') {
 
-                      idex.depositEth(mappedAddressProvider, wei - RESERVED_ETH).then((respond) => {
+                      idex.depositEth(mappedAddressProvider, wei).then((respond) => {
                         if (typeof respond === 'object'){
                           console.log({'status': 'yes', 'message': 'success'});
                         } else {
