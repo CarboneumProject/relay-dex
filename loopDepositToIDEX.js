@@ -9,6 +9,8 @@ const logToFile = require("./models/logToFile");
 const config = require('./config');
 const network = config.getNetwork();
 
+const RESERVED_ETH = '210000000000000';
+
 let redis = require("redis"), client = redis.createClient();
 
 async function watchDepositedToLinkWallet() {
@@ -29,7 +31,7 @@ async function watchDepositedToLinkWallet() {
                     const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
                     if (tokenAddress === '0x0000000000000000000000000000000000000000') {
 
-                      idex.depositEth(mappedAddressProvider, wei).then((respond) => {
+                      idex.depositEth(mappedAddressProvider, wei - RESERVED_ETH).then((respond) => {
                         if (typeof respond === 'object'){
                           logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Success.');
                           console.log({'status': 'yes', 'message': 'success'});
