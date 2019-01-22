@@ -63,42 +63,14 @@ idex.depositEth = async function depositEth(provider, wei) {
 idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
   return new Promise(async function (resolve, reject) {
     try {
-      let trx = await web3.eth.getTransaction(txHash);
-      if (trx != null && trx.to != null) {
-
-        if (trx.from.toLowerCase() === walletAddress) {
-          useRedis.isValidHash(txHash, walletAddress).then((response) => {
-            if (response === '1') {
-              resolve([false, 'Already deposited.']);
-            }
-          });
-
-          const linkedWallet = relayWallet.getUserWalletProvider(walletAddress).addresses[0];
-
-          if (trx.input === '0x') {
-            let fromAddress = trx.from.toLowerCase();
-            let toAddress = trx.to.toLowerCase();
-            if (linkedWallet === toAddress) {
-              useRedis.saveHash(txHash, fromAddress);
-              resolve([true, true]);
-            }
-          } else {
-            let transaction = abiDecoder.decodeMethod(trx.input);
-            if (transaction.name === 'transfer') {
-              let fromAddress = trx.from.toLowerCase();
-              let toAddress = transaction.params[0].value.toLowerCase();
-              if (linkedWallet === toAddress) {
-                useRedis.saveHash(txHash, fromAddress);
-                resolve([true, true]);
-              }
-            } else {
-              resolve([false, 'Not transfer function.']);
-            }
-          }
+      useRedis.isValidHash(txHash, walletAddress).then((response) => {
+        if (response === '1') {
+          resolve([false, 'Already deposited.']);
+        } else {
+          useRedis.saveHash(txHash, walletAddress);
+          resolve([true, true]);
         }
-      } else {
-        resolve([false, 'Invalid transaction.']);
-      }
+      });
     } catch (e) {
       resolve([false, e.message]);
     }
@@ -115,16 +87,24 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
           if (trx.input === '0x') {
             let tokenAddress = '0x0000000000000000000000000000000000000000';
             let fromAddress = trx.from.toLowerCase();
+            let toAddress = trx.to.toLowerCase();
             let wei = trx.value;
-            resolve([fromAddress, wei, tokenAddress]);
+            const linkedWallet = relayWallet.getUserWalletProvider(fromAddress).addresses[0];
+            if (linkedWallet === toAddress) {
+              resolve([fromAddress, wei, tokenAddress]);
+            }
           } else {
             let transaction = abiDecoder.decodeMethod(trx.input);
 
             if (transaction.name === 'transfer') {
               let tokenAddress = trx.to.toLowerCase();
               let fromAddress = trx.from.toLowerCase();
+              let toAddress = transaction.params[0].value.toLowerCase();
               let wei = transaction.params[1].value;
-              resolve([fromAddress, wei, tokenAddress]);
+              const linkedWallet = relayWallet.getUserWalletProvider(fromAddress).addresses[0];
+              if (linkedWallet === toAddress) {
+                resolve([fromAddress, wei, tokenAddress]);
+              }
             }
           }
         }
