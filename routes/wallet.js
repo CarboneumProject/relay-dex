@@ -46,8 +46,9 @@ router.post('/withdraw', async (req, res, next) => {
           transfer.sendEth(mappedAddressProvider, mappedAddressProvider.addresses[0], walletAddress, amount);
         } else {
           erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
-        //TODO check error.
-        return res.send({'status': respond.status, 'message': respond.message});
+          //TODO check error.
+          return res.send({'status': respond.status, 'message': respond.message});
+        }
       } else {
         return res.send({'status': 'no', 'message': 'Please contact admin.'});
       }
