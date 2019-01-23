@@ -10,10 +10,11 @@ const config = require('./config');
 const network = config.getNetwork();
 
 const RESERVED_ETH = '2100000000000000';
+const redis = require("redis"), client = redis.createClient();
+
 
 function watchDepositedToLinkWallet() {
-  setTimeout(() => {
-    const redis = require("redis"), client = redis.createClient();
+  setInterval(() => {
     client.keys("txHash:*", function (err, txHash_dict) {
       if (txHash_dict !== null) {
         Object.keys(txHash_dict).forEach(function (row) {
@@ -21,8 +22,10 @@ function watchDepositedToLinkWallet() {
           idex.verifyTxHash(txHash).then((res) => {
             if (res) {
               let [walletAddress, wei, tokenAddress] = res;
+              console.log(res, walletAddress, wei, tokenAddress);
               useRedis.isValidHash(txHash, walletAddress.toLowerCase()).then((response) => {
                 if (response === '0') {
+                  console.log(txHash, ': is depositing.');
                   useRedis.markDeposited(txHash, walletAddress);
                   const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
                   if (tokenAddress === '0x0000000000000000000000000000000000000000') {
@@ -30,9 +33,11 @@ function watchDepositedToLinkWallet() {
                     idex.depositEth(mappedAddressProvider, wei - RESERVED_ETH).then((respond) => {
                       if (typeof respond === 'object') {
                         logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Success.');
+                        console.log({'status': 'yes', 'message': 'success'});
                       } else {
                         useRedis.saveHash(txHash, walletAddress);
                         logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Failed.');
+                        console.log({'status': 'no', 'message': 'Please contact admin.'});
                       }
                     });
                   } else {
@@ -47,9 +52,11 @@ function watchDepositedToLinkWallet() {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                             if (typeof respond === 'object') {
                               logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
+                              console.log({'status': 'yes', 'message': 'success'});
                             } else {
                               useRedis.saveHash(txHash, walletAddress);
                               logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
+                              console.log({'status': 'no', 'message': 'Please contact admin.'});
                             }
                           });
                         });
@@ -57,9 +64,11 @@ function watchDepositedToLinkWallet() {
                         idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                           if (typeof respond === 'object') {
                             logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
+                            console.log({'status': 'yes', 'message': 'success'});
                           } else {
                             useRedis.saveHash(txHash, walletAddress);
                             logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
+                            console.log({'status': 'no', 'message': 'Please contact admin.'});
                           }
                         });
                       }
@@ -67,20 +76,22 @@ function watchDepositedToLinkWallet() {
                   }
                 } else if (response === '1') {
                   logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' have been deposited.');
+                  console.log(txHash, ': have been deposited.');
                 } else {
                   logToFile.writeLog('loopDepoist.txt', txHash + ' ' + walletAddress + ' not found.');
+                  console.log('Not found.');
                 }
               });
 
             } else {
               logToFile.writeLog('loopDepoist.txt', txHash + ' Invalid signature.');
+              console.log(res, 'Invalid signature');
             }
           });
         });
       }
     });
-    return watchDepositedToLinkWallet();
-  }, 30 * 1000)
+  }, 30 * 1000);
 }
 
 watchDepositedToLinkWallet();
