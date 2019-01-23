@@ -202,9 +202,7 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
       s: s
     }
   }, async function (err, resp, body) {
-    console.log(body);
     if (body.hasOwnProperty('error')) {
-      console.log('error' + body);
       logToFile.writeLog('trade.txt',
         address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Error.' + body);
     } else {
@@ -299,7 +297,6 @@ idex.withdraw = async function withdraw(provider, token, amount) {
 
           if (output.method === 'returnValue') {
             if (Object.keys(output.payload).length === 0) {
-              console.log('success');
               resolve({status: 'yes', message: 'success'});
             } else {
               resolve({status: 'no', message: output.payload.message});
@@ -314,7 +311,7 @@ idex.withdraw = async function withdraw(provider, token, amount) {
 
   } catch (error) {
     console.log("Unknown error: ", error);
-    // return {status: 'no', message: error.message};
+    return {status: 'no', message: error.message};
   }
 
 

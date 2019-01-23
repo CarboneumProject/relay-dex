@@ -41,7 +41,6 @@ router.post('/withdraw', async (req, res, next) => {
     const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
     idex.withdraw(mappedAddressProvider, tokenAddress, amount).then((respond) => {
       if (respond){
-        console.log(respond);
         if (tokenAddress === '0x0000000000000000000000000000000000000000') {
           transfer.sendEth(mappedAddressProvider, mappedAddressProvider.addresses[0], walletAddress, amount);
         } else {
