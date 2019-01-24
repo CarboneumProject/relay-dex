@@ -1,6 +1,13 @@
 const logToFile = {};
 const path = require('path');
+const fs = require('fs');
 const {transports, createLogger, format} = require('winston');
+
+
+if ( !fs.existsSync(path.join(__dirname, '../logs/'))) {
+  // Create the directory if it does not exist
+  fs.mkdirSync(path.join(__dirname, '../logs/'));
+}
 
 logToFile.writeLog = function writeLog(filename, data) {
   const logger = createLogger({
