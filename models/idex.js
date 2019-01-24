@@ -203,10 +203,10 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
     }
   }, async function (err, resp, body) {
     if (body.hasOwnProperty('error')) {
-      logToFile.writeLog('trade.txt',
+      logToFile.writeLog('trade',
         address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Error.' + body);
     } else {
-      logToFile.writeLog('trade.txt',
+      logToFile.writeLog('trade',
         address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Success.');
       console.log('Success sending order', {
         tokenBuy: tokenBuy,

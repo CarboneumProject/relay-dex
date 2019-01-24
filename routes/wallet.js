@@ -34,7 +34,7 @@ router.post('/withdraw', async (req, res, next) => {
     const addressSigner = validateSignature(signature);
     if (addressSigner !== walletAddress.toLowerCase()) {
       res.status(400);
-      logToFile.writeLog('withdraw.txt', signature + ' ' + walletAddress + ' ' + 'Invalid signature.');
+      logToFile.writeLog('withdraw', signature + ' ' + walletAddress + ' ' + 'Invalid signature.');
       return res.send({'status': 'no', 'message': 'Invalid signature.'});
     }
 
@@ -46,15 +46,15 @@ router.post('/withdraw', async (req, res, next) => {
         } else {
           erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
         }
-        logToFile.writeLog('withdraw.txt', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
+        logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
         return res.send({'status': respond.status, 'message': respond.message});
       } else {
-        logToFile.writeLog('withdraw.txt', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Failed.');
+        logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Failed.');
         return res.send({'status': 'no', 'message': 'Please contact admin.'});
       }
       });
   } catch (e) {
-    logToFile.writeLog('withdraw.txt', 'Failed.' + ' ' + e.message);
+    logToFile.writeLog('withdraw', 'Failed.' + ' ' + e.message);
     console.error(e);
     return res.send({'status': 'no', 'message': e.message});
   }
@@ -69,23 +69,23 @@ router.post('/deposit_idex', async (req, res, next) => {
     const addressSigner = validateSignature(signature);
     if (addressSigner !== walletAddress) {
       res.status(400);
-      logToFile.writeLog('deposit.txt', signature + ' ' + walletAddress + ' ' + 'Invalid signature.');
+      logToFile.writeLog('deposit', signature + ' ' + walletAddress + ' ' + 'Invalid signature.');
       return res.send({'status': 'no', 'message': 'Invalid signature.'});
     }
 
     idex.getDepositAmount(walletAddress, txHash).then((response) => {
       let [status, errorMsg] = response;
       if (status) {
-        logToFile.writeLog('deposit.txt', txHash + ' ' + walletAddress + ' ' + 'Success.');
+        logToFile.writeLog('deposit', txHash + ' ' + walletAddress + ' ' + 'Success.');
         return res.send({'status': 'yes', 'message': 'success'});
       } else {
-        logToFile.writeLog('deposit.txt', txHash + ' ' + walletAddress + ' ' + 'Fail.' + errorMsg);
+        logToFile.writeLog('deposit', txHash + ' ' + walletAddress + ' ' + 'Fail.' + errorMsg);
         return res.send({'status': 'no', 'message': errorMsg});
       }
     });
   } catch (e) {
     console.error(e);
-    logToFile.writeLog('deposit.txt', 'Failed.' + ' ' + e.message);
+    logToFile.writeLog('deposit', 'Failed.' + ' ' + e.message);
     return res.send({'status': 'no', 'message': e.message});
   }
 });
