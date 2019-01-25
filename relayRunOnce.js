@@ -14,30 +14,35 @@ const c8Contract = new web3.eth.Contract(
   network.socialtrading,
 );
 
-const follow = c8Contract.events.Follow({}, (error, event) => {
-    const redis = require("redis"), client = redis.createClient();
-    if (error) return console.error(error);
-    console.log('Successfully followed!', event);
-
+c8Contract.getPastEvents({
+  fromBlock:  7069993 ,  //block number when contract created. (rinkeby:3706658)
+  toBlock: 'latest'
+}, (error, eventResult) => {
+  if (error) {
+    console.log('Error in myEvent event handler: ' + error);
+  }
+  const redis = require("redis"), client = redis.createClient();
+  for (let i=0; i < eventResult.length; i++) {
+    event = eventResult[i];
     if (event.event === 'Follow' && event.removed === false) {
       let leader = event.returnValues.leader.toLowerCase();
       let follower = event.returnValues.follower.toLowerCase();
       let percentage = event.returnValues.percentage / 10 ** 18;
       client.hset('leader:'+leader, follower, percentage);
+      console.log('[add] leader:'+leader, follower, percentage, i);
     }
-
-  })
-  .on('error', console.error);
-
-
-const unfollow = c8Contract.events.UnFollow({ }, (error, event) => {
-    const redis = require("redis"), client = redis.createClient();
-    if (error) return console.error(error, 'sad');
-    console.log('Successfully unfollowed!', event);
-    if (event.event === 'UnFollow' && event.removed === false) {
+    else if (event.event === 'UnFollow' && event.removed === false) {
       let leader = event.returnValues.leader.toLowerCase();
       let follower = event.returnValues.follower.toLowerCase();
-      client.hdel('leader:'+leader, follower);
+      client.hdel('leader:' + leader, follower);
+      console.log('[delete] leader:' + leader, follower, i);
     }
-  })
-  .on('error', console.error);
+  }
+  let lastBlockNumber = '0';
+  for (let i=0; i<eventResult.length; i++) {
+    lastBlockNumber = (++eventResult[i].blockNumber).toString();
+  }
+
+  console.log('lastBlockNumber', lastBlockNumber);
+});
+
