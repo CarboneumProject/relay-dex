@@ -7,6 +7,8 @@ const erc20 = require("../models/erc20");
 const transfer = require("../models/transfer");
 const logToFile = require("../models/logToFile");
 
+const IDEX_FEE = 0.95;  // MAX IDEX WITHDRAW FEE = 5%
+
 router.post('/register', async (req, res, next) => {
   try {
     const walletAddress = req.body.walletAddress;
@@ -42,9 +44,19 @@ router.post('/withdraw', async (req, res, next) => {
     idex.withdraw(mappedAddressProvider, tokenAddress, amount).then((respond) => {
       if (respond){
         if (tokenAddress === '0x0000000000000000000000000000000000000000') {
-          transfer.sendEth(mappedAddressProvider, mappedAddressProvider.addresses[0], walletAddress, amount);
+          transfer.sendEth(
+            mappedAddressProvider,
+            mappedAddressProvider.addresses[0],
+            walletAddress,
+            Math.floor(amount * IDEX_FEE)
+          );
         } else {
-          erc20.transfer(mappedAddressProvider, tokenAddress, walletAddress, amount);
+          erc20.transfer(
+            mappedAddressProvider,
+            tokenAddress,
+            walletAddress,
+            Math.floor(amount * IDEX_FEE)
+          );
         }
         logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
         return res.send({'status': respond.status, 'message': respond.message});
