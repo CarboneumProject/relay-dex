@@ -18,7 +18,7 @@ function watchDepositedToLinkWallet() {
     client.keys("txHash:new:*", function (err, txHash_dict) {
       if (txHash_dict !== null) {
         Object.keys(txHash_dict).forEach(function (row) {
-          let txHash = txHash_dict[row].split("txHash:")[1];
+          let txHash = txHash_dict[row].split("txHash:new:")[1];
           idex.verifyTxHash(txHash).then((res) => {
             if (res) {
               let [walletAddress, wei, tokenAddress] = res;
