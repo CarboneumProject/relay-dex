@@ -10,6 +10,7 @@
     "0x.js": "2.0.6",
     "@0xproject/connect": "^2.0.0",
     "@0xproject/json-schemas": "^1.0.1",
+    "@babel/runtime": "^7.3.1",
     "abi-decoder": "^1.2.0",
     "axios": "^0.18.0",
     "babel-polyfill": "^6.23.0",
