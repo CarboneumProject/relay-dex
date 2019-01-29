@@ -6,7 +6,7 @@ const networks = {
     IExchange: '',
     zxExchange: '0x22ebc052f43a88efa06379426120718170f2204e',
     relayWallet: '0xb45b4702187894a605893a260aab1103b3784a70',
-    IDEX_exchange: '0x2e404de9faebc4b94d7e21366bdf96534cd76585',
+    IDEX_exchange: '0xb583ef86fbaa630a67b62435ee797cb5ae4cc7e1',
     radarrelay_url: '',
     openrelay_url: ''
   },
@@ -43,7 +43,7 @@ const networks = {
 
 
 function getNetwork(network){
-  return networks[process.env.NETWORK || network || 'mainnet'];
+  return networks[process.env.NETWORK || network || 'rinkeby'];
 }
 
 

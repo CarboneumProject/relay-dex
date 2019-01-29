@@ -138,7 +138,7 @@ idex.depositToken = async function depositToken(provider, token, amount) {
 idex.getNextNonce = async function getNextNonce(address) {
   const nextNonce = await {
     method: 'POST',
-    url: 'https://api.idex.market/returnNextNonce',
+    url: 'http://localhost:8880/returnNextNonce',
     json:
       {
         address: address,
@@ -188,7 +188,7 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
 
   request({
     method: 'POST',
-    url: 'https://api.idex.market/order',
+    url: 'http://localhost:8880/order',
     json: {
       tokenBuy: tokenBuy,
       amountBuy: amountBuy,
@@ -263,7 +263,7 @@ idex.withdraw = async function withdraw(provider, token, amount) {
 
     function connect(args) {
       return new Promise(function (resolve, reject) {
-        const ws = new WebSocket('wss://v1.idex.market');
+        const ws = new WebSocket('ws://localhost:8881');
         ws.on('open', function open() {
           ws.send(` {
           "method": "handshake",
