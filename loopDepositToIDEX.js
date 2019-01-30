@@ -23,7 +23,9 @@ function watchDepositedToLinkWallet() {
             if (res) {
               let [walletAddress, wei, tokenAddress] = res;
               useRedis.isValidHash(txHash, walletAddress.toLowerCase()).then((response) => {
-                if (response === '0') {
+                if (response === '1') {
+                  logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' have been deposited.');
+                } else {
                   console.log(txHash, ': is depositing.');
                   useRedis.markDeposited(txHash, walletAddress);
                   const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
@@ -67,10 +69,6 @@ function watchDepositedToLinkWallet() {
                       }
                     });
                   }
-                } else if (response === '1') {
-                  logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' have been deposited.');
-                } else {
-                  logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' not found.');
                 }
               });
 
