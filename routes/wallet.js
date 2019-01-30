@@ -23,6 +23,7 @@ router.post('/register', async (req, res, next) => {
     return res.send({'walletAddress': walletAddress, 'linkedAddress': linkedWallet});
   } catch (e) {
     console.error(e);
+    res.status(500);
     return res.send({'status': 'no','message': e.message});
   }
 });
@@ -62,11 +63,13 @@ router.post('/withdraw', async (req, res, next) => {
         return res.send({'status': respond.status, 'message': respond.message});
       } else {
         logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Failed.');
+        res.status(400);
         return res.send({'status': 'no', 'message': 'Please contact admin.'});
       }
       });
   } catch (e) {
     logToFile.writeLog('withdraw', 'Failed.' + ' ' + e.message);
+    res.status(500);
     console.error(e);
     return res.send({'status': 'no', 'message': e.message});
   }
@@ -92,12 +95,14 @@ router.post('/deposit_idex', async (req, res, next) => {
         return res.send({'status': 'yes', 'message': 'success'});
       } else {
         logToFile.writeLog('deposit', txHash + ' ' + walletAddress + ' ' + 'Fail.' + errorMsg);
+        res.status(400);
         return res.send({'status': 'no', 'message': errorMsg});
       }
     });
   } catch (e) {
     console.error(e);
     logToFile.writeLog('deposit', 'Failed.' + ' ' + e.message);
+    res.status(500);
     return res.send({'status': 'no', 'message': e.message});
   }
 });
