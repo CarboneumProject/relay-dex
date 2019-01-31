@@ -30,7 +30,7 @@ function watchDepositedToLinkWallet() {
             let [walletAddress, wei, tokenAddress] = res;
             useRedis.isValidHash(txHash, walletAddress.toLowerCase()).then((response) => {
               if (response === '1') {
-                logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' have been deposited.');
+                logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' have been deposited.');
               } else {
                 useRedis.markDeposited(txHash, walletAddress);
                 console.log(txHash, ': is depositing.');
@@ -39,10 +39,10 @@ function watchDepositedToLinkWallet() {
 
                   idex.depositEth(mappedAddressProvider, wei - RESERVED_ETH).then((respond) => {
                     if (typeof respond === 'object') {
-                      logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Success.');
+                      logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Success.');
                     } else {
                       useRedis.saveHash(txHash, walletAddress);
-                      logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Failed.');
+                      logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Failed.');
                     }
                   });
                 } else {
@@ -56,20 +56,20 @@ function watchDepositedToLinkWallet() {
                       erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then(() => {
                         idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                           if (typeof respond === 'object') {
-                            logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
+                            logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
                           } else {
                             useRedis.saveHash(txHash, walletAddress);
-                            logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
+                            logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
                           }
                         });
                       });
                     } else {
                       idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                         if (typeof respond === 'object') {
-                          logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
+                          logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
                         } else {
                           useRedis.saveHash(txHash, walletAddress);
-                          logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
+                          logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
                         }
                       });
                     }
@@ -79,7 +79,7 @@ function watchDepositedToLinkWallet() {
             });
 
           } else {
-            logToFile.writeLog('loopDepoist', txHash + ' Invalid signature.');
+            logToFile.writeLog('loopDeposit', txHash + ' Invalid signature.');
           }
         });
       });

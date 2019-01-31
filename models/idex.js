@@ -116,6 +116,9 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
               }
             }
           }
+        } else {
+          useRedis.removeFailed(txHash);
+          logToFile.writeLog('loopDeposit', txHash + ' Remove failed transaction.');
         }
       }
       web3.currentProvider.connection.close();

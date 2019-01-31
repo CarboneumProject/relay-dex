@@ -17,6 +17,12 @@ useRedis.markDeposited = function markDeposited(txHash, walletAddress) {
   client.quit();
 };
 
+useRedis.removeFailed = function markDeposited(txHash) {
+  let client = redis.createClient();
+  client.del("txHash:new:" + txHash);
+  client.quit();
+};
+
 useRedis.isValidHash = async function isValidHash(txHash, walletAddress) {
   function getHashValue(txHash, walletAddress) {
     let client = redis.createClient();
