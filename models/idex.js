@@ -32,8 +32,9 @@ idex.balance = async function balance(token, user) {
     IDEX_abi,
     network.IDEX_exchange,
   );
-
-  return await idexContract.methods.balanceOf(token, user).call();
+  let result = await idexContract.methods.balanceOf(token, user).call();
+  web3.currentProvider.connection.close();
+  return result;
 };
 
 idex.isOrderMatched = async function isOrderMatched(orderHash) {  //orderHash: bytes32 (66 chars)['0x+64']
@@ -42,25 +43,29 @@ idex.isOrderMatched = async function isOrderMatched(orderHash) {  //orderHash: b
     IDEX_abi,
     network.IDEX_exchange,
   );
-
-  return await idexContract.methods.orderFills(orderHash).call();
+  let result = await idexContract.methods.orderFills(orderHash).call();
+  web3.currentProvider.connection.close();
+  return result;
 };
 
 idex.depositEth = async function depositEth(provider, wei) {
+  let web3Sign = new Web3(provider);
   try {
-    let web3Sign = new Web3(provider);
     let idexContractSign = new web3Sign.eth.Contract(
       IDEX_abi,
       network.IDEX_exchange,
     );
-    return await idexContractSign.methods.deposit().send({
+    let result = await idexContractSign.methods.deposit().send({
       from: provider.addresses[0],
       value: wei,
       gasLimit: 90000,
       gasPrice: web3Sign.eth.gasPrice
     });
+    web3Sign.currentProvider.connection.close();
+    return result;
   }
   catch (error) {
+    web3Sign.currentProvider.connection.close();
     return error.message;
   }
 };
@@ -84,9 +89,8 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
 
 idex.verifyTxHash = async function verifyTxHash(txHash) {
   return new Promise(async function (resolve, reject) {
+    let web3 = new Web3(new Web3.providers.WebsocketProvider(network.ws_url));
     try {
-      let web3 = new Web3(new Web3.providers.WebsocketProvider(network.ws_url));
-
       let trx = await web3.eth.getTransaction(txHash);
       if (trx != null && trx.to != null) {
         let receipt = await web3.eth.getTransactionReceipt(txHash);
@@ -116,27 +120,32 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
           }
         }
       }
+      web3.currentProvider.connection.close();
       resolve(0);
     } catch (e) {
+      web3.currentProvider.connection.close();
       resolve(0);
     }
   });
 };
 
 idex.depositToken = async function depositToken(provider, token, amount) {
+  let web3Sign = new Web3(provider);
   try {
-    let web3Sign = new Web3(provider);
     let idexContractSign = new web3Sign.eth.Contract(
       IDEX_abi,
       network.IDEX_exchange,
     );
-    return await idexContractSign.methods.depositToken(token, amount).send({
+    let result = await idexContractSign.methods.depositToken(token, amount).send({
       from: provider.addresses[0],
       value: 0,
       gasLimit: 210000,
       gasPrice: web3Sign.eth.gasPrice
     });
+    web3Sign.currentProvider.connection.close();
+    return result;
   } catch (error) {
+    web3Sign.currentProvider.connection.close();
     return error.message;
   }
 };
