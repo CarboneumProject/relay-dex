@@ -13,7 +13,6 @@ const RESERVED_ETH = '2100000000000000';
 const redis = require("redis");
 
 function watchDepositedToLinkWallet() {
-  setInterval(() => {
     let client = redis.createClient();
     client.keys("txHash:new:*", function (err, txHash_dict) {
       if (txHash_dict !== null) {
@@ -26,8 +25,8 @@ function watchDepositedToLinkWallet() {
                 if (response === '1') {
                   logToFile.writeLog('loopDepoist', txHash + ' ' + walletAddress + ' have been deposited.');
                 } else {
-                  console.log(txHash, ': is depositing.');
                   useRedis.markDeposited(txHash, walletAddress);
+                  console.log(txHash, ': is depositing.');
                   const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
                   if (tokenAddress === '0x0000000000000000000000000000000000000000') {
 
@@ -80,7 +79,6 @@ function watchDepositedToLinkWallet() {
       }
     });
     client.quit();
-  }, 30 * 1000);
 }
 
 watchDepositedToLinkWallet();
