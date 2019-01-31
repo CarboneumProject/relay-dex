@@ -21,24 +21,28 @@ const relayWallet = require('../models/relayWallet');
 const logToFile = require("../models/logToFile");
 
 const network = config.getNetwork();
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider(network.ws_url),
-);
 
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(ERC20_abi);
 
-const idexContract = new web3.eth.Contract(
-  IDEX_abi,
-  network.IDEX_exchange,
-);
-
 
 idex.balance = async function balance(token, user) {
+  let web3 = new Web3(new Web3.providers.WebsocketProvider(network.ws_url));
+  let idexContract = new web3.eth.Contract(
+    IDEX_abi,
+    network.IDEX_exchange,
+  );
+
   return await idexContract.methods.balanceOf(token, user).call();
 };
 
 idex.isOrderMatched = async function isOrderMatched(orderHash) {  //orderHash: bytes32 (66 chars)['0x+64']
+  let web3 = new Web3(new Web3.providers.WebsocketProvider(network.ws_url));
+  let idexContract = new web3.eth.Contract(
+    IDEX_abi,
+    network.IDEX_exchange,
+  );
+
   return await idexContract.methods.orderFills(orderHash).call();
 };
 
@@ -81,6 +85,8 @@ idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
 idex.verifyTxHash = async function verifyTxHash(txHash) {
   return new Promise(async function (resolve, reject) {
     try {
+      let web3 = new Web3(new Web3.providers.WebsocketProvider(network.ws_url));
+
       let trx = await web3.eth.getTransaction(txHash);
       if (trx != null && trx.to != null) {
         let receipt = await web3.eth.getTransactionReceipt(txHash);
