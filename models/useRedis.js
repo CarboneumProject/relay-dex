@@ -3,6 +3,7 @@ const useRedis = {};
 let redis = require("redis"), client = redis.createClient();
 
 useRedis.saveHash = function saveHash(txHash, walletAddress) {
+  client.del("txHash:done:" + txHash);
   client.hset('txHash:new:' + txHash, walletAddress.toLowerCase(), 0);
   client.expire('txHash:new:' + txHash, 60 * 60 * 24);  //Expire in 24 hrs.
 };
