@@ -13,8 +13,9 @@ const RESERVED_ETH = '2100000000000000';
 const redis = require("redis");
 
 function watchDepositedToLinkWallet() {
+  return new Promise(async function (resolve, reject) {
     let client = redis.createClient();
-    client.keys("txHash:new:*", function (err, txHash_dict) {
+    await client.keys("txHash:new:*", function (err, txHash_dict) {
       if (txHash_dict !== null) {
         Object.keys(txHash_dict).forEach(function (row) {
           let txHash = txHash_dict[row].split("txHash:new:")[1];
@@ -78,7 +79,10 @@ function watchDepositedToLinkWallet() {
         });
       }
     });
-    client.quit();
+    resolve(true);
+  });
 }
 
-watchDepositedToLinkWallet();
+watchDepositedToLinkWallet().then(() => {
+  process.exit();
+});
