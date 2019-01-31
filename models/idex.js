@@ -49,23 +49,21 @@ idex.isOrderMatched = async function isOrderMatched(orderHash) {  //orderHash: b
 };
 
 idex.depositEth = async function depositEth(provider, wei) {
-  let web3Sign = new Web3(provider);
   try {
+    let web3Sign = new Web3(provider);
     let idexContractSign = new web3Sign.eth.Contract(
       IDEX_abi,
       network.IDEX_exchange,
     );
-    let result = await idexContractSign.methods.deposit().send({
+    return await idexContractSign.methods.deposit().send({
       from: provider.addresses[0],
       value: wei,
       gasLimit: 90000,
       gasPrice: web3Sign.eth.gasPrice
     });
-    web3Sign.currentProvider.connection.close();
-    return result;
   }
   catch (error) {
-    web3Sign.currentProvider.connection.close();
+    console.log(error, ' error');
     return error.message;
   }
 };
@@ -130,22 +128,19 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
 };
 
 idex.depositToken = async function depositToken(provider, token, amount) {
-  let web3Sign = new Web3(provider);
   try {
+    let web3Sign = new Web3(provider);
     let idexContractSign = new web3Sign.eth.Contract(
       IDEX_abi,
       network.IDEX_exchange,
     );
-    let result = await idexContractSign.methods.depositToken(token, amount).send({
+    return await idexContractSign.methods.depositToken(token, amount).send({
       from: provider.addresses[0],
       value: 0,
       gasLimit: 210000,
       gasPrice: web3Sign.eth.gasPrice
     });
-    web3Sign.currentProvider.connection.close();
-    return result;
   } catch (error) {
-    web3Sign.currentProvider.connection.close();
     return error.message;
   }
 };
