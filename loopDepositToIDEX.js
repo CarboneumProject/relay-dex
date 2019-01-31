@@ -13,6 +13,7 @@ const RESERVED_ETH = '2100000000000000';
 const redis = require("redis");
 
 function watchDepositedToLinkWallet() {
+  setInterval(() => {
     let client = redis.createClient();
     client.keys("txHash:new:*", function (err, txHash_dict) {
       if (txHash_dict !== null) {
@@ -79,6 +80,7 @@ function watchDepositedToLinkWallet() {
       }
     });
     client.quit();
+  }, 30 * 1000);
 }
 
 watchDepositedToLinkWallet();
