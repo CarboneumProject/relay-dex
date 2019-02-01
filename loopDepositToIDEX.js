@@ -32,28 +32,43 @@ function watchDepositedToLinkWallet() {
               if (response === '1') {
                 logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' have been deposited.');
               } else {
-                useRedis.markDeposited(txHash, walletAddress);
-                console.log(txHash, ': is depositing.');
-                const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
-                if (tokenAddress === '0x0000000000000000000000000000000000000000') {
+                useRedis.getAmount(txHash, walletAddress.toLowerCase()).then((amount) => {
+                  let amountDeposited = wei - RESERVED_ETH;
+                  if (amount && amount !== '0') {
+                    amountDeposited = amount;
+                  }
+                  useRedis.markDeposited(txHash, walletAddress);
+                  console.log(txHash, ': is depositing.');
+                  const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
+                  if (tokenAddress === '0x0000000000000000000000000000000000000000') {
 
-                  idex.depositEth(mappedAddressProvider, wei - RESERVED_ETH).then((respond) => {
-                    if (typeof respond === 'object') {
-                      logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Success.');
-                    } else {
-                      useRedis.saveHash(txHash, walletAddress);
-                      logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Failed.');
-                    }
-                  });
-                } else {
-                  erc20.allowance(
-                    mappedAddressProvider,
-                    tokenAddress,
-                    mappedAddressProvider.addresses[0],
-                    network.IDEX_exchange //IDEX contract
-                  ).then((allowance) => {
-                    if (allowance <= MAX_ALLOWANCE / 2) {
-                      erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then(() => {
+                    idex.depositEth(mappedAddressProvider, amountDeposited).then((respond) => {
+                      if (typeof respond === 'object') {
+                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Success.');
+                      } else {
+                        useRedis.saveHash(txHash, walletAddress);
+                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Failed.');
+                      }
+                    });
+                  } else {
+                    erc20.allowance(
+                      mappedAddressProvider,
+                      tokenAddress,
+                      mappedAddressProvider.addresses[0],
+                      network.IDEX_exchange //IDEX contract
+                    ).then((allowance) => {
+                      if (allowance <= MAX_ALLOWANCE / 2) {
+                        erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then(() => {
+                          idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
+                            if (typeof respond === 'object') {
+                              logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
+                            } else {
+                              useRedis.saveHash(txHash, walletAddress);
+                              logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
+                            }
+                          });
+                        });
+                      } else {
                         idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                           if (typeof respond === 'object') {
                             logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
@@ -62,19 +77,10 @@ function watchDepositedToLinkWallet() {
                             logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
                           }
                         });
-                      });
-                    } else {
-                      idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
-                        if (typeof respond === 'object') {
-                          logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
-                        } else {
-                          useRedis.saveHash(txHash, walletAddress);
-                          logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
-                        }
-                      });
-                    }
-                  });
-                }
+                      }
+                    });
+                  }
+                });
               }
             });
 

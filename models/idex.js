@@ -68,14 +68,14 @@ idex.depositEth = async function depositEth(provider, wei) {
   }
 };
 
-idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash) {
+idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash, amount="0") {
   return new Promise(async function (resolve, reject) {
     try {
       useRedis.isValidHash(txHash, walletAddress).then((response) => {
         if (response === '1') {
           resolve([false, 'Already deposited.']);
         } else {
-          useRedis.saveHash(txHash, walletAddress);
+          useRedis.saveHash(txHash, walletAddress, amount);
           resolve([true, true]);
         }
       });

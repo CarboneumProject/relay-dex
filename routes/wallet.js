@@ -107,4 +107,37 @@ router.post('/deposit_idex', async (req, res, next) => {
   }
 });
 
+router.post('/deposit_idex_amount', async (req, res, next) => {
+  try {
+    const walletAddress =  req.body.walletAddress.toLowerCase();
+    const tokenAddress = req.body.tokenAddress.toLowerCase();
+    const amount = req.body.amount;
+    const txHash = req.body.txHash;
+    const signature = req.body.signature;
+    const addressSigner = validateSignature(signature);
+    if (addressSigner !== walletAddress) {
+      res.status(400);
+      logToFile.writeLog('deposit', signature + ' ' + walletAddress + ' ' + 'Invalid signature.');
+      return res.send({'status': 'no', 'message': 'Invalid signature.'});
+    }
+
+    idex.getDepositAmount(walletAddress, txHash, amount).then((response) => {
+      let [status, errorMsg] = response;
+      if (status) {
+        logToFile.writeLog('deposit', txHash + ' ' + walletAddress + ' ' + 'Success.');
+        return res.send({'status': 'yes', 'message': 'success'});
+      } else {
+        logToFile.writeLog('deposit', txHash + ' ' + walletAddress + ' ' + 'Fail.' + errorMsg);
+        res.status(400);
+        return res.send({'status': 'no', 'message': errorMsg});
+      }
+    });
+  } catch (e) {
+    console.error(e);
+    logToFile.writeLog('deposit', 'Failed.' + ' ' + e.message);
+    res.status(500);
+    return res.send({'status': 'no', 'message': e.message});
+  }
+});
+
 module.exports = router;
