@@ -46,7 +46,7 @@ function watchDepositedToLinkWallet() {
                       if (typeof respond === 'object') {
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Success.');
                       } else {
-                        useRedis.saveHash(txHash, walletAddress);
+                        useRedis.saveHash(txHash, walletAddress, amountDeposited);
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Failed.');
                       }
                     });
