@@ -44,10 +44,10 @@ function watchDepositedToLinkWallet() {
 
                     idex.depositEth(mappedAddressProvider, amountDeposited).then((respond) => {
                       if (typeof respond === 'object') {
-                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Success.');
+                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Success.');
                       } else {
                         useRedis.saveHash(txHash, walletAddress);
-                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ETH Failed.');
+                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Failed.');
                       }
                     });
                   } else {
