@@ -117,24 +117,24 @@ router.post('/deposit_idex_amount', async (req, res, next) => {
     const addressSigner = validateSignature(signature);
     if (addressSigner !== walletAddress) {
       res.status(400);
-      logToFile.writeLog('deposit', signature + ' ' + walletAddress + ' ' + 'Invalid signature.');
+      logToFile.writeLog('deposit_amount', signature + ' ' + walletAddress + ' ' + amount + ' Invalid signature.');
       return res.send({'status': 'no', 'message': 'Invalid signature.'});
     }
 
     idex.getDepositAmount(walletAddress, txHash, amount).then((response) => {
       let [status, errorMsg] = response;
       if (status) {
-        logToFile.writeLog('deposit', txHash + ' ' + walletAddress + ' ' + 'Success.');
+        logToFile.writeLog('deposit_amount', txHash + ' ' + walletAddress + ' ' + amount + ' Success.');
         return res.send({'status': 'yes', 'message': 'success'});
       } else {
-        logToFile.writeLog('deposit', txHash + ' ' + walletAddress + ' ' + 'Fail.' + errorMsg);
+        logToFile.writeLog('deposit_amount', txHash + ' ' + walletAddress + ' ' + amount + ' Fail.' + errorMsg);
         res.status(400);
         return res.send({'status': 'no', 'message': errorMsg});
       }
     });
   } catch (e) {
     console.error(e);
-    logToFile.writeLog('deposit', 'Failed.' + ' ' + e.message);
+    logToFile.writeLog('deposit_amount', 'Failed.' + ' ' + e.message);
     res.status(500);
     return res.send({'status': 'no', 'message': e.message});
   }
