@@ -1,7 +1,7 @@
 const networks = {
   rinkeby: {
     name : 'rinkeby',
-    ws_url: 'wss://rinkeby.infura.io/_ws',
+    ws_url: 'wss://rinkeby.infura.io/ws',
     socialtrading: '0xb5cb474368d03ffda12cb60fde515221fb2029bb',
     IExchange: '',
     zxExchange: '0x22ebc052f43a88efa06379426120718170f2204e',
@@ -13,7 +13,7 @@ const networks = {
 
   kovan: {
     name : 'kovan',
-    ws_url: 'wss://kovan.infura.io/_ws',
+    ws_url: 'wss://kovan.infura.io/ws',
     socialtrading: '0xd598AC2393Ea26a9b1AA391ba8c4b55F77C278D0',
     IExchange: {
       sender: '0xa250a55a282af49809b7be653631f12603c3797b',
@@ -29,7 +29,7 @@ const networks = {
 
   mainnet: {
     name : 'mainnet',
-    // ws_url: 'wss://mainnet.infura.io/_ws',
+    // ws_url: 'wss://mainnet.infura.io/ws',
     ws_url: 'ws://x.stockradars.co:8546',
     socialtrading: '0x53742f3184cea2378de14e4402c7fd9e1c6ad97b',
     IExchange: '',
