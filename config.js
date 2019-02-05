@@ -2,7 +2,7 @@ const networks = {
   rinkeby: {
     name : 'rinkeby',
     ws_url: 'wss://rinkeby.infura.io/ws',
-    socialtrading: '0xb5cb474368d03ffda12cb60fde515221fb2029bb',
+    socialtrading: '0x02bc0cf6311bb8033cf2d8cef08af89c28bc9add',
     IExchange: '',
     zxExchange: '0x22ebc052f43a88efa06379426120718170f2204e',
     relayWallet: '0xb45b4702187894a605893a260aab1103b3784a70',
