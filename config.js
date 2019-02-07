@@ -2,13 +2,15 @@ const networks = {
   rinkeby: {
     name : 'rinkeby',
     ws_url: 'wss://rinkeby.infura.io/ws',
-    socialtrading: '0x02bc0cf6311bb8033cf2d8cef08af89c28bc9add',
+    socialtrading: '0xcb283c31ec64eaf4d9d383828c5eaee157eb7830',
     IExchange: '',
     zxExchange: '0x22ebc052f43a88efa06379426120718170f2204e',
     relayWallet: '0xb45b4702187894a605893a260aab1103b3784a70',
     IDEX_exchange: '0xb583ef86fbaa630a67b62435ee797cb5ae4cc7e1',
     radarrelay_url: '',
-    openrelay_url: ''
+    openrelay_url: '',
+    IDEX_API_BASE_URL: 'http://localhost:8880',
+    IDEX_API_BASE_WS: 'ws://localhost:8881'
   },
 
   kovan: {
@@ -23,21 +25,24 @@ const networks = {
     relayWallet: '',
     IDEX_exchange: '0x2a0c0dbecc7e4d658f48e01e3fa353f44050c208',
     radarrelay_url: 'https://api.kovan.radarrelay.com',
-    openrelay_url: 'https://api.openrelay.xyz'
-
+    openrelay_url: 'https://api.openrelay.xyz',
+    IDEX_API_BASE_URL: 'http://localhost:8880',
+    IDEX_API_BASE_WS: 'ws://localhost:8881'
   },
 
   mainnet: {
     name : 'mainnet',
     // ws_url: 'wss://mainnet.infura.io/ws',
     ws_url: 'ws://x.stockradars.co:8546',
-    socialtrading: '0x53742f3184cea2378de14e4402c7fd9e1c6ad97b',
+    socialtrading: '0xd1f49c7a37f4822336a203ef477c6492f74c9cca',
     IExchange: '',
     zxExchange: '0x4f833a24e1f95d70f028921e27040ca56e09ab0b',
     relayWallet: '',
     IDEX_exchange: '0x2a0c0dbecc7e4d658f48e01e3fa353f44050c208',
     radarrelay_url: 'https://api.radarrelay.com',
-    openrelay_url: 'https://api.openrelay.xyz'
+    openrelay_url: 'https://api.openrelay.xyz',
+    IDEX_API_BASE_URL: 'https://api.idex.market',
+    IDEX_API_BASE_WS: 'wss://v1.idex.market'
   },
 };
 

@@ -61,14 +61,13 @@ idex.depositEth = async function depositEth(provider, wei) {
       gasLimit: 90000,
       gasPrice: web3Sign.eth.gasPrice
     });
-  }
-  catch (error) {
+  } catch (error) {
     console.log(error, ' error');
     return error.message;
   }
 };
 
-idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash, amount="0") {
+idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash, amount = "0") {
   return new Promise(async function (resolve, reject) {
     try {
       useRedis.isValidHash(txHash, walletAddress).then((response) => {
@@ -151,7 +150,7 @@ idex.depositToken = async function depositToken(provider, token, amount) {
 idex.getNextNonce = async function getNextNonce(address) {
   const nextNonce = await {
     method: 'POST',
-    url: 'http://localhost:8880/returnNextNonce',
+    url: network.IDEX_API_BASE_URL + '/returnNextNonce',
     json:
       {
         address: address,
@@ -201,7 +200,7 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
 
   request({
     method: 'POST',
-    url: 'http://localhost:8880/order',
+    url: network.IDEX_API_BASE_URL + '/order',
     json: {
       tokenBuy: tokenBuy,
       amountBuy: amountBuy,
@@ -276,7 +275,7 @@ idex.withdraw = async function withdraw(provider, token, amount) {
 
     function connect(args) {
       return new Promise(function (resolve, reject) {
-        const ws = new WebSocket('ws://localhost:8881');
+        const ws = new WebSocket(network.IDEX_API_BASE_WS);
         ws.on('open', function open() {
           ws.send(` {
           "method": "handshake",
@@ -320,6 +319,7 @@ idex.withdraw = async function withdraw(provider, token, amount) {
         });
       });
     }
+
     return await connect(args);
 
   } catch (error) {
