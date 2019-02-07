@@ -14,6 +14,25 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "rewards",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -26,6 +45,40 @@
       }
     ],
     "name": "follow",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_leader",
+        "type": "address"
+      },
+      {
+        "name": "_follower",
+        "type": "address"
+      },
+      {
+        "name": "_reward",
+        "type": "uint256"
+      },
+      {
+        "name": "_relayFee",
+        "type": "uint256"
+      },
+      {
+        "name": "_openTradeHash",
+        "type": "bytes32"
+      },
+      {
+        "name": "_closeTradeHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "distributeReward",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -63,6 +116,20 @@
       }
     ],
     "name": "leaderToFollowersIndex",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "feeToken",
     "outputs": [
       {
         "name": "",
@@ -135,11 +202,20 @@
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "uint8"
       }
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "claimReward",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -162,10 +238,6 @@
       },
       {
         "name": "percentage",
-        "type": "uint256"
-      },
-      {
-        "name": "timeStamp",
         "type": "uint256"
       },
       {
@@ -197,6 +269,67 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "relays",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_relay",
+        "type": "address"
+      }
+    ],
+    "name": "removeRelay",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_relay",
+        "type": "address"
+      }
+    ],
+    "name": "registerRelay",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "feeWallet",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -209,6 +342,21 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "name": "_feeWallet",
+        "type": "address"
+      },
+      {
+        "name": "_feeToken",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
     "payable": false,
@@ -252,6 +400,67 @@
       }
     ],
     "name": "UnFollow",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "relay",
+        "type": "address"
+      }
+    ],
+    "name": "AddRelay",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "relay",
+        "type": "address"
+      }
+    ],
+    "name": "RemoveRelay",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "leader",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "follower",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "relay",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "rewardAndFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "openTradeHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "closeTradeHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "PaidReward",
     "type": "event"
   },
   {
