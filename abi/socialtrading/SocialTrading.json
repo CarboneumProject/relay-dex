@@ -14,25 +14,6 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "rewards",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [
       {
@@ -45,40 +26,6 @@
       }
     ],
     "name": "follow",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_leader",
-        "type": "address"
-      },
-      {
-        "name": "_follower",
-        "type": "address"
-      },
-      {
-        "name": "_reward",
-        "type": "uint256"
-      },
-      {
-        "name": "_relayFee",
-        "type": "uint256"
-      },
-      {
-        "name": "_openTradeHash",
-        "type": "bytes32"
-      },
-      {
-        "name": "_closeTradeHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "distributeReward",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -210,15 +157,6 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [],
-    "name": "claimReward",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [
       {
@@ -296,6 +234,36 @@
       }
     ],
     "name": "removeRelay",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_leader",
+        "type": "address"
+      },
+      {
+        "name": "_follower",
+        "type": "address"
+      },
+      {
+        "name": "_reward",
+        "type": "uint256"
+      },
+      {
+        "name": "_relayFee",
+        "type": "uint256"
+      },
+      {
+        "name": "_orderHashes",
+        "type": "bytes32[4]"
+      }
+    ],
+    "name": "distributeReward",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -451,12 +419,22 @@
       },
       {
         "indexed": false,
-        "name": "openTradeHash",
+        "name": "leaderOpenOrderHash",
         "type": "bytes32"
       },
       {
         "indexed": false,
-        "name": "closeTradeHash",
+        "name": "leaderCloseOrderHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "followerOpenOrderHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "followercloseOrderHash",
         "type": "bytes32"
       }
     ],

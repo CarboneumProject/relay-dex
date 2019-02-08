@@ -25,6 +25,34 @@ const network = config.getNetwork();
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(ERC20_abi);
 
+idex.orderHash = function orderHash(tokenBuy, amountBuy, tokenSell, amountSell, expires, nonce, address) {
+  const raw = soliditySha3({
+    t: 'address',
+    v: network.IDEX_exchange
+  }, {
+    t: 'address',
+    v: tokenBuy
+  }, {
+    t: 'uint256',
+    v: amountBuy
+  }, {
+    t: 'address',
+    v: tokenSell
+  }, {
+    t: 'uint256',
+    v: amountSell
+  }, {
+    t: 'uint256',
+    v: expires
+  }, {
+    t: 'uint256',
+    v: nonce
+  }, {
+    t: 'address',
+    v: address
+  });
+  return bufferToHex(toBuffer(raw));
+};
 
 idex.balance = async function balance(token, user) {
   let web3 = new Web3(new Web3.providers.WebsocketProvider(network.ws_url));
@@ -230,7 +258,8 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
         expires: expires
       })
     }
-  })
+  });
+  return bufferToHex(toBuffer(raw));
 };
 
 idex.withdraw = async function withdraw(provider, token, amount) {
