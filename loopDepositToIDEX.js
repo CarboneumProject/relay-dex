@@ -45,7 +45,8 @@ function watchDepositedToLinkWallet() {
         let txHash = txHash_dict[row].split("txHash:new:")[1];
         idex.verifyTxHash(txHash).then((res) => {
           if (res) {
-            let [walletAddress, wei, tokenAddress] = res;
+            let [walletAddress, wei_temp, tokenAddress] = res;
+            let wei = Number(wei_temp).noExponents();
             useRedis.isValidHash(txHash, walletAddress.toLowerCase()).then((response) => {
               if (response === '1') {
                 logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' have been deposited.');
@@ -57,7 +58,7 @@ function watchDepositedToLinkWallet() {
                   if (tokenAddress === '0x0000000000000000000000000000000000000000') {
                     let amountDeposited = Number(Number(wei - RESERVED_ETH).toFixed(0)).noExponents();
                     if (amount && amount !== '0') {
-                      amountDeposited = amount;
+                      amountDeposited =  Number(amount).noExponents();
                     }
 
                     idex.depositEth(mappedAddressProvider, amountDeposited).then((respond) => {
