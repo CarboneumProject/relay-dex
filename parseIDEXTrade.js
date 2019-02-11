@@ -78,18 +78,16 @@ async function watchIDEXTransfers (blockNumber) {
                   let txHash = trx.hash;
                   let amountNetSell = amountSell;
 
-                  // TODO if it is copy order then pass.
                   let orderHash = idex.orderHash(tokenBuy, amountBuy, tokenSell, amountSell, expires, nonce, maker);
                   const copyOrder = await getAsync('order:' + orderHash);
                   if (copyOrder != null) {
-                    // TODO Update call social trading for distribute reward and fee.
                     let order = JSON.parse(copyOrder);
                     await socialTrading.distributeReward(
                       order.leader,
                       order.follower,
                       order.reward,
                       order.relayFee,
-                      order.orderHashes,
+                      [order.leaderTxHash, '0x', txHash, '0x'],
                     );
                   } else {
                     if (amountBuy !== amountNetBuy) {
@@ -108,12 +106,7 @@ async function watchIDEXTransfers (blockNumber) {
                               follower: follower,
                               reward: network.REWARD,
                               relayFee: network.FEE,
-                              orderHashes: [
-                                orderHash,
-                                '0x0',
-                                followerOrderHash,
-                                '0x0',
-                              ],
+                              leaderTxHash: txHash,
                             };
                             client.set('order:' + followerOrderHash, JSON.stringify(order));
                           }
