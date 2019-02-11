@@ -8,6 +8,7 @@ const transfer = require("../models/transfer");
 const logToFile = require("../models/logToFile");
 
 const IDEX_FEE = 0.95;  // MAX IDEX WITHDRAW FEE = 5%
+const MIN_DEPOSIT = 4000000000000000;  // MIN DEPOSIT' ETH AMOUNT (0.004 ETH)
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -119,6 +120,11 @@ router.post('/deposit_idex_amount', async (req, res, next) => {
       res.status(400);
       logToFile.writeLog('deposit_amount', signature + ' ' + walletAddress + ' ' + amount + ' Invalid signature.');
       return res.send({'status': 'no', 'message': 'Invalid signature.'});
+    }
+
+    if (amount < MIN_DEPOSIT) {
+      res.status(400);
+      return res.send({'status': 'no', 'message': 'MIN DEPOSIT\' ETH AMOUNT (0.004 ETH)'});
     }
 
     idex.getDepositAmount(walletAddress, txHash, amount).then((response) => {
