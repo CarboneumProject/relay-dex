@@ -1,6 +1,7 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const SocialTradingABI = require('../abi/socialtrading/SocialTrading');
 const Web3 = require('web3');
+const config = require('../config');
 const network = config.getNetwork();
 const providerWithMnemonic = (mnemonic, rpcEndpoint) =>
   new HDWalletProvider(mnemonic, rpcEndpoint);
