@@ -127,12 +127,7 @@ async function watchIDEXTransfers (blockNumber) {
                               follower: follower,
                               reward: network.REWARD,
                               relayFee: network.FEE,
-                              orderHashes: [
-                                orderHash,
-                                '0x0',
-                                followerOrderHash,
-                                '0x0',
-                              ],
+                              leaderTxHash: txHash,
                             };
                             client.set('order:' + followerOrderHash, JSON.stringify(order));
                           }
