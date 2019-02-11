@@ -11,8 +11,8 @@ const networks = {
     openrelay_url: '',
     IDEX_API_BASE_URL: 'http://api.carbonradars.io:8880',
     IDEX_API_BASE_WS: 'ws://api.carbonradars.io:8881',
-    REWARD: 48,
-    FEE: 8,
+    REWARD: '48000000000000000000',
+    FEE: '8000000000000000000',
   },
 
   kovan: {
@@ -30,8 +30,8 @@ const networks = {
     openrelay_url: 'https://api.openrelay.xyz',
     IDEX_API_BASE_URL: 'http://api.carbonradars.io:8880',
     IDEX_API_BASE_WS: 'ws://api.carbonradars.io:8881',
-    REWARD: 48,
-    FEE: 8,
+    REWARD: '48000000000000000000',
+    FEE: '8000000000000000000',
   },
 
   mainnet: {
@@ -47,8 +47,8 @@ const networks = {
     openrelay_url: 'https://api.openrelay.xyz',
     IDEX_API_BASE_URL: 'https://api.idex.market',
     IDEX_API_BASE_WS: 'wss://v1.idex.market',
-    REWARD: 48,
-    FEE: 8,
+    REWARD: '48000000000000000000',
+    FEE: '8000000000000000000',
   },
 };
 
