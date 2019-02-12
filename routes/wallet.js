@@ -8,7 +8,24 @@ const transfer = require("../models/transfer");
 const logToFile = require("../models/logToFile");
 
 const IDEX_FEE = 0.95;  // MAX IDEX WITHDRAW FEE = 5%
-const MIN_DEPOSIT = 4000000000000000;  // MIN DEPOSIT' ETH AMOUNT (0.004 ETH)
+
+Number.prototype.noExponents = function () {
+  var data = String(this).split(/[eE]/);
+  if (data.length === 1) return data[0];
+
+  var z = '', sign = this < 0 ? '-' : '',
+    str = data[0].replace('.', ''),
+    mag = Number(data[1]) + 1;
+
+  if (mag < 0) {
+    z = sign + '0.';
+    while (mag++) z += '0';
+    return z + str.replace(/^\-/, '');
+  }
+  mag -= str.length;
+  while (mag--) z += '0';
+  return str + z;
+};
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -53,14 +70,14 @@ router.post('/withdraw', async (req, res, next) => {
               mappedAddressProvider,
               mappedAddressProvider.addresses[0],
               walletAddress,
-              Math.floor(amount * IDEX_FEE)
+              Number(Math.floor(amount * IDEX_FEE)).noExponents()
             );
           } else {
             erc20.transfer(
               mappedAddressProvider,
               tokenAddress,
               walletAddress,
-              Math.floor(amount * IDEX_FEE)
+              Number(Math.floor(amount * IDEX_FEE)).noExponents()
             );
           }
           logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
@@ -128,11 +145,6 @@ router.post('/deposit_idex_amount', async (req, res, next) => {
       res.status(400);
       logToFile.writeLog('deposit_amount', signature + ' ' + walletAddress + ' ' + amount + ' Invalid signature.');
       return res.send({'status': 'no', 'message': 'Invalid signature.'});
-    }
-
-    if (amount < MIN_DEPOSIT) {
-      res.status(400);
-      return res.send({'status': 'no', 'message': 'MIN DEPOSIT\' ETH AMOUNT (0.004 ETH)'});
     }
 
     idex.getDepositAmount(walletAddress, txHash, amount).then((response) => {
