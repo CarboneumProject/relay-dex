@@ -27,7 +27,7 @@ socialTrading.distributeReward = async function distributeReward (
     SocialTradingABI,
     contractAddress,
   );
-  let ret = await socialTradingContract.methods.distributeReward(
+  return await socialTradingContract.methods.distributeReward(
     leader,
     follower,
     reward,
@@ -39,8 +39,6 @@ socialTrading.distributeReward = async function distributeReward (
     gasLimit: 310000,
     gasPrice: w3.eth.gasPrice,
   });
-  w3.currentProvider.connection.close();
-  return ret;
 };
 
 module.exports = socialTrading;
