@@ -12,13 +12,7 @@ const infuraProvider = network => providerWithMnemonic(
 
 const contractAddress = network.socialtrading;
 const socialTrading = {};
-const provider = infuraProvider(process.env.NETWORK || 'rinkeby');
 
-let w3 = new Web3(provider);
-let socialTradingContract = new w3.eth.Contract(
-  SocialTradingABI,
-  contractAddress,
-);
 
 socialTrading.distributeReward = async function distributeReward (
   leader,
@@ -27,7 +21,13 @@ socialTrading.distributeReward = async function distributeReward (
   relayFee,
   orderHashes,
 ) {
-  return await socialTradingContract.methods.distributeReward(
+  const provider = infuraProvider(process.env.NETWORK || 'rinkeby');
+  let w3 = new Web3(provider);
+  let socialTradingContract = new w3.eth.Contract(
+    SocialTradingABI,
+    contractAddress,
+  );
+  let ret = await socialTradingContract.methods.distributeReward(
     leader,
     follower,
     reward,
@@ -39,6 +39,8 @@ socialTrading.distributeReward = async function distributeReward (
     gasLimit: 310000,
     gasPrice: w3.eth.gasPrice,
   });
+  w3.currentProvider.connection.close();
+  return ret;
 };
 
 module.exports = socialTrading;

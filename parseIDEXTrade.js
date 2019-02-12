@@ -2,9 +2,6 @@ require('babel-core/register');
 require('babel-polyfill');
 const Web3 = require('web3');
 const idex = require('./models/idex');
-const utils = require('./models/utils');
-const erc20 = require('./models/erc20');
-const abi = require('./abi/socialtrading/SocialTrading.json');
 const config = require('./config');
 const IDEX_abi = require('./abi/IDEX/exchange.json');
 const relayWallet = require('./models/relayWallet');
@@ -142,7 +139,7 @@ async function watchIDEXTransfers (blockNumber) {
         });
         blockNumber++;
       }
-    }, 30 * 1000);
+    }, 3 * 1000);
   } catch (e) {
     console.log(e);
   }
