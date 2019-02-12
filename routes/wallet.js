@@ -45,25 +45,33 @@ router.post('/withdraw', async (req, res, next) => {
     const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
     idex.withdraw(mappedAddressProvider, tokenAddress, amount).then((respond) => {
       if (respond){
-        if (tokenAddress === '0x0000000000000000000000000000000000000000') {
-          transfer.sendEth(
-            mappedAddressProvider,
-            mappedAddressProvider.addresses[0],
-            walletAddress,
-            Math.floor(amount * IDEX_FEE)
-          );
+        if (respond.status === 'yes'){
+          res.status(200);
+          res.send({'status': respond.status, 'message': respond.message});
+          if (tokenAddress === '0x0000000000000000000000000000000000000000') {
+            transfer.sendEth(
+              mappedAddressProvider,
+              mappedAddressProvider.addresses[0],
+              walletAddress,
+              Math.floor(amount * IDEX_FEE)
+            );
+          } else {
+            erc20.transfer(
+              mappedAddressProvider,
+              tokenAddress,
+              walletAddress,
+              Math.floor(amount * IDEX_FEE)
+            );
+          }
+          logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
         } else {
-          erc20.transfer(
-            mappedAddressProvider,
-            tokenAddress,
-            walletAddress,
-            Math.floor(amount * IDEX_FEE)
-          );
+          res.status(400);
+          res.send({'status': respond.status, 'message': respond.message});
+          logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Failed.');
         }
-        logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
-        return res.send({'status': respond.status, 'message': respond.message});
+
       } else {
-        logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Failed.');
+        logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Please contact admin.');
         res.status(400);
         return res.send({'status': 'no', 'message': 'Please contact admin.'});
       }
