@@ -37,7 +37,7 @@ socialTrading.distributeReward = async function distributeReward (
     from: provider.addresses[0],
     value: 0,
     gasLimit: 310000,
-    gasPrice: w3.eth.gasPrice,
+    gasPrice: await w3.eth.getGasPrice(),
   });
 };
 

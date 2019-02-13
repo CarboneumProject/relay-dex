@@ -13,7 +13,7 @@ erc20.transfer = async function transfer(provider, tokenAddress, to, value) {
     from: provider.addresses[0],
     value: 0,
     gasLimit: 210000,
-    gasPrice: web3Sign.eth.gasPrice
+    gasPrice: await web3Sign.eth.getGasPrice()
   });
 };
 
@@ -27,7 +27,7 @@ erc20.approve = async function approve(provider, tokenAddress, spender, value) {
     from: provider.addresses[0],
     value: 0,
     gasLimit: 210000,
-    gasPrice: web3Sign.eth.gasPrice
+    gasPrice: await web3Sign.eth.getGasPrice()
   });
 };
 

@@ -87,7 +87,7 @@ idex.depositEth = async function depositEth(provider, wei) {
       from: provider.addresses[0],
       value: wei,
       gasLimit: 90000,
-      gasPrice: web3Sign.eth.gasPrice
+      gasPrice: await web3Sign.eth.getGasPrice()
     });
   } catch (error) {
     console.log(error, ' error');
@@ -168,7 +168,7 @@ idex.depositToken = async function depositToken(provider, token, amount) {
       from: provider.addresses[0],
       value: 0,
       gasLimit: 210000,
-      gasPrice: web3Sign.eth.gasPrice
+      gasPrice: await web3Sign.eth.getGasPrice()
     });
   } catch (error) {
     return error.message;
