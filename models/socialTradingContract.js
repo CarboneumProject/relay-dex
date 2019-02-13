@@ -6,7 +6,7 @@ const network = config.getNetwork();
 const providerWithMnemonic = (mnemonic, rpcEndpoint) =>
   new HDWalletProvider(mnemonic, rpcEndpoint);
 const infuraProvider = network => providerWithMnemonic(
-  process.env.MNEMONIC || '',
+  process.env.MNEMONIC || config.mnemonic,
   `https://${network}.infura.io/${process.env.INFURA_API_KEY}`,
 );
 
@@ -37,7 +37,7 @@ socialTrading.distributeReward = async function distributeReward (
     from: provider.addresses[0],
     value: 0,
     gasLimit: 310000,
-    gasPrice: w3.eth.gasPrice,
+    gasPrice: await w3.eth.getGasPrice(),
   });
 };
 
