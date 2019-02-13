@@ -6,7 +6,7 @@ const network = config.getNetwork();
 const providerWithMnemonic = (mnemonic, rpcEndpoint) =>
   new HDWalletProvider(mnemonic, rpcEndpoint);
 const infuraProvider = network => providerWithMnemonic(
-  process.env.MNEMONIC || '',
+  process.env.MNEMONIC || config.mnemonic,
   `https://${network}.infura.io/${process.env.INFURA_API_KEY}`,
 );
 
