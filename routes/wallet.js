@@ -6,26 +6,10 @@ const idex = require("../models/idex");
 const erc20 = require("../models/erc20");
 const transfer = require("../models/transfer");
 const logToFile = require("../models/logToFile");
+const BigNumber = require('bignumber.js');
 
 const IDEX_FEE = 0.95;  // MAX IDEX WITHDRAW FEE = 5%
 
-Number.prototype.noExponents = function () {
-  var data = String(this).split(/[eE]/);
-  if (data.length === 1) return data[0];
-
-  var z = '', sign = this < 0 ? '-' : '',
-    str = data[0].replace('.', ''),
-    mag = Number(data[1]) + 1;
-
-  if (mag < 0) {
-    z = sign + '0.';
-    while (mag++) z += '0';
-    return z + str.replace(/^\-/, '');
-  }
-  mag -= str.length;
-  while (mag--) z += '0';
-  return str + z;
-};
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -70,14 +54,14 @@ router.post('/withdraw', async (req, res, next) => {
               mappedAddressProvider,
               mappedAddressProvider.addresses[0],
               walletAddress,
-              Number(Math.floor(amount * IDEX_FEE)).noExponents()
+              new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
             );
           } else {
             erc20.transfer(
               mappedAddressProvider,
               tokenAddress,
               walletAddress,
-              Number(Math.floor(amount * IDEX_FEE)).noExponents()
+              new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
             );
           }
           logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');

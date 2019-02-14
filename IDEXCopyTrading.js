@@ -9,6 +9,7 @@ const socialTrading = require('./models/socialTradingContract');
 const redis = require('redis'), client = redis.createClient();
 const { promisify } = require('util');
 const getAsync = promisify(client.get).bind(client);
+const BigNumber = require('bignumber.js');
 
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
@@ -19,24 +20,6 @@ const web3 = new Web3(
 );
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
-
-Number.prototype.noExponents = function () {
-  var data = String(this).split(/[eE]/);
-  if (data.length === 1) return data[0];
-
-  var z = '', sign = this < 0 ? '-' : '',
-    str = data[0].replace('.', ''),
-    mag = Number(data[1]) + 1;
-
-  if (mag < 0) {
-    z = sign + '0.';
-    while (mag++) z += '0';
-    return z + str.replace(/^\-/, '');
-  }
-  mag -= str.length;
-  while (mag--) z += '0';
-  return str + z;
-};
 
 async function watchIDEXTransfers (blockNumber) {
   try {
@@ -62,11 +45,11 @@ async function watchIDEXTransfers (blockNumber) {
                 if (transaction.name === 'trade') {
                   let params = transaction.params;
 
-                  let amountBuy = Number(params[0].value[0]).noExponents();
-                  let amountSell = Number(params[0].value[1]).noExponents();
-                  let expires = Number(params[0].value[2]).noExponents();
-                  let nonce = Number(params[0].value[3]).noExponents();
-                  let amountNetBuy = Number(params[0].value[4]).noExponents();
+                  let amountBuy = new BigNumber(params[0].value[0]).toFixed(0);
+                  let amountSell = new BigNumber(params[0].value[1]).toFixed(0);
+                  let expires = new BigNumber(params[0].value[2]).toFixed(0);
+                  let nonce = new BigNumber(params[0].value[3]).toFixed(0);
+                  let amountNetBuy = new BigNumber(params[0].value[4]).toFixed(0);
 
                   let tokenBuy = params[1].value[0];
                   let tokenSell = params[1].value[1];
@@ -88,7 +71,7 @@ async function watchIDEXTransfers (blockNumber) {
                     );
                   } else {
                     if (amountBuy !== amountNetBuy) {
-                      amountNetSell = Number(Number(amountSell * amountNetBuy / amountBuy).toFixed(0)).noExponents();
+                      amountNetSell = new BigNumber(amountSell).mul(new BigNumber(amountNetBuy)).div(new BigNumber(amountBuy)).toFixed(0);
                     }
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                       if (follow_dict !== null) {

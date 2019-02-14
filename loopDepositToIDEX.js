@@ -2,8 +2,8 @@ const relayWallet = require('./models/relayWallet');
 const idex = require("./models/idex");
 const useRedis = require('./models/useRedis');
 const erc20 = require("./models/erc20");
-const BN = require('bignumber.js');
-const MAX_ALLOWANCE = new BN(10).pow(55).toPrecision();
+const BigNumber = require('bignumber.js');
+const MAX_ALLOWANCE = new BigNumber(10).pow(55).toPrecision();
 const logToFile = require("./models/logToFile");
 
 const config = require('./config');
@@ -12,23 +12,6 @@ const network = config.getNetwork();
 const RESERVED_ETH = '2100000000000000';
 const redis = require("redis");
 
-Number.prototype.noExponents = function () {
-  var data = String(this).split(/[eE]/);
-  if (data.length === 1) return data[0];
-
-  var z = '', sign = this < 0 ? '-' : '',
-    str = data[0].replace('.', ''),
-    mag = Number(data[1]) + 1;
-
-  if (mag < 0) {
-    z = sign + '0.';
-    while (mag++) z += '0';
-    return z + str.replace(/^\-/, '');
-  }
-  mag -= str.length;
-  while (mag--) z += '0';
-  return str + z;
-};
 
 function watchDepositedToLinkWallet() {
   let client = redis.createClient();
@@ -46,7 +29,7 @@ function watchDepositedToLinkWallet() {
         idex.verifyTxHash(txHash).then((res) => {
           if (res) {
             let [walletAddress, wei_temp, tokenAddress] = res;
-            let wei = Number(wei_temp).noExponents();
+            let wei = new BigNumber(wei_temp).toFixed(0);
             useRedis.isValidHash(txHash, walletAddress.toLowerCase()).then((response) => {
               if (response === '1') {
                 logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' have been deposited.');
@@ -56,9 +39,9 @@ function watchDepositedToLinkWallet() {
                   console.log(txHash, ': is depositing.');
                   const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
                   if (tokenAddress === '0x0000000000000000000000000000000000000000') {
-                    let amountDeposited = Number(Number(wei - RESERVED_ETH).toFixed(0)).noExponents();
+                    let amountDeposited = new BigNumber(wei).sub(new BigNumber(RESERVED_ETH)).toFixed(0);
                     if (amount && amount !== '0') {
-                      amountDeposited =  Number(amount).noExponents();
+                      amountDeposited =  new BigNumber(amount).toFixed(0);
                     }
 
                     idex.depositEth(mappedAddressProvider, amountDeposited).then((respond) => {
