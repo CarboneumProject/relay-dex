@@ -47,8 +47,8 @@ const networks = {
     openrelay_url: 'https://api.openrelay.xyz',
     IDEX_API_BASE_URL: 'https://api.idex.market',
     IDEX_API_BASE_WS: 'wss://v1.idex.market',
-    REWARD: '48000000000000000000',
-    FEE: '8000000000000000000',
+    REWARD: '44000000000000000000',
+    FEE: '44000000000000000000',
   },
 };
 
