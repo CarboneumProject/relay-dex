@@ -10,7 +10,7 @@ const redis = require('redis'), client = redis.createClient();
 const { promisify } = require('util');
 const getAsync = promisify(client.get).bind(client);
 const BigNumber = require('bignumber.js');
-
+const push = require('models/push');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
@@ -69,6 +69,8 @@ async function watchIDEXTransfers (blockNumber) {
                       order.relayFee,
                       [order.leaderTxHash, '0x', txHash, '0x'],
                     );
+                    let msg = `Trade ${amountNetBuy} ${tokenBuy} for ${amountNetSell} ${tokenSell} copy trading fee 44 C8`;
+                    push.sendTransferNotification(tokenBuy, tokenSell, amountBuy, amountSell, order.leader, order.follower, msg);
                   } else {
                     if (amountBuy !== amountNetBuy) {
                       amountNetSell = new BigNumber(amountSell).mul(new BigNumber(amountNetBuy)).div(new BigNumber(amountBuy)).toFixed(0);
