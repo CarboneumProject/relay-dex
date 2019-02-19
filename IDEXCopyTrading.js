@@ -9,6 +9,7 @@ const socialTrading = require('./models/socialTradingContract');
 const redis = require('redis'), client = redis.createClient();
 const { promisify } = require('util');
 const getAsync = promisify(client.get).bind(client);
+const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
 const push = require('models/push');
 const abiDecoder = require('abi-decoder');
@@ -69,7 +70,15 @@ async function watchIDEXTransfers (blockNumber) {
                       order.relayFee,
                       [order.leaderTxHash, '0x', txHash, '0x'],
                     );
-                    let msg = `Trade ${amountNetBuy} ${tokenBuy} for ${amountNetSell} ${tokenSell} copy trading fee 44 C8`;
+
+                    let tokenBuyInMsg = await hgetAsync("tokenMap:" + tokenBuy, "token");
+                    let tokenSellInMsg = await hgetAsync("tokenMap:" + tokenSell, "token");
+                    let tokenBuyDecimals = await hgetAsync("tokenMap:" + tokenBuy, "decimals");
+                    let tokenSellDecimals = await hgetAsync("tokenMap:" + tokenSell, "decimals");
+                    let amountNetBuyInMsg = new BigNumber(amountNetBuy).div(10 ** tokenBuyDecimals).toFixed(tokenBuyDecimals);
+                    let amountNetSellInMsg = new BigNumber(amountNetSell).div(10 ** tokenSellDecimals).toFixed(tokenSellDecimals);
+
+                    let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg} copy trading fee 44 C8`;
                     push.sendTransferNotification(tokenBuy, tokenSell, amountBuy, amountSell, order.leader, order.follower, msg);
                   } else {
                     if (amountBuy !== amountNetBuy) {
