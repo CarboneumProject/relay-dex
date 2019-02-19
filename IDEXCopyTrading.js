@@ -11,7 +11,7 @@ const { promisify } = require('util');
 const getAsync = promisify(client.get).bind(client);
 const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
-const push = require('models/push');
+const push = require('./models/push');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
