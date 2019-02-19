@@ -59,6 +59,10 @@ async function watchIDEXTransfers (blockNumber) {
                   let txHash = trx.hash;
                   let amountNetSell = amountSell;
 
+                  if (amountBuy !== amountNetBuy) {
+                    amountNetSell = new BigNumber(amountSell).mul(new BigNumber(amountNetBuy)).div(new BigNumber(amountBuy)).toFixed(0);
+                  }
+
                   let orderHash = idex.orderHash(tokenBuy, amountBuy, tokenSell, amountSell, expires, nonce, maker);
                   const copyOrder = await getAsync('order:' + orderHash);
                   if (copyOrder != null) {
@@ -79,11 +83,8 @@ async function watchIDEXTransfers (blockNumber) {
                     let amountNetSellInMsg = new BigNumber(amountNetSell).div(10 ** tokenSellDecimals).toFixed(tokenSellDecimals);
 
                     let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg} copy trading fee 44 C8`;
-                    push.sendTransferNotification(tokenBuy, tokenSell, amountBuy, amountSell, order.leader, order.follower, msg);
+                    push.sendTransferNotification(tokenBuy, tokenSell, amountNetBuy, amountNetSell, order.leader, order.follower, msg);
                   } else {
-                    if (amountBuy !== amountNetBuy) {
-                      amountNetSell = new BigNumber(amountSell).mul(new BigNumber(amountNetBuy)).div(new BigNumber(amountBuy)).toFixed(0);
-                    }
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                       if (follow_dict !== null) {
                         await Object.keys(follow_dict).forEach(async function (follower) {
