@@ -82,7 +82,7 @@ async function watchIDEXTransfers (blockNumber) {
                     let amountNetBuyInMsg = new BigNumber(amountNetBuy).div(10 ** tokenBuyDecimals).toFixed(tokenBuyDecimals);
                     let amountNetSellInMsg = new BigNumber(amountNetSell).div(10 ** tokenSellDecimals).toFixed(tokenSellDecimals);
 
-                    let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg} copy trading fee 44 C8`;
+                    let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg} copy trading fee ${network.FEE} C8`;
                     push.sendTransferNotification(tokenBuy, tokenSell, amountNetBuy, amountNetSell, order.leader, order.follower, msg);
                   } else {
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
