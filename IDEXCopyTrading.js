@@ -80,8 +80,10 @@ async function watchIDEXTransfers (blockNumber) {
                     let tokenSellInMsg = await hgetAsync("tokenMap:" + tokenSell, "token");
                     let tokenBuyDecimals = await hgetAsync("tokenMap:" + tokenBuy, "decimals");
                     let tokenSellDecimals = await hgetAsync("tokenMap:" + tokenSell, "decimals");
-                    let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format('0,0.[0000]');
-                    let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format('0,0.[0000]');
+                    let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals);
+                    let repeatDecimalSell = '0'.repeat(tokenSellDecimals);
+                    let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.[${repeatDecimalBuy}]`);
+                    let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.[${repeatDecimalSell}]`);
 
 
                     let c8Decimals = await hgetAsync("tokenMap:" + network.carboneum, "decimals");
