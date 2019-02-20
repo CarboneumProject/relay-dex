@@ -11,8 +11,9 @@ const networks = {
     openrelay_url: '',
     IDEX_API_BASE_URL: 'http://rinkeby-api.carbonradars.io/idex-api',
     IDEX_API_BASE_WS: 'ws://127.0.0.1:8881',
-    REWARD: '48000000000000000000',
-    FEE: '8000000000000000000',
+    REWARD: '44000000000000000000',
+    FEE: '44000000000000000000',
+    carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d'
   },
 
   kovan: {
@@ -30,8 +31,9 @@ const networks = {
     openrelay_url: 'https://api.openrelay.xyz',
     IDEX_API_BASE_URL: 'http://api.carbonradars.io:8880',
     IDEX_API_BASE_WS: 'ws://api.carbonradars.io:8881',
-    REWARD: '48000000000000000000',
-    FEE: '8000000000000000000',
+    REWARD: '44000000000000000000',
+    FEE: '44000000000000000000',
+    carboneum: '0x1347d3e87f3335c1e5146cff3020cb86a3c93292'
   },
 
   mainnet: {
@@ -49,6 +51,7 @@ const networks = {
     IDEX_API_BASE_WS: 'wss://v1.idex.market',
     REWARD: '44000000000000000000',
     FEE: '44000000000000000000',
+    carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d'
   },
 };
 
