@@ -84,7 +84,7 @@ async function watchIDEXTransfers (blockNumber) {
                     let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format('0,0.[0000]');
 
 
-                    let c8Decimals = await getAsync("tokenMap:" + network.carboneum, "decimals");
+                    let c8Decimals = await hgetAsync("tokenMap:" + network.carboneum, "decimals");
                     let totalFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD)).div(10 ** c8Decimals);
 
                     let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg} copy trading fee ${totalFee} C8`;
