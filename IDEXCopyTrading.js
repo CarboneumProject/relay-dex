@@ -17,16 +17,23 @@ const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
 const network = config.getNetwork();
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider(network.ws_url),
-);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 
 async function watchIDEXTransfers (blockNumber) {
   try {
+    const web3 = new Web3(
+      new Web3.providers.WebsocketProvider(network.ws_url),
+    );
+
     if (blockNumber === 0) {
-      blockNumber = (await web3.eth.getBlock('latest')).number;
+      let lastBlock = await hgetAsync("lastBlock", "IDEXCopyTrading");
+      console.log("start @ #", lastBlock);
+      if (lastBlock) {
+        blockNumber = lastBlock;
+      } else {
+        blockNumber = (await web3.eth.getBlock('latest')).number;
+      }
     }
     setTimeout(async () => {
       while (true) {
@@ -140,10 +147,12 @@ async function watchIDEXTransfers (blockNumber) {
           }
         });
         blockNumber++;
+        client.hset("lastBlock", "IDEXCopyTrading", blockNumber);
       }
     }, 3 * 1000);
   } catch (e) {
-    console.log(e);
+    console.log(e, " error");
+    process.exit();
   }
 }
 
