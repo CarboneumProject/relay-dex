@@ -22,14 +22,14 @@ push.sendTransferNotification = function sendTransferNotification (tokenBuy, tok
       _msg: msg,
     },
     notification: {
-      title: `Copy traded`,
+      title: `Copy Traded`,
       body: msg,
     },
     android: {
       ttl: 3600 * 1000, // 1 hour in milliseconds
       priority: 'high',
       notification: {
-        title: `Copy traded`,
+        title: `Copy Traded`,
         body: msg,
       },
     },
@@ -40,7 +40,7 @@ push.sendTransferNotification = function sendTransferNotification (tokenBuy, tok
       payload: {
         aps: {
           alert: {
-            title: `Copy traded`,
+            title: `Copy Traded`,
             body: msg,
           },
         },
