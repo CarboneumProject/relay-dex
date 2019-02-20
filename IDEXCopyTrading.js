@@ -11,6 +11,7 @@ const { promisify } = require('util');
 const getAsync = promisify(client.get).bind(client);
 const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
+const numeral = require('numeral');
 const push = require('./models/push');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
@@ -79,14 +80,14 @@ async function watchIDEXTransfers (blockNumber) {
                     let tokenSellInMsg = await hgetAsync("tokenMap:" + tokenSell, "token");
                     let tokenBuyDecimals = await hgetAsync("tokenMap:" + tokenBuy, "decimals");
                     let tokenSellDecimals = await hgetAsync("tokenMap:" + tokenSell, "decimals");
-                    let amountNetBuyInMsg = new BigNumber(amountNetBuy).div(10 ** tokenBuyDecimals).toFixed(4);
-                    let amountNetSellInMsg = new BigNumber(amountNetSell).div(10 ** tokenSellDecimals).toFixed(4);
+                    let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format('0,0.[0000]');
+                    let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format('0,0.[0000]');
 
 
                     let c8Decimals = await getAsync("tokenMap:" + network.carboneum, "decimals");
                     let totalFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD)).div(10 ** c8Decimals);
 
-                    let msg = `Trade ${amountNetBuyInMsg * 1} ${tokenBuyInMsg} for ${amountNetSellInMsg * 1} ${tokenSellInMsg} copy trading fee ${totalFee} C8`;
+                    let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg} copy trading fee ${totalFee} C8`;
                     push.sendTransferNotification(tokenBuy, tokenSell, amountNetBuy, amountNetSell, order.leader, order.follower, msg);
                   } else {
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
