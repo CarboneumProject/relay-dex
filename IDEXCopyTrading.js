@@ -75,6 +75,11 @@ async function watchIDEXTransfers (blockNumber) {
                   const copyOrder = await getAsync('order:' + orderHash);
                   if (copyOrder != null) {
                     let order = JSON.parse(copyOrder);
+                    // TODO Save trade order to DB.
+
+                    // TODO If sell for Ether, calc reward and fee by percentage.
+                    // Get price of token on IDEX API for C8, Token to Ether
+
                     await socialTrading.distributeReward(
                       order.leader,
                       order.follower,
@@ -98,6 +103,7 @@ async function watchIDEXTransfers (blockNumber) {
 
                     let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} For ${amountNetSellInMsg} ${tokenSellInMsg}\nReward + Fee ${totalFee} C8`;
                     push.sendTransferNotification(tokenBuy, tokenSell, amountNetBuy, amountNetSell, order.leader, order.follower, msg);
+
                   } else {
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                       if (follow_dict !== null) {
