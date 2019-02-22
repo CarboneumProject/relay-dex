@@ -7,22 +7,24 @@ const IDEX_abi = require('./abi/IDEX/exchange.json');
 const relayWallet = require('./models/relayWallet');
 const socialTrading = require('./models/socialTradingContract');
 const redis = require('redis'), client = redis.createClient();
-const { promisify } = require('util');
+const {promisify} = require('util');
 const getAsync = promisify(client.get).bind(client);
 const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
 const numeral = require('numeral');
 const push = require('./models/push');
 const trade = require('./models/trade');
+const erc20 = require('./models/erc20');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
 const network = config.getNetwork();
 const PROFIT_PERCENTAGE = 0.1;
+const BENCHMARK_ALLOWANCE_C8 = new BigNumber(10 ** 18).mul(10000);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 
-async function processCopyTrade (leader, follower, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker, amountNet, txHash) {
+async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker, amountNet, txHash) {
   let mappedAddressProvider = relayWallet.getUserWalletProvider(follower);
   let followerWallet = mappedAddressProvider.addresses[0];
   let volAbleTrade = await idex.balance(tokenMaker, followerWallet);
@@ -39,7 +41,7 @@ async function processCopyTrade (leader, follower, tokenMaker, tokenTaker, amoun
   }
 }
 
-async function watchIDEXTransfers (blockNumber) {
+async function watchIDEXTransfers(blockNumber) {
   try {
     const web3 = new Web3(
       new Web3.providers.WebsocketProvider(network.ws_url),
@@ -202,16 +204,23 @@ async function watchIDEXTransfers (blockNumber) {
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                       if (follow_dict !== null) {
                         await Object.keys(follow_dict).forEach(async function (follower) {
-                          // TODO Check allowance of C8, and C8 Balance then able to copytrade
-                          await processCopyTrade(
-                            maker,
+                          let allowance = await erc20.allowance(
+                            web3,
+                            network.carboneum,
                             follower,
-                            tokenBuy,
-                            tokenSell,
-                            amountNetBuy,
-                            amountNetSell,
-                            amountNetSell,
-                            txHash);
+                            network.carboneum //C8 contract
+                          );
+                          if (allowance > BENCHMARK_ALLOWANCE_C8) {
+                            await processCopyTrade(
+                              maker,
+                              follower,
+                              tokenBuy,
+                              tokenSell,
+                              amountNetBuy,
+                              amountNetSell,
+                              amountNetSell,
+                              txHash);
+                          }
                         });
                       }
                     });
@@ -219,16 +228,23 @@ async function watchIDEXTransfers (blockNumber) {
                     client.hgetall('leader:' + taker, async function (err, follow_dict) {   // taker is buy __, sell ETH
                       if (follow_dict !== null) {
                         await Object.keys(follow_dict).forEach(async function (follower) {
-                          // TODO Check allowance of C8, and C8 Balance then able to copytrade
-                          await processCopyTrade(
-                            taker,
+                          let allowance = await erc20.allowance(
+                            web3,
+                            network.carboneum,
                             follower,
-                            tokenSell,
-                            tokenBuy,
-                            amountNetSell,
-                            amountNetBuy,
-                            amountNetBuy,
-                            txHash);
+                            network.carboneum //C8 contract
+                          );
+                          if (allowance > BENCHMARK_ALLOWANCE_C8) {
+                            await processCopyTrade(
+                              taker,
+                              follower,
+                              tokenSell,
+                              tokenBuy,
+                              amountNetSell,
+                              amountNetBuy,
+                              amountNetBuy,
+                              txHash);
+                          }
                         });
                       }
                     });
