@@ -13,6 +13,7 @@ const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
 const numeral = require('numeral');
 const push = require('./models/push');
+const trade = require('./models/trade');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
@@ -32,7 +33,7 @@ async function processCopyTrade (leader, follower, tokenMaker, tokenTaker, amoun
       leaderTxHash: txHash,
     };
     client.set('order:' + followerOrderHash, JSON.stringify(order));
-    // TODO save copy trade order to MySql
+    // TODO save copy trade (order) to MySql
 
   }
 }
@@ -92,18 +93,57 @@ async function watchIDEXTransfers (blockNumber) {
                   const copyOrder = await getAsync('order:' + orderHash);
                   if (copyOrder != null) {
                     let order = JSON.parse(copyOrder);
-                    // TODO Save trade order to DB.
+
+                    let order_time = (await web3.eth.getBlock(receipt.blockNumber)).timestamp;
+                    let leader = order.leader;
+                    let follower = order.follower;
+                    let maker_token = tokenBuy;
+                    let taker_token = tokenSell;
+                    let amount_maker = amountNetBuy;
+                    let amount_taker = amountNetSell;
+                    let amount_left = amountNetBuy;
+                    let order_hash = orderHash;
+                    let tx_hash = txHash;
+
+                    const args = {
+                      order_time,
+                      leader,
+                      follower,
+                      maker_token,
+                      taker_token,
+                      amount_maker,
+                      amount_taker,
+                      amount_left,
+                      order_hash,
+                      tx_hash
+                    };
+
+                    let ext = ``;
+
+                    if (tokenSell === '0x0000000000000000000000000000000000000000') {
+                      await trade.insertNewTrade(args);
+
+                    }
+                    else if (tokenBuy === '0x0000000000000000000000000000000000000000') {
+                      ext = true;
+                      let data = await trade.getAvailableTrade(tokenSell, follower);
+
+                      let sub_amountLeft = new BigNumber(amountNetSell);
+                      for (let i = 0; i < data.length && sub_amountLeft>0; i++) {
+                        let lastAmount = new BigNumber(data[i].amount_left);
+                        sub_amountLeft = sub_amountLeft.sub(lastAmount);
+
+                        if(sub_amountLeft >= 0){
+                          await trade.updateAmountLeft('0', data[i].id);
+                        } else {
+                          await trade.updateAmountLeft(sub_amountLeft.abs().toFixed(0), data[i].id);
+                        }
+                      }
+                    }
 
                     // TODO If sell for Ether, calc reward and fee by percentage.
                     // Get price of token on IDEX API for C8, Token to Ether
-
-                    await socialTrading.distributeReward(
-                      order.leader,
-                      order.follower,
-                      order.reward,
-                      order.relayFee,
-                      [order.leaderTxHash, '0x', txHash, '0x'],
-                    );
+                    let C8LastPrice = await idex.getC8LastPrice("ETH_C8");  // 1 C8 = x ETH
 
                     let tokenBuyInMsg = await hgetAsync('tokenMap:' + tokenBuy, 'token');
                     let tokenSellInMsg = await hgetAsync('tokenMap:' + tokenSell, 'token');
@@ -117,13 +157,27 @@ async function watchIDEXTransfers (blockNumber) {
                     let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
                     let totalFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD)).div(10 ** c8Decimals);
 
-                    let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} For ${amountNetSellInMsg} ${tokenSellInMsg}\nReward + Fee ${totalFee} C8`;
+                    if(ext) {
+                      ext = `\nReward + Fee ${totalFee} C8`;
+                      await socialTrading.distributeReward(
+                        order.leader,
+                        order.follower,
+                        network.REWARD,
+                        network.FEE,
+                        [order.leaderTxHash, '0x', txHash, '0x'],
+                      );
+                    }
+
+                    let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} For ${amountNetSellInMsg} ${tokenSellInMsg} ${ext}`;
+
+
                     push.sendTransferNotification(tokenBuy, tokenSell, amountNetBuy, amountNetSell, order.leader, order.follower, msg);
 
                   } else {
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                       if (follow_dict !== null) {
                         await Object.keys(follow_dict).forEach(async function (follower) {
+                          // TODO Check allowance of C8, and C8 Balance then able to copytrade
                           await processCopyTrade(
                             maker,
                             follower,
@@ -140,6 +194,7 @@ async function watchIDEXTransfers (blockNumber) {
                     client.hgetall('leader:' + taker, async function (err, follow_dict) {   // taker is buy __, sell ETH
                       if (follow_dict !== null) {
                         await Object.keys(follow_dict).forEach(async function (follower) {
+                          // TODO Check allowance of C8, and C8 Balance then able to copytrade
                           await processCopyTrade(
                             taker,
                             follower,
