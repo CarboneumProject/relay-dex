@@ -119,7 +119,7 @@ async function watchIDEXTransfers(blockNumber) {
                   if (copyOrder != null) {
                     let order = JSON.parse(copyOrder);
 
-                    let order_time = (await web3.eth.getBlock(receipt.blockNumber)).timestamp;
+                    let order_time = new Date((await web3.eth.getBlock(receipt.blockNumber)).timestamp * 1000);
                     let leader = order.leader;
                     let follower = order.follower;
                     let maker_token = tokenBuy;
