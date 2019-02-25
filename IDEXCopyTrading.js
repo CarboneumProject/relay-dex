@@ -163,10 +163,10 @@ async function watchIDEXTransfers(blockNumber) {
                     let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.[${repeatDecimalBuy}]`);
                     let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.[${repeatDecimalSell}]`);
 
-                    if (tokenSell === '0x0000000000000000000000000000000000000000') {
+                    if (taker_token === '0x0000000000000000000000000000000000000000') {
                       await trade.insertNewTrade(args);
 
-                    } else if (tokenBuy === '0x0000000000000000000000000000000000000000') {
+                    } else if (maker_token === '0x0000000000000000000000000000000000000000') {
                       ext = true;
 
                       let tokenSellLastPrice = await idex.getC8LastPrice("ETH_" + tokenSellInMsg);
