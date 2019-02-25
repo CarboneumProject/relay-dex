@@ -87,8 +87,6 @@ async function watchIDEXTransfers(blockNumber) {
           return watchIDEXTransfers(blockNumber);
         }
 
-        console.log(blockNumber);
-
         block.transactions.forEach(async function (txHash) {
           let trx = await web3.eth.getTransaction(txHash);
           if (trx != null && trx.to != null) {
@@ -259,8 +257,9 @@ async function watchIDEXTransfers(blockNumber) {
             }
           }
         });
-        blockNumber++;
+        console.log(blockNumber);
         client.hset('lastBlock', 'IDEXCopyTrading', blockNumber);
+        blockNumber++;
       }
     }, 15 * 1000);
   } catch (e) {
