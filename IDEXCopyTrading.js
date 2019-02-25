@@ -199,7 +199,7 @@ async function watchIDEXTransfers(blockNumber) {
                           order.follower,
                           reward,
                           fee,
-                          [order.leaderTxHash, '0x', txHash, '0x'],
+                          [order.leaderTxHash, '0x0', txHash, '0x0'],
                         );
                       }
 
