@@ -153,10 +153,10 @@ async function watchIDEXTransfers(blockNumber) {
 
                     let ext = ``;
 
-                    let tokenBuyInMsg = await hgetAsync('tokenMap:' + tokenBuy, 'token');
-                    let tokenSellInMsg = await hgetAsync('tokenMap:' + tokenSell, 'token');
-                    let tokenBuyDecimals = await hgetAsync('tokenMap:' + tokenBuy, 'decimals');
-                    let tokenSellDecimals = await hgetAsync('tokenMap:' + tokenSell, 'decimals');
+                    let tokenBuyInMsg = await hgetAsync('tokenMap:' + maker_token, 'token');
+                    let tokenSellInMsg = await hgetAsync('tokenMap:' + taker_token, 'token');
+                    let tokenBuyDecimals = await hgetAsync('tokenMap:' + maker_token, 'decimals');
+                    let tokenSellDecimals = await hgetAsync('tokenMap:' + taker_token, 'decimals');
 
                     let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals);
                     let repeatDecimalSell = '0'.repeat(tokenSellDecimals);
@@ -170,7 +170,7 @@ async function watchIDEXTransfers(blockNumber) {
                       ext = true;
 
                       let tokenSellLastPrice = new BigNumber(amount_maker).div(amount_taker);
-                      let data = await trade.getAvailableTrade(tokenSell, follower);
+                      let data = await trade.getAvailableTrade(taker_token, follower);
                       let sub_amountLeft = new BigNumber(amountNetSell);
                       let FEE = await getPercentageFee(data, sub_amountLeft, tokenSellLastPrice);
 
@@ -204,7 +204,7 @@ async function watchIDEXTransfers(blockNumber) {
 
                       let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} For ${amountNetSellInMsg} ${tokenSellInMsg} ${ext}`;
 
-                      push.sendTransferNotification(tokenBuy, tokenSell, amountNetBuy, amountNetSell, order.leader, order.follower, msg);
+                      push.sendTransferNotification(maker_token, taker_token, amount_maker, amount_taker, order.leader, order.follower, msg);
                     }
 
                   } else {
