@@ -169,7 +169,8 @@ async function watchIDEXTransfers(blockNumber) {
                     } else if (maker_token === '0x0000000000000000000000000000000000000000') {
                       ext = true;
 
-                      let tokenSellLastPrice = new BigNumber(amount_maker).div(amount_taker);
+                      let tokenDecimal = new BigNumber(10 ** tokenBuyDecimals - tokenSellDecimals);
+                      let tokenSellLastPrice = new BigNumber(amount_maker).div(amount_taker).mul(tokenDecimal);
                       let data = await trade.getAvailableTrade(taker_token, follower);
                       let sub_amountLeft = new BigNumber(amountNetSell);
                       let FEE = await getPercentageFee(data, sub_amountLeft, tokenSellLastPrice);
