@@ -1,7 +1,7 @@
-const mysql = require("./mysql");
+const mysql = require('./mysql');
 const trade = {};
 
-trade.getAvailableTrade = async function getAvailableTrade(token, owner) {
+trade.getAvailableTrade = async function getAvailableTrade (token, owner) {
   return await mysql.query(`
     SELECT *
     FROM carboneum.trade
@@ -10,13 +10,13 @@ trade.getAvailableTrade = async function getAvailableTrade(token, owner) {
   `, [token, owner]);
 };
 
-trade.updateAmountLeft = async function updateAmountLeft(amount_left, id) {
+trade.updateAmountLeft = async function updateAmountLeft (amount_left, id) {
   return await mysql.query(`
     UPDATE carboneum.trade SET amount_left = ? WHERE id = ?
   `, [amount_left, id]);
 };
 
-trade.insertNewTrade = async function insertNewTrade(args) {
+trade.insertNewTrade = async function insertNewTrade (trade) {
   return await mysql.query(`
     INSERT INTO carboneum.trade (order_time,
                                  leader,
@@ -29,30 +29,23 @@ trade.insertNewTrade = async function insertNewTrade(args) {
                                  order_hash,
                                  tx_hash)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `, [args.order_time,
-      args.leader,
-      args.follower,
-      args.maker_token,
-      args.taker_token,
-      args.amount_maker,
-      args.amount_taker,
-      args.amount_left,
-      args.order_hash,
-      args.tx_hash,
+  `, [trade.order_time,
+    trade.leader,
+    trade.follower,
+    trade.maker_token,
+    trade.taker_token,
+    trade.amount_maker,
+    trade.amount_taker,
+    trade.amount_left,
+    trade.order_hash,
+    trade.tx_hash,
   ]);
 };
 
-
-trade.save = async function save(values) {
-  return await mysql.query(`
-    INSERT INTO carboneum.orderHash VALUES ?;
-  `, values);
-};
-
-trade.find = async function find(orderHash) {
-  return await mysql.query(`
+trade.find = async function find (orderHash) {
+  return (await mysql.query(`
     SELECT * FROM carboneum.orderHash WHERE orderHash = ?
-  `, [txHash]);
+  `, [orderHash]))[0];
 };
 
 module.exports = trade;

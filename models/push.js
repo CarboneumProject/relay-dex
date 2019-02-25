@@ -7,8 +7,7 @@ admin.initializeApp({
 
 const push = {};
 
-push.sendTransferNotification = function sendTransferNotification (tokenBuy, tokenSell, amountBuy, amountSell, leader, follower, msg) {
-  console.log('copytrade_' + follower);
+push.sendTradeNotification = function sendTradeNotification (tokenBuy, tokenSell, amountBuy, amountSell, leader, follower, msg) {
   let message = {
     data: {
       destination: 'menuportfolio',
