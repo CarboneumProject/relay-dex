@@ -130,6 +130,14 @@ async function watchIDEXTransfers(blockNumber) {
                     let order_hash = orderHash;
                     let tx_hash = txHash;
 
+                    if (order.follower === taker) {
+                      maker_token = tokenSell;
+                      taker_token = tokenBuy;
+                      amount_maker = amountNetSell;
+                      amount_taker = amountNetBuy;
+                      amount_left = amountNetSell;
+                    }
+
                     const args = {
                       order_time,
                       leader,
