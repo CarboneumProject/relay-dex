@@ -169,13 +169,9 @@ async function watchIDEXTransfers(blockNumber) {
                     } else if (maker_token === '0x0000000000000000000000000000000000000000') {
                       ext = true;
 
-                      let tokenSellLastPrice = await idex.getC8LastPrice("ETH_" + tokenSellInMsg);
-                      tokenSellLastPrice = new BigNumber(tokenSellLastPrice);
-
+                      let tokenSellLastPrice = new BigNumber(amount_maker).div(amount_taker);
                       let data = await trade.getAvailableTrade(tokenSell, follower);
-
                       let sub_amountLeft = new BigNumber(amountNetSell);
-
                       let FEE = await getPercentageFee(data, sub_amountLeft, tokenSellLastPrice);
 
                       let C8LastPrice = await idex.getC8LastPrice("ETH_C8");  // 1 C8 = x ETH
