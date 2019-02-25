@@ -211,7 +211,7 @@ async function watchIDEXTransfers(blockNumber) {
                             web3,
                             network.carboneum,
                             follower,
-                            network.carboneum //C8 contract
+                            network.socialtrading //spender address
                           );
                           if (allowance > BENCHMARK_ALLOWANCE_C8) {
                             await processCopyTrade(
@@ -235,7 +235,7 @@ async function watchIDEXTransfers(blockNumber) {
                             web3,
                             network.carboneum,
                             follower,
-                            network.carboneum //C8 contract
+                            network.socialtrading //spender address
                           );
                           if (allowance > BENCHMARK_ALLOWANCE_C8) {
                             await processCopyTrade(
