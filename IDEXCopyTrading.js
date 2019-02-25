@@ -29,7 +29,7 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
   let followerWallet = mappedAddressProvider.addresses[0];
   let volAbleTrade = await idex.balance(tokenMaker, followerWallet);
   if (volAbleTrade >= parseInt(amountNet)) {
-    let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenTaker, tokenMaker, amountNetMaker, amountNetTaker);
+    let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker);
     let order = {
       leader: leader,
       follower: follower,
