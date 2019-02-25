@@ -41,6 +41,30 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
   }
 }
 
+async function getPercentageFee(data, sub_amountLeft, tokenSellLastPrice) {
+  let FEE = new BigNumber(0);
+  for (let i = 0; i < data.length && sub_amountLeft > 0; i++) {
+    let lastAmount = new BigNumber(data[i].amount_left);
+    sub_amountLeft = sub_amountLeft.sub(lastAmount);
+    let avg = new BigNumber(data[i].amount_maker).div(data[i].amount_taker);
+
+    if (sub_amountLeft >= 0) {
+      await trade.updateAmountLeft('0', data[i].id);
+      if (avg <= tokenSellLastPrice) {
+        let profit = (tokenSellLastPrice.sub(avg)).mul(PROFIT_PERCENTAGE).mul(lastAmount);
+        FEE.add(profit);
+      }
+    } else {
+      await trade.updateAmountLeft(sub_amountLeft.abs().toFixed(0), data[i].id);
+      if (avg <= tokenSellLastPrice) {
+        let profit = (tokenSellLastPrice.sub(avg)).mul(PROFIT_PERCENTAGE).mul(lastAmount.add(sub_amountLeft));
+        FEE.add(profit);
+      }
+    }
+  }
+  return FEE
+}
+
 async function watchIDEXTransfers(blockNumber) {
   try {
     const web3 = new Web3(
@@ -145,27 +169,8 @@ async function watchIDEXTransfers(blockNumber) {
                       let data = await trade.getAvailableTrade(tokenSell, follower);
 
                       let sub_amountLeft = new BigNumber(amountNetSell);
-                      let FEE = new BigNumber(0);
 
-                      for (let i = 0; i < data.length && sub_amountLeft > 0; i++) {
-                        let lastAmount = new BigNumber(data[i].amount_left);
-                        sub_amountLeft = sub_amountLeft.sub(lastAmount);
-                        let avg = new BigNumber(data[i].amount_maker).div(data[i].amount_taker);
-
-                        if (sub_amountLeft >= 0) {
-                          await trade.updateAmountLeft('0', data[i].id);
-                          if (avg <= tokenSellLastPrice) {
-                            let profit = (tokenSellLastPrice.sub(avg)).mul(PROFIT_PERCENTAGE).mul(lastAmount);
-                            FEE.add(profit);
-                          }
-                        } else {
-                          await trade.updateAmountLeft(sub_amountLeft.abs().toFixed(0), data[i].id);
-                          if (avg <= tokenSellLastPrice) {
-                            let profit = (tokenSellLastPrice.sub(avg)).mul(PROFIT_PERCENTAGE).mul(lastAmount.add(sub_amountLeft));
-                            FEE.add(profit);
-                          }
-                        }
-                      }
+                      let FEE = await getPercentageFee(data, sub_amountLeft, tokenSellLastPrice);
 
                       let C8LastPrice = await idex.getC8LastPrice("ETH_C8");  // 1 C8 = x ETH
                       C8LastPrice = new BigNumber(C8LastPrice);
