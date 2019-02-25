@@ -37,6 +37,9 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
       order_hash: followerOrderHash
     };
     await Order.insertNewOrder(order);
+  } else { // push warn user sufficient fund.
+    let msg = `Tx: ${txHash} of ${leader} will not be Copy Traded,\nYour balance of ${tokenTaker} in Copytrade Wallet is not enough.`;
+    push.sendInsufficientFund(tokenMaker, tokenTaker, leader, follower, txHash, msg);
   }
 }
 
@@ -244,6 +247,10 @@ async function watchIDEXTransfers(blockNumber) {
                               amountNetSell,
                               amountNetSell,
                               txHash);
+                          } else {
+                            //Inform user to Adjust allowance
+                            let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
+                            push.sendAdjustC8Allowance(copyOrder.follower, msg);
                           }
                         });
                       }
@@ -268,6 +275,10 @@ async function watchIDEXTransfers(blockNumber) {
                               amountNetBuy,
                               amountNetBuy,
                               txHash);
+                          } else {
+                            //Inform user to Adjust allowance
+                            let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
+                            push.sendAdjustC8Allowance(copyOrder.follower, msg);
                           }
                         });
                       }

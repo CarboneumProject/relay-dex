@@ -7,6 +7,97 @@ admin.initializeApp({
 
 const push = {};
 
+push.sendAdjustC8Allowance = function sendAdjustC8Allowance(follower, msg){
+  let message = {
+    data: {
+      destination: 'messageBox',
+      id: follower,
+      _msg: msg,
+    },
+    notification: {
+      title: `Increase Allowance of C8`,
+      body: msg,
+    },
+    android: {
+      ttl: 3600 * 1000, // 1 hour in milliseconds
+      priority: 'high',
+      notification: {
+        title: `Increase Allowance of C8`,
+        body: msg,
+      },
+    },
+    apns: {
+      headers: {
+        'apns-priority': '5',
+      },
+      payload: {
+        aps: {
+          alert: {
+            title: `Increase Allowance of C8`,
+            body: msg,
+          },
+        },
+      },
+    },
+    topic: 'allowance_' + follower,
+  };
+
+  // Transfer out
+  admin.messaging().send(message).then((response) => {
+    // Response is a message ID string.
+  }).catch((error) => {
+    console.log('Error sending message:', error);
+  });
+
+};
+
+push.sendInsufficientFund = function sendInsufficientFund(tokenBuy, tokenSell, leader, follower, txHash, msg){
+  let message = {
+    data: {
+      destination: 'messageBox',
+      id: leader,
+      _tokenBuy: tokenBuy,
+      _tokenSell: tokenSell,
+      _leader: leader,
+      _txHash: txHash,
+      _msg: msg,
+    },
+    notification: {
+      title: `Insufficient Fund`,
+      body: msg,
+    },
+    android: {
+      ttl: 3600 * 1000, // 1 hour in milliseconds
+      priority: 'high',
+      notification: {
+        title: `Insufficient Fund`,
+        body: msg,
+      },
+    },
+    apns: {
+      headers: {
+        'apns-priority': '5',
+      },
+      payload: {
+        aps: {
+          alert: {
+            title: `Insufficient Fund`,
+            body: msg,
+          },
+        },
+      },
+    },
+    topic: 'Insufficient_' + follower,
+  };
+
+  // Transfer out
+  admin.messaging().send(message).then((response) => {
+    // Response is a message ID string.
+  }).catch((error) => {
+    console.log('Error sending message:', error);
+  });
+};
+
 push.sendTradeNotification = function sendTradeNotification (tokenBuy, tokenSell, amountBuy, amountSell, leader, follower, msg) {
   let message = {
     data: {
