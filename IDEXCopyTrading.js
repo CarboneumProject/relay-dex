@@ -262,7 +262,7 @@ async function watchIDEXTransfers(blockNumber) {
         blockNumber++;
         client.hset('lastBlock', 'IDEXCopyTrading', blockNumber);
       }
-    }, 3 * 1000);
+    }, 15 * 1000);
   } catch (e) {
     console.log(e, ' error');
     process.exit();
