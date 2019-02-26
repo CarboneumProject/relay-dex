@@ -42,10 +42,4 @@ trade.insertNewTrade = async function insertNewTrade (trade) {
   ]);
 };
 
-trade.find = async function find (orderHash) {
-  return (await mysql.query(`
-    SELECT * FROM carboneum.orderHash WHERE orderHash = ?
-  `, [orderHash]))[0];
-};
-
 module.exports = trade;
