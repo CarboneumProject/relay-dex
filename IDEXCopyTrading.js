@@ -77,10 +77,10 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
           fee,
           [openOrder.leader_tx_hash, closeOrder.leader_tx_hash, openOrder.tx_hash, closeOrdertxHash],
         );
-        let msg = `Trade ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} For ${amountNetSellInMsg} ${InMsg.tokenSellInMsg} ${ext}`;
+        let msg = `Copy Trading Complete!\n-[S] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} @ ${amountNetSellInMsg} ${InMsg.tokenSellInMsg} ${ext}`;
         push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
       } else {
-        let msg = `Trade ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} For ${amountNetSellInMsg} ${InMsg.tokenSellInMsg}`;
+        let msg = `Copy Trading Complete!\n-[S] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} @ ${amountNetSellInMsg} ${InMsg.tokenSellInMsg}`;
         push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
       }
     } else {
@@ -99,10 +99,10 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
           fee,
           [openOrder.leader_tx_hash, closeOrder.leader_tx_hash, openOrder.tx_hash, closeOrdertxHash],
         );
-        let msg = `Trade ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} For ${amountNetSellInMsg} ${InMsg.tokenSellInMsg} ${ext}`;
+        let msg = `Copy Trading Complete!\n-[S] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} @ ${amountNetSellInMsg} ${InMsg.tokenSellInMsg} ${ext}`;
         push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
       } else {
-        let msg = `Trade ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} For ${amountNetSellInMsg} ${InMsg.tokenSellInMsg}`;
+        let msg = `Copy Trading Complete!\n-[S] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} @ ${amountNetSellInMsg} ${InMsg.tokenSellInMsg}`;
         push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
       }
     }
@@ -207,7 +207,7 @@ async function watchIDEXTransfers(blockNumber) {
 
                     if (taker_token === '0x0000000000000000000000000000000000000000') {
                       await Trade.insertNewTrade(trade);
-                      let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} For ${amountNetSellInMsg} ${tokenSellInMsg}`;
+                      let msg = `Copy Trading Complete!\n+[B] ${amountNetBuyInMsg} ${tokenBuyInMsg} @ ${amountNetSellInMsg} ${tokenSellInMsg}`;
                       push.sendTradeNotification(maker_token, taker_token, amount_maker, amount_taker, copyOrder.leader, copyOrder.follower, msg);
                     } else if (maker_token === '0x0000000000000000000000000000000000000000') {
                       let tokenDecimal = new BigNumber(10 ** tokenBuyDecimals - tokenSellDecimals);
