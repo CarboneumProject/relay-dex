@@ -54,11 +54,14 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
     let openOrder = openTrades[i];
     let lastAmount = new BigNumber(openOrder.amount_left);
     sub_amountLeft = sub_amountLeft.sub(lastAmount);
+
+    let amount_taker = lastAmount.toFixed(0);
+
     let avg = new BigNumber(openOrder.amount_maker).div(openOrder.amount_taker);
 
     let amount_maker = openOrder.amount_maker;
     let amountNetBuyInMsg = numeral(amount_maker / Math.pow(10, InMsg.tokenBuyDecimals)).format(`0,0.[${InMsg.repeatDecimalBuy}]`);
-    let amountNetSellInMsg = numeral(sub_amountLeft / Math.pow(10, InMsg.tokenSellDecimals)).format(`0,0.[${InMsg.repeatDecimalSell}]`);
+    let amountNetSellInMsg = numeral(amount_taker / Math.pow(10, InMsg.tokenSellDecimals)).format(`0,0.[${InMsg.repeatDecimalSell}]`);
 
     if (sub_amountLeft >= 0) {
       await Trade.updateAmountLeft('0', openOrder.id);
@@ -77,10 +80,10 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
           [openOrder.leader_tx_hash, closeOrder.leader_tx_hash, openOrder.tx_hash, closeOrdertxHash],
         );
         let msg = `[-SELL] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} for ${amountNetSellInMsg} ${InMsg.tokenSellInMsg} ${ext}`;
-        push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, sub_amountLeft, closeOrder.leader, closeOrder.follower, msg);
+        push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
       } else {
         let msg = `[-SELL] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} for ${amountNetSellInMsg} ${InMsg.tokenSellInMsg}`;
-        push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, sub_amountLeft, closeOrder.leader, closeOrder.follower, msg);
+        push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
       }
     } else {
       await Trade.updateAmountLeft(sub_amountLeft.abs().toFixed(0), openOrder.id);
@@ -99,10 +102,10 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
           [openOrder.leader_tx_hash, closeOrder.leader_tx_hash, openOrder.tx_hash, closeOrdertxHash],
         );
         let msg = `[-SELL] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} for ${amountNetSellInMsg} ${InMsg.tokenSellInMsg} ${ext}`;
-        push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, sub_amountLeft, closeOrder.leader, closeOrder.follower, msg);
+        push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
       } else {
         let msg = `[-SELL] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} for ${amountNetSellInMsg} ${InMsg.tokenSellInMsg}`;
-        push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, sub_amountLeft, closeOrder.leader, closeOrder.follower, msg);
+        push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
       }
     }
   }
