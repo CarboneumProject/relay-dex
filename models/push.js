@@ -112,14 +112,14 @@ push.sendTradeNotification = function sendTradeNotification (tokenBuy, tokenSell
       _msg: msg,
     },
     notification: {
-      title: `Copy Traded`,
+      title: `Copy Trading Complete!`,
       body: msg,
     },
     android: {
       ttl: 3600 * 1000, // 1 hour in milliseconds
       priority: 'high',
       notification: {
-        title: `Copy Traded`,
+        title: `Copy Trading Complete!`,
         body: msg,
       },
     },
@@ -130,7 +130,7 @@ push.sendTradeNotification = function sendTradeNotification (tokenBuy, tokenSell
       payload: {
         aps: {
           alert: {
-            title: `Copy Traded`,
+            title: `Copy Trading Complete!`,
             body: msg,
           },
         },
