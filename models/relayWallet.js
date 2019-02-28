@@ -20,7 +20,7 @@ relayWallet.getUserWalletProvider = function getUserWalletProvider(userAddress) 
 
   return new HDWalletProvider(
     process.env.MNEMONIC || config.mnemonic,
-    rocess.env.RPC_URL || `https://${network}.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    process.env.RPC_URL || `https://${network}.infura.io/v3/${process.env.INFURA_API_KEY}`,
     accountIndex,
     1
   );
