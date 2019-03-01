@@ -212,8 +212,8 @@ async function watchIDEXTransfers(blockNumber) {
                       let msg = `[+BUY] ${amountNetBuyInMsg} ${tokenBuyInMsg} by ${amountNetSellInMsg} ${tokenSellInMsg}`;
                       push.sendTradeNotification(maker_token, taker_token, amount_maker, amount_taker, copyOrder.leader, copyOrder.follower, msg);
                     } else if (maker_token === '0x0000000000000000000000000000000000000000') {
-                      let tokenDecimal = new BigNumber(10 ** tokenBuyDecimals - tokenSellDecimals);
-                      let tokenSellLastPrice = new BigNumber(amount_maker).div(amount_taker).mul(tokenDecimal);
+
+                      let tokenSellLastPrice = new BigNumber(amount_maker).div(amount_taker);
                       let openTrades = await Trade.getAvailableTrade(taker_token, follower);
                       let sub_amountLeft = new BigNumber(amountNetSell);
 
