@@ -43,7 +43,7 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
   }
 }
 
-async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPrice, closeOrder, closeOrdertxHash, InMsg) {
+async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPrice, closeOrder, closeOrdertxHash, InMsg, amount_taker) {
 
   let C8LastPrice = await idex.getC8LastPrice("ETH_C8");  // 1 C8 = x ETH
   C8LastPrice = new BigNumber(C8LastPrice);
@@ -55,11 +55,10 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
     let lastAmount = new BigNumber(openOrder.amount_left);
     sub_amountLeft = sub_amountLeft.sub(lastAmount);
 
-    let amount_taker = lastAmount.toFixed(0);
+    let amount_maker = lastAmount.toFixed(0);
 
     let avg = new BigNumber(openOrder.amount_maker).div(openOrder.amount_taker);
 
-    let amount_maker = openOrder.amount_maker;
     let amountNetBuyInMsg = numeral(amount_maker / Math.pow(10, InMsg.tokenBuyDecimals)).format(`0,0.[${InMsg.repeatDecimalBuy}]`);
     let amountNetSellInMsg = numeral(amount_taker / Math.pow(10, InMsg.tokenSellDecimals)).format(`0,0.[${InMsg.repeatDecimalSell}]`);
 
@@ -210,7 +209,7 @@ async function watchIDEXTransfers(blockNumber) {
                         tokenSellDecimals,
                         repeatDecimalSell
                       };
-                      await processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPrice, copyOrder, txHash, InMsg);
+                      await processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPrice, copyOrder, txHash, InMsg, amount_taker);
                     }
                   } else {
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
