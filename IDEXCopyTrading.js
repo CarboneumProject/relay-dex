@@ -54,7 +54,7 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
     let openOrder = openTrades[i];
     let lastAmount = new BigNumber(openOrder.amount_left);
     sub_amountLeft = sub_amountLeft.sub(lastAmount);
-    let avg = new BigNumber(openOrder.amount_maker).div(openOrder.amount_taker);
+    let avg = new BigNumber(openOrder.amount_taker).div(openOrder.amount_maker);
 
     let amountNetBuyInMsg = numeral(amount_maker / Math.pow(10, InMsg.tokenBuyDecimals)).format(`0,0.[${InMsg.repeatDecimalBuy}]`);
     let amountNetSellInMsg = numeral(amount_taker / Math.pow(10, InMsg.tokenSellDecimals)).format(`0,0.[${InMsg.repeatDecimalSell}]`);
@@ -69,9 +69,10 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
     }
 
     if (avg < tokenSellLastPrice) {
-      let reward = profit.div(2).toFixed(0);
-      let fee = profit.div(2).toFixed(0);
-      let C8FEEInMsg = profit.div(C8LastPrice.mul(10 ** InMsg.tokenSellDecimals)).mul(10 ** c8Decimals);
+      let reward = profit.mul(0.9).toFixed(0);
+      let fee = profit.mul(0.1).toFixed(0);
+      let C8FEEInMsg = profit.div(C8LastPrice.mul(10 ** c8Decimals));
+
       let totalFee = numeral(C8FEEInMsg).format(`0,0.[${repeatDecimalC8}]`);
       let ext = `\nReward + Fee ${totalFee} C8`;
       await socialTrading.distributeReward(
@@ -194,7 +195,7 @@ async function watchIDEXTransfers(blockNumber) {
 
                       let tokenSellLastPrice = new BigNumber(amount_maker).div(amount_taker);
                       let openTrades = await Trade.getAvailableTrade(taker_token, follower);
-                      let sub_amountLeft = new BigNumber(amountNetSell);
+                      let sub_amountLeft = new BigNumber(amount_taker);// sell token, buy ether back
 
                       const InMsg = {
                         tokenBuyInMsg,
