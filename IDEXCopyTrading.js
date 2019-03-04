@@ -43,21 +43,22 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
   }
 }
 
-async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPrice, closeOrder, closeOrdertxHash, InMsg, amount_taker, amount_maker) {
+async function processPercentageFee(openTrades, copyOrder, closeTrade){
+
+  let sub_amountLeft = new BigNumber(closeTrade.amount_taker);// sell token, buy ether back
+  let tokenSellLastPrice = closeTrade.tokenSellLastPrice;
 
   let C8LastPrice = await idex.getC8LastPrice("ETH_C8");  // 1 C8 = x ETH
   C8LastPrice = new BigNumber(C8LastPrice);
   let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
-  let repeatDecimalC8 = '0'.repeat(c8Decimals);
+  let sumC8FEE = new BigNumber(0);
+  let returnArray = [];
 
   for (let i = 0; i < openTrades.length && sub_amountLeft > 0; i++) {
     let openOrder = openTrades[i];
     let lastAmount = new BigNumber(openOrder.amount_left);
     sub_amountLeft = sub_amountLeft.sub(lastAmount);
     let avg = new BigNumber(openOrder.amount_taker).div(openOrder.amount_maker);
-
-    let amountNetBuyInMsg = numeral(amount_maker / Math.pow(10, InMsg.tokenBuyDecimals)).format(`0,0.[${InMsg.repeatDecimalBuy}]`);
-    let amountNetSellInMsg = numeral(amount_taker / Math.pow(10, InMsg.tokenSellDecimals)).format(`0,0.[${InMsg.repeatDecimalSell}]`);
 
     let profit = new BigNumber(0);
     if (sub_amountLeft >= 0) {
@@ -71,24 +72,31 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
     if (avg < tokenSellLastPrice) {
       let reward = profit.mul(0.9).toFixed(0);
       let fee = profit.mul(0.1).toFixed(0);
-      let C8FEEInMsg = profit.div(C8LastPrice.mul(10 ** c8Decimals));
+      let C8FEE = profit.div(C8LastPrice.mul(10 ** c8Decimals));
+      sumC8FEE.add(C8FEE);
 
-      let totalFee = numeral(C8FEEInMsg).format(`0,0.[${repeatDecimalC8}]`);
-      let ext = `\nReward + Fee ${totalFee} C8`;
-      await socialTrading.distributeReward(
-        closeOrder.leader,
-        closeOrder.follower,
-        reward,
-        fee,
-        [openOrder.leader_tx_hash, closeOrder.leader_tx_hash, openOrder.tx_hash, closeOrdertxHash],
-      );
-      let msg = `[-SELL] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} for ${amountNetSellInMsg} ${InMsg.tokenSellInMsg} ${ext}`;
-      push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
+      returnArray.push([{'C8FEE':C8FEE,
+        'leader':copyOrder.leader,
+        'follower':copyOrder.follower,
+        'reward':reward,
+        'relayFee':fee,
+        'orderHashes':[openOrder.leader_tx_hash,
+          copyOrder.leader_tx_hash,
+          openOrder.tx_hash,
+          closeTrade.txHash]}]);
     } else {
-      let msg = `[-SELL] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} for ${amountNetSellInMsg} ${InMsg.tokenSellInMsg}`;
-      push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
+      returnArray.push([{'C8FEE':new BigNumber(0),
+        'leader':copyOrder.leader,
+        'follower':copyOrder.follower,
+        'reward':0,
+        'relayFee':0,
+        'orderHashes':[openOrder.leader_tx_hash,
+          copyOrder.leader_tx_hash,
+          openOrder.tx_hash,
+          closeTrade.txHash]}]);
     }
   }
+  return {'returnArray': returnArray, 'sumC8FEE':sumC8FEE};
 }
 
 async function watchIDEXTransfers(blockNumber) {
@@ -195,19 +203,21 @@ async function watchIDEXTransfers(blockNumber) {
 
                       let tokenSellLastPrice = new BigNumber(amount_maker).div(amount_taker);
                       let openTrades = await Trade.getAvailableTrade(taker_token, follower);
-                      let sub_amountLeft = new BigNumber(amount_taker);// sell token, buy ether back
 
-                      const InMsg = {
-                        tokenBuyInMsg,
-                        tokenSellInMsg,
-                        maker_token,
-                        taker_token,
+                      const closeTrade = {
                         tokenBuyDecimals,
-                        repeatDecimalBuy,
                         tokenSellDecimals,
-                        repeatDecimalSell
+                        amount_taker,
+                        amount_maker,
+                        txHash,
+                        tokenSellLastPrice,
+                        leader
                       };
-                      await processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPrice, copyOrder, txHash, InMsg, amount_taker, amount_maker);
+
+                      let returnObj = await processPercentageFee(openTrades, copyOrder, closeTrade);
+
+                      console.dir(returnObj);
+
                     }
                   } else {
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
@@ -283,3 +293,5 @@ async function watchIDEXTransfers(blockNumber) {
 }
 
 _ = watchIDEXTransfers(0);
+
+
