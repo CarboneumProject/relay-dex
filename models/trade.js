@@ -27,8 +27,9 @@ trade.insertNewTrade = async function insertNewTrade (trade) {
                                  amount_taker,
                                  amount_left,
                                  order_hash,
-                                 tx_hash)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                 tx_hash,
+                                 leader_tx_hash)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `, [trade.order_time,
     trade.leader,
     trade.follower,
@@ -39,6 +40,7 @@ trade.insertNewTrade = async function insertNewTrade (trade) {
     trade.amount_left,
     trade.order_hash,
     trade.tx_hash,
+    trade.leader_tx_hash,
   ]);
 };
 
