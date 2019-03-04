@@ -49,6 +49,10 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
   C8LastPrice = new BigNumber(C8LastPrice);
   let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
   let repeatDecimalC8 = '0'.repeat(c8Decimals);
+  let amountNetBuyInMsg = numeral(amount_maker / Math.pow(10, InMsg.tokenBuyDecimals)).format(`0,0.[${InMsg.repeatDecimalBuy}]`);
+  let amountNetSellInMsg = numeral(amount_taker / Math.pow(10, InMsg.tokenSellDecimals)).format(`0,0.[${InMsg.repeatDecimalSell}]`);
+  let sumProfit = new BigNumber(0);
+  let ext = ``;
 
   for (let i = 0; i < openTrades.length && sub_amountLeft > 0; i++) {
     let openOrder = openTrades[i];
@@ -56,10 +60,8 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
     sub_amountLeft = sub_amountLeft.sub(lastAmount);
     let avg = new BigNumber(openOrder.amount_taker).div(openOrder.amount_maker);
 
-    let amountNetBuyInMsg = numeral(amount_maker / Math.pow(10, InMsg.tokenBuyDecimals)).format(`0,0.[${InMsg.repeatDecimalBuy}]`);
-    let amountNetSellInMsg = numeral(amount_taker / Math.pow(10, InMsg.tokenSellDecimals)).format(`0,0.[${InMsg.repeatDecimalSell}]`);
-
     let profit = new BigNumber(0);
+
     if (sub_amountLeft >= 0) {
       await Trade.updateAmountLeft('0', openOrder.id);
       profit = (tokenSellLastPrice.sub(avg)).mul(PROFIT_PERCENTAGE).mul(lastAmount);
@@ -72,9 +74,7 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
       let reward = profit.mul(0.9).toFixed(0);
       let fee = profit.mul(0.1).toFixed(0);
       let C8FEEInMsg = profit.div(C8LastPrice.mul(10 ** c8Decimals));
-
-      let totalFee = numeral(C8FEEInMsg).format(`0,0.[${repeatDecimalC8}]`);
-      let ext = `\nReward + Fee ${totalFee} C8`;
+      sumProfit.add(C8FEEInMsg);
       await socialTrading.distributeReward(
         closeOrder.leader,
         closeOrder.follower,
@@ -82,13 +82,16 @@ async function processPercentageFee(openTrades, sub_amountLeft, tokenSellLastPri
         fee,
         [openOrder.leader_tx_hash, closeOrder.leader_tx_hash, openOrder.tx_hash, closeOrdertxHash],
       );
-      let msg = `[-SELL] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} for ${amountNetSellInMsg} ${InMsg.tokenSellInMsg} ${ext}`;
-      push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
-    } else {
-      let msg = `[-SELL] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} for ${amountNetSellInMsg} ${InMsg.tokenSellInMsg}`;
-      push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
     }
   }
+
+  if (sumProfit > new BigNumber(0)) {
+    let totalFee = numeral(sumProfit).format(`0,0.[${repeatDecimalC8}]`);
+    ext = `\nReward + Fee ${totalFee} C8`;
+  }
+
+  let msg = `[-SELL] ${amountNetBuyInMsg} ${InMsg.tokenBuyInMsg} for ${amountNetSellInMsg} ${InMsg.tokenSellInMsg} ${ext}`;
+  push.sendTradeNotification(InMsg.maker_token, InMsg.taker_token, amount_maker, amount_taker, closeOrder.leader, closeOrder.follower, msg);
 }
 
 async function watchIDEXTransfers(blockNumber) {
