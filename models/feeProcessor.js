@@ -1,5 +1,5 @@
 const BigNumber = require('bignumber.js');
-const config = require('./config');
+const config = require('../config');
 const network = config.getNetwork();
 const PROFIT_PERCENTAGE = network.PROFIT_PERCENTAGE;
 

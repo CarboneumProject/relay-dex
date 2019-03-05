@@ -1,5 +1,5 @@
 const BigNumber = require('bignumber.js');
-const feeProcessor = require('../feeProcessor');
+const feeProcessor = require('../models/feeProcessor');
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
