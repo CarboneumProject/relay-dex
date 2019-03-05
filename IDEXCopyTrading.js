@@ -156,12 +156,40 @@ async function watchIDEXTransfers (blockNumber) {
                         tokenSellLastPrice,
                         leader,
                       };
-                      let C8LastPrice = await idex.getC8LastPrice('ETH_C8');  // 1 C8 = x ETH
-                      C8LastPrice = new BigNumber(C8LastPrice);
+                      let c8LastPrice = await idex.getC8LastPrice('ETH_C8');  // 1 C8 = x ETH
+                      c8LastPrice = new BigNumber(c8LastPrice);
                       let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
-                      let returnObj = await feeProcessor.percentageFee(openTrades, copyOrder, closeTrade, C8LastPrice, c8Decimals);
+                      let repeatDecimalC8 = '0'.repeat(c8Decimals);
+                      let returnObj = await feeProcessor.percentageFee(openTrades, copyOrder, closeTrade, c8LastPrice, c8Decimals);
 
-                      console.dir(returnObj);
+                      //update db
+                      let updateAmounts = returnObj.updateAmounts;
+                      updateAmounts.forEach(async function (order) {
+                        await Trade.updateAmountLeft(order.amountLeft, order.orderId);
+                      });
+
+                      //call social contract's distribute reward
+                      let processedFees = returnObj.processedFees;
+                      processedFees.forEach(async function (order) {
+                        await socialTrading.distributeReward(
+                          order.leader,
+                          order.follower,
+                          order.reward,
+                          order.relayFee,
+                          order.orderHashes,
+                        );
+                      });
+
+                      //push msg to user
+                      let sumFee = returnObj.sumFee;
+                      let ext = ``;
+                      if (sumFee > new BigNumber(0)) {
+                        let totalFee = numeral(sumFee).format(`0,0.[${repeatDecimalC8}]`);
+                        ext = `\nReward + Fee ${totalFee} C8`;
+                      }
+
+                      let msg = `[-SELL] ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg} ${ext}`;
+                      push.sendTradeNotification(maker_token, taker_token, amount_maker, amount_taker, copyOrder.leader, copyOrder.follower, msg);
 
                     }
                   } else {
