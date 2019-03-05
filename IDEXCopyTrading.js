@@ -158,8 +158,10 @@ async function watchIDEXTransfers (blockNumber) {
                         tokenSellLastPrice,
                         leader,
                       };
-
-                      let returnObj = await feeProcessor.processPercentageFee(openTrades, copyOrder, closeTrade);
+                      let C8LastPrice = await idex.getC8LastPrice('ETH_C8');  // 1 C8 = x ETH
+                      C8LastPrice = new BigNumber(C8LastPrice);
+                      let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
+                      let returnObj = await feeProcessor.processPercentageFee(openTrades, copyOrder, closeTrade, C8LastPrice, c8Decimals);
 
                       console.dir(returnObj);
 

@@ -1,22 +1,11 @@
 const BigNumber = require('bignumber.js');
 const Trade = require('./models/trade');
-const idex = require('./models/idex');
-const config = require('./config');
-
-const redis = require('redis'), client = redis.createClient();
-const { promisify } = require('util');
-const hgetAsync = promisify(client.hget).bind(client);
-const network = config.getNetwork();
-const feeProcessor = {};
 const PROFIT_PERCENTAGE = 0.1;
-feeProcessor.processPercentageFee = async function processPercentageFee (openTrades, copyOrder, closeTrade) {
 
+const feeProcessor = {};
+feeProcessor.processPercentageFee = async function (openTrades, copyOrder, closeTrade, c8LastPrice, c8Decimals) {
   let sub_amountLeft = new BigNumber(closeTrade.amount_taker);// sell token, buy ether back
   let tokenSellLastPrice = closeTrade.tokenSellLastPrice;
-
-  let C8LastPrice = await idex.getC8LastPrice('ETH_C8');  // 1 C8 = x ETH
-  C8LastPrice = new BigNumber(C8LastPrice);
-  let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
   let sumC8FEE = new BigNumber(0);
   let returnArray = [];
 
@@ -36,9 +25,10 @@ feeProcessor.processPercentageFee = async function processPercentageFee (openTra
     }
 
     if (avg < tokenSellLastPrice) {
+      // TODO get percentage from config.
       let reward = profit.mul(0.9).toFixed(0);
       let fee = profit.mul(0.1).toFixed(0);
-      let C8FEE = profit.div(C8LastPrice.mul(10 ** c8Decimals));
+      let C8FEE = profit.div(c8LastPrice.mul(10 ** c8Decimals));
       sumC8FEE.add(C8FEE);
 
       returnArray.push([{
@@ -66,7 +56,7 @@ feeProcessor.processPercentageFee = async function processPercentageFee (openTra
       }]);
     }
   }
-  return { 'returnArray': returnArray, 'sumC8FEE': sumC8FEE };
+  return { 'returnArray': [], 'sumC8FEE': new BigNumber(0) };
 };
 
 module.exports = feeProcessor;
