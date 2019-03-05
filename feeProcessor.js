@@ -1,5 +1,7 @@
 const BigNumber = require('bignumber.js');
-const PROFIT_PERCENTAGE = 0.1;
+const config = require('./config');
+const network = config.getNetwork();
+const PROFIT_PERCENTAGE = network.PROFIT_PERCENTAGE;
 
 const feeProcessor = {};
 feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, c8LastPrice, c8Decimals) {
@@ -25,9 +27,8 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
     }
 
     if (avg < tokenSellLastPrice) {
-      // TODO get percentage from config.
-      let reward = profit.mul(0.9).toFixed(0);
-      let fee = profit.mul(0.1).toFixed(0);
+      let reward = profit.mul(network.LEADER_REWARD_PERCENT).toFixed(0);
+      let fee = profit.mul(network.SYSTEM_FEE_PERCENT).toFixed(0);
       let C8FEE = profit.div(c8LastPrice.mul(10 ** c8Decimals));
       sumC8FEE.add(C8FEE);
 

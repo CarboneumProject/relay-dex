@@ -19,7 +19,7 @@ const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
 const network = config.getNetwork();
-const PROFIT_PERCENTAGE = 0.1;
+const PROFIT_PERCENTAGE = network.PROFIT_PERCENTAGE;
 const BENCHMARK_ALLOWANCE_C8 = new BigNumber(10 ** 18).mul(10000);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
