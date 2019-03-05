@@ -57,7 +57,7 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
       });
     }
   }
-  return { 'processedFees': processedFees, 'updateAmounts': updateAmounts, 'sumFee': new BigNumber(0) };
+  return { 'processedFees': processedFees, 'updateAmounts': updateAmounts, 'sumFee': sumC8FEE };
 };
 
 module.exports = feeProcessor;
