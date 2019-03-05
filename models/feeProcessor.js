@@ -27,10 +27,10 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
     }
 
     if (avg < tokenSellLastPrice) {
-      let reward = profit.mul(network.LEADER_REWARD_PERCENT).toFixed(0);
-      let fee = profit.mul(network.SYSTEM_FEE_PERCENT).toFixed(0);
+      let reward = profit.div(c8LastPrice).mul(network.LEADER_REWARD_PERCENT).toFixed(0);
+      let fee = profit.div(c8LastPrice).mul(network.SYSTEM_FEE_PERCENT).toFixed(0);
       let C8FEE = profit.div(c8LastPrice.mul(10 ** c8Decimals));
-      sumC8FEE.add(C8FEE);
+      sumC8FEE = sumC8FEE.add(C8FEE);
 
       processedFees.push({
         'C8FEE': C8FEE,
