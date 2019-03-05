@@ -32,7 +32,7 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
       let C8FEE = profit.div(c8LastPrice.mul(10 ** c8Decimals));
       sumC8FEE.add(C8FEE);
 
-      processedFees.push([{
+      processedFees.push({
         'C8FEE': C8FEE,
         'leader': copyOrder.leader,
         'follower': copyOrder.follower,
@@ -42,9 +42,9 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
           copyOrder.leader_tx_hash,
           openOrder.tx_hash,
           closeTrade.txHash],
-      }]);
+      });
     } else {
-      processedFees.push([{
+      processedFees.push({
         'C8FEE': new BigNumber(0),
         'leader': copyOrder.leader,
         'follower': copyOrder.follower,
@@ -54,7 +54,7 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
           copyOrder.leader_tx_hash,
           openOrder.tx_hash,
           closeTrade.txHash],
-      }]);
+      });
     }
   }
   return { 'processedFees': processedFees, 'updateAmounts': updateAmounts, 'sumFee': new BigNumber(0) };
