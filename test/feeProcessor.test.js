@@ -45,7 +45,7 @@ describe('feeProcessor', function () {
       'order_hash': '0x3d236e9f45bffc69c3db9ff8a9bc553d2639cd187dee7c868caca0f9e6aaa404',
     };
 
-    let rewardAndFees = await feeProcessor.processPercentageFee(openTrades, copyTrade, closeTrade, c8LastPrice, c8Decimals);
-    rewardAndFees['sumC8FEE'].should.be.bignumber.equal(new BigNumber(0));
+    let rewardAndFees = await feeProcessor.percentageFee(openTrades, copyTrade, closeTrade, c8LastPrice, c8Decimals);
+    rewardAndFees['sumFee'].should.be.bignumber.equal(new BigNumber(0));
   });
 });
