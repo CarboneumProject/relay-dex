@@ -172,13 +172,15 @@ async function watchIDEXTransfers (blockNumber) {
                       //call social contract's distribute reward
                       let processedFees = returnObj.processedFees;
                       processedFees.forEach(async function (order) {
-                        await socialTrading.distributeReward(
-                          order.leader,
-                          order.follower,
-                          order.reward,
-                          order.relayFee,
-                          order.orderHashes,
-                        );
+                        if (order.C8FEE > new BigNumber(0)) {
+                          await socialTrading.distributeReward(
+                            order.leader,
+                            order.follower,
+                            order.reward,
+                            order.relayFee,
+                            order.orderHashes,
+                          );
+                        }
                       });
 
                       //push msg to user
