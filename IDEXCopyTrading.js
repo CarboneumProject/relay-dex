@@ -70,8 +70,8 @@ async function processPercentageFee(openTrades, copyOrder, closeTrade){
     }
 
     if (avg < tokenSellLastPrice) {
-      let reward = profit.mul(0.9).toFixed(0);
-      let fee = profit.mul(0.1).toFixed(0);
+      let reward = profit.mul(network.LEADER_REWARD_PERCENT).toFixed(0);
+      let fee = profit.mul(network.SYSTEM_FEE_PERCENT).toFixed(0);
       let C8FEE = profit.div(C8LastPrice.mul(10 ** c8Decimals));
       sumC8FEE.add(C8FEE);
 
