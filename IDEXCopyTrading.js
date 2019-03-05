@@ -7,6 +7,7 @@ const Order = require('./models/order');
 const config = require('./config');
 const IDEX_abi = require('./abi/IDEX/exchange.json');
 const relayWallet = require('./models/relayWallet');
+const socialTrading = require('./models/socialTradingContract');
 const redis = require('redis'), client = redis.createClient();
 const { promisify } = require('util');
 const hgetAsync = promisify(client.hget).bind(client);
