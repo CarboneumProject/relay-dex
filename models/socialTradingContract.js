@@ -21,24 +21,28 @@ socialTrading.distributeReward = async function distributeReward (
   relayFee,
   orderHashes,
 ) {
-  const provider = infuraProvider(process.env.NETWORK || 'rinkeby');
-  let w3 = new Web3(provider);
-  let socialTradingContract = new w3.eth.Contract(
-    SocialTradingABI,
-    contractAddress,
-  );
-  return await socialTradingContract.methods.distributeReward(
-    leader,
-    follower,
-    reward,
-    relayFee,
-    orderHashes,
-  ).send({
-    from: provider.addresses[0],
-    value: 0,
-    gasLimit: 310000,
-    gasPrice: await w3.eth.getGasPrice(),
-  });
+  try {
+    const provider = infuraProvider(process.env.NETWORK || 'rinkeby');
+    let w3 = new Web3(provider);
+    let socialTradingContract = new w3.eth.Contract(
+      SocialTradingABI,
+      contractAddress,
+    );
+    return await socialTradingContract.methods.distributeReward(
+      leader,
+      follower,
+      reward,
+      relayFee,
+      orderHashes,
+    ).send({
+      from: provider.addresses[0],
+      value: 0,
+      gasLimit: 310000,
+      gasPrice: await w3.eth.getGasPrice(),
+    });
+  } catch (error) {
+    return error.message;
+  }
 };
 
 module.exports = socialTrading;
