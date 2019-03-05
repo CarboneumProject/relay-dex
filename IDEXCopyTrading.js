@@ -8,7 +8,7 @@ const config = require('./config');
 const IDEX_abi = require('./abi/IDEX/exchange.json');
 const relayWallet = require('./models/relayWallet');
 const redis = require('redis'), client = redis.createClient();
-const {promisify} = require('util');
+const { promisify } = require('util');
 const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
 const numeral = require('numeral');
@@ -23,7 +23,7 @@ const BENCHMARK_ALLOWANCE_C8 = new BigNumber(10 ** 18).mul(10000);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 
-async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker, amountNet, txHash) {
+async function processCopyTrade (leader, follower, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker, amountNet, txHash) {
   let mappedAddressProvider = relayWallet.getUserWalletProvider(follower);
   let followerWallet = mappedAddressProvider.addresses[0];
   let volAbleTrade = await idex.balance(tokenTaker, followerWallet);
@@ -33,7 +33,7 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
       leader: leader,
       follower: follower,
       leader_tx_hash: txHash,
-      order_hash: followerOrderHash
+      order_hash: followerOrderHash,
     };
     await Order.insertNewOrder(order);
   } else { // push warn user sufficient fund.
@@ -42,7 +42,7 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
   }
 }
 
-async function watchIDEXTransfers(blockNumber) {
+async function watchIDEXTransfers (blockNumber) {
   try {
     const web3 = new Web3(
       new Web3.providers.WebsocketProvider(network.ws_url),
@@ -125,7 +125,7 @@ async function watchIDEXTransfers(blockNumber) {
                       amount_left,
                       order_hash,
                       tx_hash,
-                      leader_tx_hash
+                      leader_tx_hash,
                     };
 
                     let tokenBuyInMsg = await hgetAsync('tokenMap:' + maker_token, 'token');
@@ -154,13 +154,12 @@ async function watchIDEXTransfers(blockNumber) {
                         amount_maker,
                         txHash,
                         tokenSellLastPrice,
-                        leader
+                        leader,
                       };
-
-                      let C8LastPrice = await idex.getC8LastPrice("ETH_C8");  // 1 C8 = x ETH
+                      let C8LastPrice = await idex.getC8LastPrice('ETH_C8');  // 1 C8 = x ETH
                       C8LastPrice = new BigNumber(C8LastPrice);
                       let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
-                      let returnObj = await feeProcessor.percentageFee(openTrades, copyOrder, closeTrade, C8LastPrice,c8Decimals);
+                      let returnObj = await feeProcessor.percentageFee(openTrades, copyOrder, closeTrade, C8LastPrice, c8Decimals);
 
                       console.dir(returnObj);
 
@@ -173,7 +172,7 @@ async function watchIDEXTransfers(blockNumber) {
                             web3,
                             network.carboneum,
                             follower,
-                            network.socialtrading //spender address
+                            network.socialtrading, //spender address
                           );
                           if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
                             await processCopyTrade(
@@ -201,7 +200,7 @@ async function watchIDEXTransfers(blockNumber) {
                             web3,
                             network.carboneum,
                             follower,
-                            network.socialtrading //spender address
+                            network.socialtrading, //spender address
                           );
                           if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
                             await processCopyTrade(
