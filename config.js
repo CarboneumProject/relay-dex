@@ -13,6 +13,8 @@ const networks = {
     IDEX_API_BASE_WS: 'ws://127.0.0.1:8881',
     REWARD: '44000000000000000000',
     FEE: '44000000000000000000',
+    LEADER_REWARD_PERCENT: 0.9,
+    SYSTEM_FEE_PERCENT: 0.1,
     carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d'
   },
 
@@ -33,6 +35,8 @@ const networks = {
     IDEX_API_BASE_WS: 'ws://api.carbonradars.io:8881',
     REWARD: '44000000000000000000',
     FEE: '44000000000000000000',
+    LEADER_REWARD_PERCENT: 0.9,
+    SYSTEM_FEE_PERCENT: 0.1,
     carboneum: '0x1347d3e87f3335c1e5146cff3020cb86a3c93292'
   },
 
@@ -51,6 +55,8 @@ const networks = {
     IDEX_API_BASE_WS: 'wss://v1.idex.market',
     REWARD: '44000000000000000000',
     FEE: '44000000000000000000',
+    LEADER_REWARD_PERCENT: 0.9,
+    SYSTEM_FEE_PERCENT: 0.1,
     carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d'
   },
 };
