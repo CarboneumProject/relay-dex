@@ -40,7 +40,7 @@ socialTrading.distributeReward = async function distributeReward (
 
     let nextNonce = await w3.eth.getTransactionCount(provider.addresses[0], 'pending') + orderId;
     console.log(nextNonce);
-    console.log(await w3.eth.sendTransaction({
+    await w3.eth.sendTransaction({
       nonce: nextNonce,
       gasLimit: 310000,
       gasPrice: await w3.eth.getGasPrice(),
@@ -49,9 +49,9 @@ socialTrading.distributeReward = async function distributeReward (
       value: 0,
       data: data,
       chainId: network.chainId,
-    }));
+    });
   } catch (error) {
-    console.log(error.message);
+    console.log(error.message, ' error!!');
   }
 };
 
