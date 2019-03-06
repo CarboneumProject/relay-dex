@@ -529,4 +529,33 @@ describe('feeProcessor', function () {
     rewardAndFees1['processedFees'][1]['reward'].should.be.bignumber.equal(new BigNumber('13500000000000000000'));
     rewardAndFees1['processedFees'][1]['relayFee'].should.be.bignumber.equal(new BigNumber('1500000000000000000'));
   });
+
+  it('should able to calculate fee with no open order at fixed fee.', async function () {
+    let openTrades1 = [];
+
+    let closeTrade1 = {
+      'tokenBuyDecimals': '18',
+      'tokenSellDecimals': '18',
+      'amount_taker': new BigNumber('8000000000000000000'),
+      'amount_maker': new BigNumber('2000000000000000000'),
+      'txHash': '0xAea9d878d8cd293421292a1c2c89fb41052607e6d21b00a50697f1ac5f583a33',
+      'tokenSellLastPrice': new BigNumber('0.25'),
+      'leader': '0x2d3119024507f18e6327e4b59868a899c37d2ec8',
+    };
+
+    let copyTrade1 = {
+      'id': 3,
+      'leader': '0x2d3119024507f18e6327e4b59868a899c37d2ec8',
+      'follower': '0xfb38e6973c2d6b33ca0d8d2d10107fa13def920a',
+      'leader_tx_hash': '0x2958b1617c02445606972b64159ae891a5e8496517fda74ac9ffd0f1d5841f0A',
+      'order_hash': '0x3d236e9f45bffc69c3db9ff8a9bc553d2639cd187dee7c868caca0f9e6aaa40A',
+    };
+
+    let rewardAndFees1 = await feeProcessor.percentageFee(openTrades1, copyTrade1, closeTrade1, c8LastPrice);
+    rewardAndFees1['sumFee'].should.be.bignumber.equal(new BigNumber('88000000000000000000'));
+    rewardAndFees1['processedFees'][0]['C8FEE'].should.be.bignumber.equal(new BigNumber('88000000000000000000'));
+    rewardAndFees1['processedFees'][0]['reward'].should.be.bignumber.equal(new BigNumber('44000000000000000000'));
+    rewardAndFees1['processedFees'][0]['relayFee'].should.be.bignumber.equal(new BigNumber('44000000000000000000'));
+
+  });
 });
