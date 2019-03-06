@@ -4,7 +4,7 @@ const network = config.getNetwork();
 const PROFIT_PERCENTAGE = network.PROFIT_PERCENTAGE;
 
 const feeProcessor = {};
-feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, c8LastPrice, c8Decimals) {
+feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, c8LastPrice) {
   let sub_amountLeft = new BigNumber(closeTrade.amount_taker);// sell token, buy ether back
   let tokenSellLastPrice = closeTrade.tokenSellLastPrice;
   let sumC8FEE = new BigNumber(0);
@@ -32,7 +32,7 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
       if (avg < tokenSellLastPrice) {
         let reward = profit.div(c8LastPrice).mul(network.LEADER_REWARD_PERCENT).toFixed(0);
         let fee = profit.div(c8LastPrice).mul(network.SYSTEM_FEE_PERCENT).toFixed(0);
-        let C8FEE = profit.div(c8LastPrice.mul(10 ** c8Decimals));
+        let C8FEE = profit.div(c8LastPrice);
         sumC8FEE = sumC8FEE.add(C8FEE);
 
         processedFees.push({
@@ -63,7 +63,7 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
   } else {
     let reward = new BigNumber(network.REWARD);
     let fee = new BigNumber(network.FEE);
-    let C8FEE = reward.add(fee).div(10 ** c8Decimals);
+    let C8FEE = reward.add(fee);
     sumC8FEE = sumC8FEE.add(C8FEE);
     processedFees.push({
       'C8FEE': C8FEE,

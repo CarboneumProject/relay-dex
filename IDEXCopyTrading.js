@@ -161,7 +161,7 @@ async function watchIDEXTransfers (blockNumber) {
                       c8LastPrice = new BigNumber(c8LastPrice);
                       let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
                       let repeatDecimalC8 = '0'.repeat(c8Decimals);
-                      let returnObj = await feeProcessor.percentageFee(openTrades, copyOrder, closeTrade, c8LastPrice, c8Decimals);
+                      let returnObj = await feeProcessor.percentageFee(openTrades, copyOrder, closeTrade, c8LastPrice);
 
                       //update db
                       let updateAmounts = returnObj.updateAmounts;
@@ -187,6 +187,7 @@ async function watchIDEXTransfers (blockNumber) {
                       let sumFee = returnObj.sumFee;
                       let ext = ``;
                       if (sumFee > new BigNumber(0)) {
+                        sumFee = sumFee.div(10 ** c8Decimals);
                         let totalFee = numeral(sumFee).format(`0,0.[${repeatDecimalC8}]`);
                         ext = `\nReward + Fee ${totalFee} C8`;
                       }
