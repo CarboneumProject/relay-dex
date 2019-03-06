@@ -16,7 +16,8 @@ const networks = {
     LEADER_REWARD_PERCENT: 0.9,
     SYSTEM_FEE_PERCENT: 0.1,
     PROFIT_PERCENTAGE: 0.1,
-    carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d'
+    carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
+    chainId: 4,
   },
 
   kovan: {
@@ -39,7 +40,8 @@ const networks = {
     LEADER_REWARD_PERCENT: 0.9,
     SYSTEM_FEE_PERCENT: 0.1,
     PROFIT_PERCENTAGE: 0.1,
-    carboneum: '0x1347d3e87f3335c1e5146cff3020cb86a3c93292'
+    carboneum: '0x1347d3e87f3335c1e5146cff3020cb86a3c93292',
+    chainId: 42,
   },
 
   mainnet: {
@@ -60,7 +62,8 @@ const networks = {
     LEADER_REWARD_PERCENT: 0.9,
     SYSTEM_FEE_PERCENT: 0.1,
     PROFIT_PERCENTAGE: 0.1,
-    carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d'
+    carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
+    chainId: 1,
   },
 };
 

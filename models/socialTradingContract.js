@@ -20,28 +20,38 @@ socialTrading.distributeReward = async function distributeReward (
   reward,
   relayFee,
   orderHashes,
+  orderId,
 ) {
   try {
-    const provider = infuraProvider(process.env.NETWORK || 'rinkeby');
+    const provider = infuraProvider(process.env.NETWORK || network.name);
     let w3 = new Web3(provider);
     let socialTradingContract = new w3.eth.Contract(
       SocialTradingABI,
       contractAddress,
     );
-    return await socialTradingContract.methods.distributeReward(
+
+    let data = socialTradingContract.methods.distributeReward(
       leader,
       follower,
       reward,
       relayFee,
       orderHashes,
-    ).send({
-      from: provider.addresses[0],
-      value: 0,
+    ).encodeABI();
+
+    let nextNonce = await w3.eth.getTransactionCount(provider.addresses[0], 'pending') + orderId;
+    console.log(nextNonce);
+    console.log(await w3.eth.sendTransaction({
+      nonce: nextNonce,
       gasLimit: 310000,
       gasPrice: await w3.eth.getGasPrice(),
-    });
+      from: provider.addresses[0],
+      to: network.socialtrading,
+      value: 0,
+      data: data,
+      chainId: network.chainId,
+    }));
   } catch (error) {
-    return error.message;
+    console.log(error.message);
   }
 };
 

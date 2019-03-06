@@ -45,6 +45,7 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
             copyOrder.leader_tx_hash,
             openOrder.tx_hash,
             closeTrade.txHash],
+          'orderID': openOrder.id,
         });
       } else {
         processedFees.push({
@@ -57,6 +58,7 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
             copyOrder.leader_tx_hash,
             openOrder.tx_hash,
             closeTrade.txHash],
+          'orderID': openOrder.id,
         });
       }
     }
