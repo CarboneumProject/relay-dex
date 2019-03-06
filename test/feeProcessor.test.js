@@ -408,7 +408,7 @@ describe('feeProcessor', function () {
     rewardAndFees2['processedFees'][0]['relayFee'].should.be.bignumber.equal(new BigNumber(0));
   });
 
-  it('should able to calculate fee for 2 orders diferect price then sell 1 order for better price.', async function () {
+  it('should able to calculate fee for 2 orders different price then sell 1 order for better price.', async function () {
     let openTrades1 = [
       {
         'id': 1,
