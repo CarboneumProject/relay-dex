@@ -62,33 +62,23 @@ socialTrading.distributeRewardAll = async function (rewards) {
     SocialTradingABI,
     contractAddress,
   );
-  let nextNonce = await w3.eth.getTransactionCount(provider.addresses[0], 'pending');
   let gasPrice = await w3.eth.getGasPrice();
   for (let i = 0; i < rewards.length; i++) {
     if (rewards[i].C8FEE === new BigNumber(0)) { // No fee to distribute
       continue;
     }
-
-    let data = socialTradingContract.methods.distributeReward(
-      rewards[i].leader,
-      rewards[i].follower,
-      rewards[i].reward,
-      rewards[i].relayFee,
-      rewards[i].orderHashes,
-    ).encodeABI();
-
-    nextNonce++;
-    console.log(nextNonce);
     try {
-      await w3.eth.sendTransaction({
-        nonce: nextNonce,
+      await socialTradingContract.methods.distributeReward(
+        rewards[i].leader,
+        rewards[i].follower,
+        rewards[i].reward,
+        rewards[i].relayFee,
+        rewards[i].orderHashes,
+      ).send({
+        from: provider.addresses[0],
+        value: 0,
         gasLimit: 310000,
         gasPrice: gasPrice,
-        from: provider.addresses[0],
-        to: network.socialtrading,
-        value: 0,
-        data: data,
-        chainId: network.chainId,
       });
     } catch (error) {
       console.log(error.message, ' error!!');
