@@ -1,5 +1,6 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const SocialTradingABI = require('../abi/socialtrading/SocialTrading');
+const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
 const config = require('../config');
 const network = config.getNetwork();
@@ -64,6 +65,10 @@ socialTrading.distributeRewardAll = async function (rewards) {
   let nextNonce = await w3.eth.getTransactionCount(provider.addresses[0], 'pending');
   let gasPrice = await w3.eth.getGasPrice();
   for (let i = 0; i < rewards.length; i++) {
+    if (rewards[i].C8FEE === new BigNumber(0)) { // No fee to distribute
+      continue;
+    }
+
     let data = socialTradingContract.methods.distributeReward(
       rewards[i].leader,
       rewards[i].follower,
