@@ -13,7 +13,6 @@ const infuraProvider = network => providerWithMnemonic(
 const contractAddress = network.socialtrading;
 const socialTrading = {};
 
-
 socialTrading.distributeReward = async function distributeReward (
   leader,
   follower,
@@ -52,6 +51,43 @@ socialTrading.distributeReward = async function distributeReward (
     });
   } catch (error) {
     console.log(error.message, ' error!!');
+  }
+};
+
+socialTrading.distributeRewardAll = async function (rewards) {
+  const provider = infuraProvider(process.env.NETWORK || network.name);
+  let w3 = new Web3(provider);
+  let socialTradingContract = new w3.eth.Contract(
+    SocialTradingABI,
+    contractAddress,
+  );
+  let nextNonce = await w3.eth.getTransactionCount(provider.addresses[0], 'pending');
+  let gasPrice = await w3.eth.getGasPrice();
+  for (let i = 0; i < rewards.length; i++) {
+    let data = socialTradingContract.methods.distributeReward(
+      rewards[i].leader,
+      rewards[i].follower,
+      rewards[i].reward,
+      rewards[i].relayFee,
+      rewards[i].orderHashes,
+    ).encodeABI();
+
+    nextNonce++;
+    console.log(nextNonce);
+    try {
+      await w3.eth.sendTransaction({
+        nonce: nextNonce,
+        gasLimit: 310000,
+        gasPrice: gasPrice,
+        from: provider.addresses[0],
+        to: network.socialtrading,
+        value: 0,
+        data: data,
+        chainId: network.chainId,
+      });
+    } catch (error) {
+      console.log(error.message, ' error!!');
+    }
   }
 };
 
