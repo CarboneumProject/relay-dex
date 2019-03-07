@@ -14,7 +14,6 @@ const {
 const {mapValues} = require('lodash');
 const request = require('request');
 const rp = require('request-promise');
-const WebSocket = require('ws');
 
 const useRedis = require('../models/useRedis');
 const relayWallet = require('../models/relayWallet');
@@ -316,51 +315,27 @@ idex.withdraw = async function withdraw(provider, token, amount) {
 
     function connect(args) {
       return new Promise(function (resolve, reject) {
-        const ws = new WebSocket(network.IDEX_API_BASE_WS);
-        ws.on('open', function open() {
-          ws.send(` {
-          "method": "handshake",
-          "payload": {
-            "type": "client",
-            "version": "2.0",
-            "key": "7iiqNoCi6Q54Qn2lIq9Bl4mVdBv5ga4n94OaI5QF"
+        request({
+          method: 'POST',
+          url: network.IDEX_API_BASE_URL + '/withdraw',
+          json: {
+            address: args.address,
+            amount: args.amount,
+            token: args.token,
+            nonce: args.nonce,
+            v: args.v,
+            r: args.r,
+            s: args.s
           }
-        }`);    //Note that the key property is currently a static string  is likely to change in the future.
-
-        });
-
-        ws.on('message', function incoming(data) {
-          let output = JSON.parse(data);
-          if (output.result === 'success' && output.method === 'handshake') {
-
-            ws.send(`{
-          "method":"makeWithdrawal",
-          "payload":{
-            "user":"${args.address}",
-            "token":"${args.token}",
-            "amount":"${args.amount}",
-            "nonce":${args.nonce},
-            "v":${args.v},
-            "r":"${args.r}",
-            "s":"${args.s}"
-          },
-          "sid":"${output.sid}"
-          }`);
-          }
-
-          if (output.method === 'returnValue') {
-            if (Object.keys(output.payload).length === 0) {
-              resolve({status: 'yes', message: 'success'});
-            } else {
-              resolve({status: 'no', message: output.payload.message});
-            }
-            ws.close();
-
+        }, async function (err, resp, body) {
+          if (body.hasOwnProperty('error')) {
+            resolve({status: 'no', message: body.error});
+          } else {
+            resolve({status: 'yes', message: 'success'});
           }
         });
       });
     }
-
     return await connect(args);
 
   } catch (error) {
