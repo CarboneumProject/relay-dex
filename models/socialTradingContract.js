@@ -84,8 +84,6 @@ socialTrading.distributeRewardAll = async function (rewards) {
       console.log(error.message, ' error!!');
     }
   }
-
-  w3.currentProvider.connection.close();
 };
 
 module.exports = socialTrading;
