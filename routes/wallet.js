@@ -4,7 +4,7 @@ const validateSignature = require('../models/validate-signature');
 const router = express.Router();
 const idex = require("../models/idex");
 const logToFile = require("../models/logToFile");
-const useRedis = require('./models/useRedis');
+const useRedis = require('../models/useRedis');
 
 
 router.post('/register', async (req, res, next) => {
