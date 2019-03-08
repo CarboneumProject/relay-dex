@@ -8,6 +8,7 @@ const relayWallet = require('./models/relayWallet');
 const socialTrading = require('./models/socialTradingContract');
 const redis = require('redis'), client = redis.createClient();
 const { promisify } = require('util');
+const hgetAsync = promisify(client.hget).bind(client);
 const getAsync = promisify(client.get).bind(client);
 const BigNumber = require('bignumber.js');
 
@@ -15,25 +16,31 @@ const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
 const network = config.getNetwork();
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider(network.ws_url),
-);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 
 async function watchIDEXTransfers (blockNumber) {
   try {
+    const web3 = new Web3(
+      new Web3.providers.WebsocketProvider(network.ws_url),
+    );
+
     if (blockNumber === 0) {
-      blockNumber = (await web3.eth.getBlock('latest')).number;
+      let lastBlock = await hgetAsync('lastBlock', 'IDEXCopyTrading');
+      console.log('start @ #', lastBlock);
+      if (lastBlock) {
+        blockNumber = lastBlock;
+      } else {
+        blockNumber = (await web3.eth.getBlock('latest')).number;
+      }
     }
+
     setTimeout(async () => {
       while (true) {
         let block = await web3.eth.getBlock(blockNumber);
         if (block == null) {
           return watchIDEXTransfers(blockNumber);
         }
-
-        console.log(blockNumber);
 
         block.transactions.forEach(async function (txHash) {
           let trx = await web3.eth.getTransaction(txHash);
@@ -120,10 +127,13 @@ async function watchIDEXTransfers (blockNumber) {
             }
           }
         });
+        console.log(blockNumber);
+        client.hset('lastBlock', 'IDEXCopyTrading', blockNumber);
         blockNumber++;
       }
-    }, 3 * 1000);
+    }, 15 * 1000);
   } catch (e) {
+    console.log(e, ' error');
     console.log(e);
   }
 }
