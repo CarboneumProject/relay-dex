@@ -34,3 +34,7 @@ build/
 
 # lol macs
 .DS_Store/
+
+
+# Firebase credential
+firebase.json

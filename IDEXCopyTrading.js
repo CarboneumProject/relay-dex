@@ -9,22 +9,31 @@ const socialTrading = require('./models/socialTradingContract');
 const redis = require('redis'), client = redis.createClient();
 const { promisify } = require('util');
 const getAsync = promisify(client.get).bind(client);
+const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
-
+const numeral = require('numeral');
+const push = require('./models/push');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
 const network = config.getNetwork();
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider(network.ws_url),
-);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 
 async function watchIDEXTransfers (blockNumber) {
   try {
+    const web3 = new Web3(
+      new Web3.providers.WebsocketProvider(network.ws_url),
+    );
+
     if (blockNumber === 0) {
-      blockNumber = (await web3.eth.getBlock('latest')).number;
+      let lastBlock = await hgetAsync("lastBlock", "IDEXCopyTrading");
+      console.log("start @ #", lastBlock);
+      if (lastBlock) {
+        blockNumber = lastBlock;
+      } else {
+        blockNumber = (await web3.eth.getBlock('latest')).number;
+      }
     }
     setTimeout(async () => {
       while (true) {
@@ -58,6 +67,10 @@ async function watchIDEXTransfers (blockNumber) {
                   let txHash = trx.hash;
                   let amountNetSell = amountSell;
 
+                  if (amountBuy !== amountNetBuy) {
+                    amountNetSell = new BigNumber(amountSell).mul(new BigNumber(amountNetBuy)).div(new BigNumber(amountBuy)).toFixed(0);
+                  }
+
                   let orderHash = idex.orderHash(tokenBuy, amountBuy, tokenSell, amountSell, expires, nonce, maker);
                   const copyOrder = await getAsync('order:' + orderHash);
                   if (copyOrder != null) {
@@ -69,10 +82,23 @@ async function watchIDEXTransfers (blockNumber) {
                       order.relayFee,
                       [order.leaderTxHash, '0x', txHash, '0x'],
                     );
+
+                    let tokenBuyInMsg = await hgetAsync("tokenMap:" + tokenBuy, "token");
+                    let tokenSellInMsg = await hgetAsync("tokenMap:" + tokenSell, "token");
+                    let tokenBuyDecimals = await hgetAsync("tokenMap:" + tokenBuy, "decimals");
+                    let tokenSellDecimals = await hgetAsync("tokenMap:" + tokenSell, "decimals");
+                    let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals);
+                    let repeatDecimalSell = '0'.repeat(tokenSellDecimals);
+                    let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.[${repeatDecimalBuy}]`);
+                    let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.[${repeatDecimalSell}]`);
+
+
+                    let c8Decimals = await hgetAsync("tokenMap:" + network.carboneum, "decimals");
+                    let totalFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD)).div(10 ** c8Decimals);
+
+                    let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} For ${amountNetSellInMsg} ${tokenSellInMsg}\nReward + Fee ${totalFee} C8`;
+                    push.sendTransferNotification(tokenBuy, tokenSell, amountNetBuy, amountNetSell, order.leader, order.follower, msg);
                   } else {
-                    if (amountBuy !== amountNetBuy) {
-                      amountNetSell = new BigNumber(amountSell).mul(new BigNumber(amountNetBuy)).div(new BigNumber(amountBuy)).toFixed(0);
-                    }
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                       if (follow_dict !== null) {
                         await Object.keys(follow_dict).forEach(async function (follower) {
@@ -121,10 +147,12 @@ async function watchIDEXTransfers (blockNumber) {
           }
         });
         blockNumber++;
+        client.hset("lastBlock", "IDEXCopyTrading", blockNumber);
       }
     }, 3 * 1000);
   } catch (e) {
-    console.log(e);
+    console.log(e, " error");
+    process.exit();
   }
 }
 
