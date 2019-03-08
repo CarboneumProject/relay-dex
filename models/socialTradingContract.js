@@ -21,7 +21,7 @@ socialTrading.distributeReward = async function distributeReward (
   relayFee,
   orderHashes,
 ) {
-  const provider = infuraProvider(process.env.NETWORK || 'rinkeby');
+  const provider = infuraProvider(process.env.NETWORK || network.name);
   let w3 = new Web3(provider);
   let socialTradingContract = new w3.eth.Contract(
     SocialTradingABI,
