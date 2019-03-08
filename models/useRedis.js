@@ -2,6 +2,21 @@ const useRedis = {};
 
 let redis = require("redis");
 
+useRedis.saveWithdraw = function saveWithdraw(withdrawHash, walletAddress, amount="0") {
+  let client = redis.createClient();
+  client.del("withdrawHash:done:" + withdrawHash);
+  client.hset("withdrawHash:new:" + withdrawHash, walletAddress.toLowerCase(), amount);
+  client.expire("withdrawHash:new:" + withdrawHash, 60 * 60 * 24);  //Expire in 24 hrs.
+  client.quit();
+};
+
+useRedis.markWithdrawed = function markWithdrawed(withdrawHash, walletAddress) {
+  let client = redis.createClient();
+  client.del("withdrawHash:new:" + withdrawHash);
+  client.hset("withdrawHash:done:" + withdrawHash, walletAddress.toLowerCase(), 1);
+  client.quit();
+};
+
 useRedis.saveHash = function saveHash(txHash, walletAddress, amount="0") {
   let client = redis.createClient();
   client.del("txHash:done:" + txHash);

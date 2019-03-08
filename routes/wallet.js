@@ -3,12 +3,8 @@ const relayWallet = require('../models/relayWallet');
 const validateSignature = require('../models/validate-signature');
 const router = express.Router();
 const idex = require("../models/idex");
-const erc20 = require("../models/erc20");
-const transfer = require("../models/transfer");
 const logToFile = require("../models/logToFile");
-const BigNumber = require('bignumber.js');
-
-const IDEX_FEE = 0.95;  // MAX IDEX WITHDRAW FEE = 5%
+const useRedis = require('./models/useRedis');
 
 
 router.post('/register', async (req, res, next) => {
@@ -49,22 +45,8 @@ router.post('/withdraw', async (req, res, next) => {
         if (respond.status === 'yes'){
           res.status(200);
           res.send({'status': respond.status, 'message': respond.message});
-          if (tokenAddress === '0x0000000000000000000000000000000000000000') {
-            transfer.sendEth(
-              mappedAddressProvider,
-              mappedAddressProvider.addresses[0],
-              walletAddress,
-              new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
-            );
-          } else {
-            erc20.transfer(
-              mappedAddressProvider,
-              tokenAddress,
-              walletAddress,
-              new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
-            );
-          }
-          logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
+          useRedis.saveHash(respond.withdrawHash, walletAddress, amount);
+          logToFile.writeLog('withdraw', respond.withdrawHash + ' ' + tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
         } else {
           res.status(400);
           res.send({'status': respond.status, 'message': respond.message});

@@ -24,6 +24,32 @@ const network = config.getNetwork();
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(ERC20_abi);
 
+idex.withdrawHash = function withdrawHash(token, amount, user, nonce, v, r, s) {
+  const raw = soliditySha3({
+    t: 'address',
+    v: token
+  }, {
+    t: 'uint256',
+    v: amount
+  }, {
+    t: 'address',
+    v: user
+  }, {
+    t: 'uint256',
+    v: nonce
+  }, {
+    t: 'uint8',
+    v: v
+  }, {
+    t: 'bytes32',
+    v: r
+  }, {
+    t: 'bytes32',
+    v: s
+  });
+  return bufferToHex(toBuffer(raw));
+};
+
 idex.orderHash = function orderHash(tokenBuy, amountBuy, tokenSell, amountSell, expires, nonce, address) {
   const raw = soliditySha3({
     t: 'address',
@@ -319,7 +345,8 @@ idex.withdraw = async function withdraw(provider, token, amount) {
           if (body.hasOwnProperty('error')) {
             resolve({status: 'no', message: body.error});
           } else {
-            resolve({status: 'yes', message: 'success'});
+            let withdrawHash = await idex.withdrawHash(token, amount, user, nonce, v, r, s);
+            resolve({status: 'yes', message: 'success', withdrawHash: withdrawHash});
           }
         });
       });
