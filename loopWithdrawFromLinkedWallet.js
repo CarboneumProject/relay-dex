@@ -12,8 +12,8 @@ const BigNumber = require('bignumber.js');
 const abiDecoder = require('abi-decoder');
 
 const useRedis = require('./models/useRedis');
-const erc20 = require("../models/erc20");
-const transfer = require("../models/transfer");
+const erc20 = require("./models/erc20");
+const transfer = require("./models/transfer");
 const IDEX_FEE = 0.95;  // MAX IDEX WITHDRAW FEE = 5%
 
 abiDecoder.addABI(IDEX_abi);
