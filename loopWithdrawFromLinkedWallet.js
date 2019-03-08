@@ -7,6 +7,7 @@ const IDEX_abi = require('./abi/IDEX/exchange.json');
 const relayWallet = require('./models/relayWallet');
 const redis = require('redis'), client = redis.createClient();
 const { promisify } = require('util');
+const getAsync = promisify(client.get).bind(client);
 const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
 const abiDecoder = require('abi-decoder');
@@ -65,29 +66,29 @@ async function watchIDEXWithdraw (blockNumber) {
                   // let feeWithdrawal = params[7].value;
 
                   let withdrawHash = idex.withdrawHash(tokenAddress, amount, linkedWalletAddress, nonce, v, r, s);
+                  let walletAddress = await getAsync('withdrawHash:new:' + withdrawHash);
 
-                  useRedis.findWithdraw(withdrawHash).then((walletAddress) => {
-                    if (walletAddress){
-                      let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
-                      if (tokenAddress === '0x0000000000000000000000000000000000000000') {
-                        transfer.sendEth(
-                          mappedAddressProvider,
-                          mappedAddressProvider.addresses[0],
-                          walletAddress,
-                          new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
-                        );
-                        useRedis.markWithdrawed(withdrawHash, walletAddress);
-                      } else {
-                        erc20.transfer(
-                          mappedAddressProvider,
-                          tokenAddress,
-                          walletAddress,
-                          new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
-                        );
-                        useRedis.markWithdrawed(withdrawHash, walletAddress);
-                      }
+                  if (walletAddress){
+                    let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
+                    if (tokenAddress === '0x0000000000000000000000000000000000000000') {
+                      transfer.sendEth(
+                        mappedAddressProvider,
+                        mappedAddressProvider.addresses[0],
+                        walletAddress,
+                        new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
+                      );
+                      useRedis.markWithdrawed(withdrawHash, walletAddress);
+                    } else {
+                      erc20.transfer(
+                        mappedAddressProvider,
+                        tokenAddress,
+                        walletAddress,
+                        new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
+                      );
+                      useRedis.markWithdrawed(withdrawHash, walletAddress);
                     }
-                  });
+                  }
+
                 }
               }
             }
