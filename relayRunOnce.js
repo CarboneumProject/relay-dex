@@ -15,7 +15,7 @@ const c8Contract = new web3.eth.Contract(
 );
 
 c8Contract.getPastEvents({
-  fromBlock: 3769813 ,  //block number when contract created. (rinkeby:3706658)
+  fromBlock: 7218496 ,  //block number when contract created. (rinkeby:3706658)
   toBlock: 'latest'
 }, (error, eventResult) => {
   if (error) {
