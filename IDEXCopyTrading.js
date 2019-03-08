@@ -27,8 +27,8 @@ async function watchIDEXTransfers (blockNumber) {
     );
 
     if (blockNumber === 0) {
-      let lastBlock = await hgetAsync("lastBlock", "IDEXCopyTrading");
-      console.log("start @ #", lastBlock);
+      let lastBlock = await hgetAsync('lastBlock', 'IDEXCopyTrading');
+      console.log('start @ #', lastBlock);
       if (lastBlock) {
         blockNumber = lastBlock;
       } else {
@@ -83,17 +83,17 @@ async function watchIDEXTransfers (blockNumber) {
                       [order.leaderTxHash, '0x', txHash, '0x'],
                     );
 
-                    let tokenBuyInMsg = await hgetAsync("tokenMap:" + tokenBuy, "token");
-                    let tokenSellInMsg = await hgetAsync("tokenMap:" + tokenSell, "token");
-                    let tokenBuyDecimals = await hgetAsync("tokenMap:" + tokenBuy, "decimals");
-                    let tokenSellDecimals = await hgetAsync("tokenMap:" + tokenSell, "decimals");
+                    let tokenBuyInMsg = await hgetAsync('tokenMap:' + tokenBuy, 'token');
+                    let tokenSellInMsg = await hgetAsync('tokenMap:' + tokenSell, 'token');
+                    let tokenBuyDecimals = await hgetAsync('tokenMap:' + tokenBuy, 'decimals');
+                    let tokenSellDecimals = await hgetAsync('tokenMap:' + tokenSell, 'decimals');
                     let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals);
                     let repeatDecimalSell = '0'.repeat(tokenSellDecimals);
                     let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.[${repeatDecimalBuy}]`);
                     let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.[${repeatDecimalSell}]`);
 
 
-                    let c8Decimals = await hgetAsync("tokenMap:" + network.carboneum, "decimals");
+                    let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
                     let totalFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD)).div(10 ** c8Decimals);
 
                     let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} For ${amountNetSellInMsg} ${tokenSellInMsg}\nReward + Fee ${totalFee} C8`;
@@ -147,11 +147,11 @@ async function watchIDEXTransfers (blockNumber) {
           }
         });
         blockNumber++;
-        client.hset("lastBlock", "IDEXCopyTrading", blockNumber);
+        client.hset('lastBlock', 'IDEXCopyTrading', blockNumber);
       }
     }, 15 * 1000);
   } catch (e) {
-    console.log(e, " error");
+    console.log(e, ' error');
     process.exit();
   }
 }
