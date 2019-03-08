@@ -17,6 +17,19 @@ useRedis.markWithdrawed = function markWithdrawed(withdrawHash, walletAddress) {
   client.quit();
 };
 
+useRedis.findWithdraw = async function findWithdraw(withdrawHash, walletAddress) {
+  function findWithdraw(withdrawHash, walletAddress) {
+    let client = redis.createClient();
+    return new Promise(function (resolve, reject) {
+      client.hget("withdrawHash:new:" + withdrawHash, walletAddress,function (err, values) {
+        resolve(values);
+      });
+      client.quit();
+    });
+  }
+  return await findWithdraw(withdrawHash, walletAddress);
+};
+
 useRedis.saveHash = function saveHash(txHash, walletAddress, amount="0") {
   let client = redis.createClient();
   client.del("txHash:done:" + txHash);
