@@ -345,7 +345,7 @@ idex.withdraw = async function withdraw(provider, token, amount) {
           if (body.hasOwnProperty('error')) {
             resolve({status: 'no', message: body.error});
           } else {
-            let withdrawHash = await idex.withdrawHash(token, amount, user, nonce, v, r, s);
+            let withdrawHash = await idex.withdrawHash(token, amount, address, nonce, v, r, s);
             resolve({status: 'yes', message: 'success', withdrawHash: withdrawHash});
           }
         });
