@@ -45,7 +45,7 @@ router.post('/withdraw', async (req, res, next) => {
         if (respond.status === 'yes'){
           res.status(200);
           res.send({'status': respond.status, 'message': respond.message});
-          useRedis.saveWithdraw(respond.withdrawHash, walletAddress, amount);
+          useRedis.saveWithdraw(respond.withdrawHash, walletAddress.toLowerCase());
           logToFile.writeLog('withdraw', respond.withdrawHash + ' ' + tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
         } else {
           res.status(400);

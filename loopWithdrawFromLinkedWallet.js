@@ -56,18 +56,19 @@ async function watchIDEXWithdraw (blockNumber) {
 
                   let tokenAddress = params[0].value;
                   let amount = new BigNumber(params[1].value).toFixed(0);
-                  let walletAddress = (params[2].value).toLowerCase();
+
+                  let linkedWalletAddress = (params[2].value).toLowerCase();
                   let nonce = params[3].value;
                   let v = params[4].value;
                   let r = params[5].value;
                   let s = params[6].value;
                   // let feeWithdrawal = params[7].value;
 
-                  let withdrawHash = idex.withdrawHash(tokenAddress, amount, walletAddress, nonce, v, r, s);
-                  let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
+                  let withdrawHash = idex.withdrawHash(tokenAddress, amount, linkedWalletAddress, nonce, v, r, s);
 
-                  useRedis.findWithdraw(withdrawHash, walletAddress.toLowerCase()).then((amount) => {
-                    if (amount && amount !== '0'){
+                  useRedis.findWithdraw(withdrawHash).then((walletAddress) => {
+                    if (walletAddress){
+                      let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
                       if (tokenAddress === '0x0000000000000000000000000000000000000000') {
                         transfer.sendEth(
                           mappedAddressProvider,
