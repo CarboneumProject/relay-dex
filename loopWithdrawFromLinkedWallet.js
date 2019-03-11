@@ -10,6 +10,8 @@ const useRedis = require('./models/useRedis');
 const erc20 = require("./models/erc20");
 const transfer = require("./models/transfer");
 const idex = require('./models/idex');
+const relayWallet = require('./models/relayWallet');
+
 const redis = require('redis'), client = redis.createClient();
 const { promisify } = require('util');
 const getAsync = promisify(client.get).bind(client);
