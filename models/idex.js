@@ -24,6 +24,10 @@ const network = config.getNetwork();
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(ERC20_abi);
 
+const redis = require('redis'), client = redis.createClient();
+const { promisify } = require('util');
+const hgetAsync = promisify(client.hget).bind(client);
+
 idex.withdrawHash = function withdrawHash(token, amount, user, nonce, v, r, s) {
   const raw = soliditySha3({
     t: 'address',
@@ -123,14 +127,13 @@ idex.depositEth = async function depositEth(provider, wei) {
 idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash, amount = "0") {
   return new Promise(async function (resolve, reject) {
     try {
-      useRedis.isValidHash(txHash, walletAddress).then((response) => {
-        if (response === '1') {
-          resolve([false, 'Already deposited.']);
-        } else {
-          useRedis.saveHash(txHash, walletAddress, amount);
-          resolve([true, true]);
-        }
-      });
+      let response = await hgetAsync('txHash:done:' + txHash, walletAddress);
+      if (response === '1') {
+        resolve([false, 'Already deposited.']);
+      } else {
+        useRedis.saveHash(txHash, walletAddress, amount);
+        resolve([true, true]);
+      }
     } catch (e) {
       resolve([false, e.message]);
     }
