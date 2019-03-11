@@ -34,7 +34,7 @@ IDEXContract.events.Withdraw({}, async (error, event) => {
     // let token =  event.returnValues.token;
     // let linkedWalletAddress = event.returnValues.user;
     // let balance = event.returnValues.balance;
-    let amountNet = event.returnValues.amount;
+    let amountNet = new BigNumber(event.returnValues.amount).toFixed(0);
     let txHash = event.transactionHash;
 
     let trx = await web3.eth.getTransaction(txHash);
@@ -46,9 +46,9 @@ IDEXContract.events.Withdraw({}, async (error, event) => {
           if (transaction.name === 'adminWithdraw') {
             let params = transaction.params;
             let tokenAddress = params[0].value;
-            let amount = params[1].value;
+            let amount = new BigNumber(params[1].value).toFixed(0);
             let linkedWalletAddress = (params[2].value).toLowerCase();
-            let nonce = params[3].value;
+            let nonce = new BigNumber(params[3].value).toFixed(0);
             let v = params[4].value;
             let r = params[5].value;
             let s = params[6].value;
@@ -67,7 +67,7 @@ IDEXContract.events.Withdraw({}, async (error, event) => {
                   mappedAddressProvider,
                   mappedAddressProvider.addresses[0],
                   walletAddress,
-                  new BigNumber(amountNet).toFixed(0)
+                  amountNet
                 );
                 useRedis.markWithdrawed(withdrawHash, walletAddress);
               } else {
@@ -75,7 +75,7 @@ IDEXContract.events.Withdraw({}, async (error, event) => {
                   mappedAddressProvider,
                   tokenAddress,
                   walletAddress,
-                  new BigNumber(amountNet).toFixed(0)
+                  amountNet
                 );
                 useRedis.markWithdrawed(withdrawHash, walletAddress);
               }
