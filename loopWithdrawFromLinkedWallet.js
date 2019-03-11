@@ -1,110 +1,83 @@
-require('babel-core/register');
-require('babel-polyfill');
 const Web3 = require('web3');
-const idex = require('./models/idex');
+const abi = require('./abi/IDEX/exchange.json');
 const config = require('./config');
-const IDEX_abi = require('./abi/IDEX/exchange.json');
-const relayWallet = require('./models/relayWallet');
-const redis = require('redis'), client = redis.createClient();
-const { promisify } = require('util');
-const getAsync = promisify(client.get).bind(client);
-const hgetAsync = promisify(client.hget).bind(client);
+const network = config.getNetwork();
 const BigNumber = require('bignumber.js');
 const abiDecoder = require('abi-decoder');
+abiDecoder.addABI(abi);
 
 const useRedis = require('./models/useRedis');
 const erc20 = require("./models/erc20");
 const transfer = require("./models/transfer");
-const IDEX_FEE = 0.95;  // MAX IDEX WITHDRAW FEE = 5%
-
-abiDecoder.addABI(IDEX_abi);
-
-const network = config.getNetwork();
+const idex = require('./models/idex');
+const redis = require('redis'), client = redis.createClient();
+const { promisify } = require('util');
+const getAsync = promisify(client.get).bind(client);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 
-async function watchIDEXWithdraw (blockNumber) {
-  try {
-    const web3 = new Web3(
-      new Web3.providers.WebsocketProvider(network.ws_url),
-    );
+const web3 = new Web3(
+  new Web3.providers.WebsocketProvider(network.ws_url),
+);
 
-    if (blockNumber === 0) {
-      let lastBlock = await hgetAsync('lastBlock', 'IDEXWithdraw');
-      console.log('start @ #', lastBlock);
-      if (lastBlock) {
-        blockNumber = lastBlock;
-      } else {
-        blockNumber = (await web3.eth.getBlock('latest')).number;
-      }
-    }
-    setTimeout(async () => {
-      while (true) {
-        let block = await web3.eth.getBlock(blockNumber);
-        if (block == null) {
-          return watchIDEXWithdraw(blockNumber);
-        }
+const IDEXContract = new web3.eth.Contract(
+  abi,
+  contractAddress_IDEX_1,
+);
 
-        block.transactions.forEach(async function (txHash) {
-          let trx = await web3.eth.getTransaction(txHash);
-          if (trx != null && trx.to != null) {
-            if (trx.to.toLowerCase() === contractAddress_IDEX_1) {
-              let receipt = await web3.eth.getTransactionReceipt(txHash);
-              if (receipt.status) {
-                let transaction = abiDecoder.decodeMethod(trx.input);
-                if (transaction.name === 'adminWithdraw') {
-                  let params = transaction.params;
+IDEXContract.events.Withdraw({}, async (error, event) => {
 
-                  let tokenAddress = params[0].value;
-                  let amount = new BigNumber(params[1].value).toFixed(0);
+  if (event.event === 'Withdraw' && event.removed === false) {
+    // let token =  event.returnValues.token;
+    // let linkedWalletAddress = event.returnValues.user;
+    // let balance = event.returnValues.balance;
+    let amountNet = event.returnValues.amount;
+    let txHash = event.transactionHash;
 
-                  let linkedWalletAddress = (params[2].value).toLowerCase();
-                  let nonce = params[3].value;
-                  let v = params[4].value;
-                  let r = params[5].value;
-                  let s = params[6].value;
-                  // let feeWithdrawal = params[7].value;
+    let trx = await web3.eth.getTransaction(txHash);
+    if (trx != null && trx.to != null) {
+      if (trx.to.toLowerCase() === contractAddress_IDEX_1) {
+        let receipt = await web3.eth.getTransactionReceipt(txHash);
+        if (receipt.status) {
+          let transaction = abiDecoder.decodeMethod(trx.input);
+          if (transaction.name === 'adminWithdraw') {
+            let params = transaction.params;
+            let tokenAddress = params[0].value;
+            let amount = params[1].value;
+            let linkedWalletAddress = (params[2].value).toLowerCase();
+            let nonce = params[3].value;
+            let v = params[4].value;
+            let r = params[5].value;
+            let s = params[6].value;
 
-                  let withdrawHash = idex.withdrawHash(tokenAddress, amount, linkedWalletAddress, nonce, v, r, s);
-                  let walletAddress = await getAsync('withdrawHash:new:' + withdrawHash);
+            let withdrawHash = idex.withdrawHash(tokenAddress, amount, linkedWalletAddress, nonce, v, r, s);
 
-                  if (walletAddress){
-                    let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
-                    if (tokenAddress === '0x0000000000000000000000000000000000000000') {
-                      transfer.sendEth(
-                        mappedAddressProvider,
-                        mappedAddressProvider.addresses[0],
-                        walletAddress,
-                        new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
-                      );
-                      useRedis.markWithdrawed(withdrawHash, walletAddress);
-                    } else {
-                      erc20.transfer(
-                        mappedAddressProvider,
-                        tokenAddress,
-                        walletAddress,
-                        new BigNumber(amount).mul(IDEX_FEE).toFixed(0)
-                      );
-                      useRedis.markWithdrawed(withdrawHash, walletAddress);
-                    }
-                  }
+            let walletAddress = await getAsync('withdrawHash:new:' + withdrawHash);
 
-                }
+            if (walletAddress){
+              let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
+              if (tokenAddress === '0x0000000000000000000000000000000000000000') {
+                transfer.sendEth(
+                  mappedAddressProvider,
+                  mappedAddressProvider.addresses[0],
+                  walletAddress,
+                  new BigNumber(amountNet).toFixed(0)
+                );
+                useRedis.markWithdrawed(withdrawHash, walletAddress);
+              } else {
+                erc20.transfer(
+                  mappedAddressProvider,
+                  tokenAddress,
+                  walletAddress,
+                  new BigNumber(amountNet).toFixed(0)
+                );
+                useRedis.markWithdrawed(withdrawHash, walletAddress);
               }
             }
           }
-        });
-        console.log(blockNumber);
-        client.hset('lastBlock', 'IDEXWithdraw', blockNumber);
-        blockNumber++;
+        }
       }
-    }, 15 * 1000);
-  } catch (e) {
-    console.log(e, ' error');
-    process.exit();
+    }
   }
-}
 
-_ = watchIDEXWithdraw(0);
-
-
+}).on('error', console.error);
