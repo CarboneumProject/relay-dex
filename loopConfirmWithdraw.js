@@ -27,16 +27,16 @@ function watchDepositedToLinkWallet() {
   const getAsync = promisify(client.get).bind(client);
 
   client.keys('withdrawEvent:new:*', async function (err, txHash_dict) {
-    console.log(txHash_dict);
 
     if (txHash_dict !== null) {
       if (txHash_dict.length === 0) {
+        web3.currentProvider.connection.close();
         client.quit();
-      }
+        process.exit();
+      } else {
 
       let txHash = txHash_dict[0].split('withdrawEvent:new:')[1];
       let amountNet = await getAsync('withdrawEvent:new:' + txHash);
-      console.log(txHash, amountNet);
 
       let trx = await web3.eth.getTransaction(txHash);
       if (trx != null && trx.to != null) {
@@ -91,14 +91,16 @@ function watchDepositedToLinkWallet() {
               }
             }
           }
+          web3.currentProvider.connection.close();
         }
       }
-
+    }
     } else {
+      web3.currentProvider.connection.close();
       client.quit();
+      process.exit();
     }
   });
-
 }
 
 watchDepositedToLinkWallet();
