@@ -1,21 +1,21 @@
 const relayWallet = require('./models/relayWallet');
-const idex = require("./models/idex");
+const idex = require('./models/idex');
 const useRedis = require('./models/useRedis');
-const erc20 = require("./models/erc20");
+const erc20 = require('./models/erc20');
 const BigNumber = require('bignumber.js');
 const MAX_ALLOWANCE = new BigNumber(10).pow(55).toPrecision();
-const logToFile = require("./models/logToFile");
+const logToFile = require('./models/logToFile');
 
 const config = require('./config');
 const network = config.getNetwork();
 
 const RESERVED_ETH = '2100000000000000';
-const redis = require("redis");
+const redis = require('redis');
 
 
 function watchDepositedToLinkWallet() {
   let client = redis.createClient();
-  client.keys("txHash:new:*", function (err, txHash_dict) {
+  client.keys('txHash:new:*', function (err, txHash_dict) {
     if (txHash_dict !== null) {
       if (txHash_dict.length === 0) {
         client.quit();
@@ -25,7 +25,7 @@ function watchDepositedToLinkWallet() {
         if (parseInt(row) === txHash_dict.length - 1) {
           client.quit();
         }
-        let txHash = txHash_dict[row].split("txHash:new:")[1];
+        let txHash = txHash_dict[row].split('txHash:new:')[1];
         idex.verifyTxHash(txHash).then((res) => {
           if (res) {
             let [walletAddress, wei_temp, tokenAddress] = res;

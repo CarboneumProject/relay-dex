@@ -6,5 +6,8 @@ const web3 = new Web3(
 );
 
 module.exports = (signature) => {
-  return web3.eth.accounts.recover('Sign into carboneum', signature).toLowerCase()
+  let recover = web3.eth.accounts.recover('Sign into carboneum', signature).toLowerCase();
+  web3.currentProvider.connection.close();
+
+  return recover
 };

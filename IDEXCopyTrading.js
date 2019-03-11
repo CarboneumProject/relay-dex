@@ -62,6 +62,7 @@ async function watchIDEXTransfers (blockNumber) {
       while (true) {
         let block = await web3.eth.getBlock(blockNumber);
         if (block == null) {
+          web3.currentProvider.connection.close();
           return watchIDEXTransfers(blockNumber);
         }
 
@@ -249,8 +250,8 @@ async function watchIDEXTransfers (blockNumber) {
           }
         });
         console.log(blockNumber);
-        client.hset('lastBlock', 'IDEXCopyTrading', blockNumber);
         blockNumber++;
+        client.hset('lastBlock', 'IDEXCopyTrading', blockNumber);
       }
     }, 15 * 1000);
   } catch (e) {

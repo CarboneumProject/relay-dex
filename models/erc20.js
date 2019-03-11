@@ -37,12 +37,11 @@ erc20.allowance = async function allowance(provider, tokenAddress, owner, spende
     erc20_abi,
     tokenAddress,
   );
+  let result = await erc20ContractSign.methods.allowance(owner, spender).call();
+  // provider.engine.stop();
+  web3Sign.currentProvider.engine.stop();
 
-  return await erc20ContractSign.methods.allowance(owner, spender).call();
-};
-
-erc20.balance = async function balance(_ERC20Contract, _owner) {
-  return await _ERC20Contract.methods.balanceOf(_owner).call();
+  return result;
 };
 
 erc20.etherTokenAddress = '0x0000000000000000000000000000000000000000';
