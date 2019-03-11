@@ -10,10 +10,21 @@ useRedis.saveWithdraw = function saveWithdraw(withdrawHash, walletAddress) {
   client.quit();
 };
 
-useRedis.markWithdrawed = function markWithdrawed(withdrawHash, walletAddress) {
+useRedis.markWithdrawed = function markWithdrawed(withdrawHash, walletAddress, txHash, txTarget) {
   let client = redis.createClient();
   client.del("withdrawHash:new:" + withdrawHash);
   client.set("withdrawHash:done:" + withdrawHash, walletAddress.toLowerCase());
+
+  client.del("withdrawEvent:new:" + txHash);
+  client.set("withdrawEvent:done:" + txHash, txTarget);
+
+  client.quit();
+};
+
+useRedis.saveEventWithdraw = function saveEventWithdraw(txHash, amountNet){
+  let client = redis.createClient();
+  client.set("withdrawEvent:new:" + txHash, amountNet);
+  client.expire("withdrawEvent:new:" + txHash, 60 * 60 * 2);  //Expire in 2 hrs.
   client.quit();
 };
 
