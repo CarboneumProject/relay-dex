@@ -11,6 +11,7 @@ const erc20 = require("./models/erc20");
 const transfer = require("./models/transfer");
 const idex = require('./models/idex');
 const relayWallet = require('./models/relayWallet');
+const logToFile = require("./models/logToFile");
 
 const redis = require('redis'), client = redis.createClient();
 const { promisify } = require('util');
@@ -54,10 +55,13 @@ IDEXContract.events.Withdraw({}, async (error, event) => {
 
             let withdrawHash = idex.withdrawHash(tokenAddress, amount, linkedWalletAddress, nonce, v, r, s);
 
+            console.log(tokenAddress, amount, linkedWalletAddress, nonce, v, r, s, withdrawHash, txHash);
+
             let walletAddress = await getAsync('withdrawHash:new:' + withdrawHash);
 
             if (walletAddress){
               let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
+              logToFile.writeLog('withdrawFromLinkedWallet', tokenAddress + ' ' + amount + ' ' + linkedWalletAddress + ' ' + nonce + ' ' + v + ' ' + r + ' ' + s + ' ' + withdrawHash + ' ' + txHash);
               if (tokenAddress === '0x0000000000000000000000000000000000000000') {
                 transfer.sendEth(
                   mappedAddressProvider,
