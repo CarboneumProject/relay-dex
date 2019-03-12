@@ -28,8 +28,9 @@ function watchDepositedToLinkWallet() {
         let txHash = txHash_dict[row].split('withdrawEvent:new:')[1];
         useRedis.getAmountWithdrawNet(txHash).then(async (amountNet) => {
 
-          idex.withdrawTxHash(txHash).then((withdrawHash) => {
-            if (withdrawHash) {
+          idex.withdrawTxHash(txHash).then((res) => {
+            if (res) {
+              let [withdrawHash, tokenAddress] = res;
               useRedis.findWalletTarget(withdrawHash).then(async (walletAddress) => {
 
                 if (walletAddress) {
@@ -59,7 +60,7 @@ function watchDepositedToLinkWallet() {
                       amountNet
                     );
                     logToFile.writeLog('withdrawFromLinkedWallet', withdrawHash + ' ' + txHash + ' ' + walletAddress);
-                    useRedis.markWithdrawed(withdrawHash, walletAddress, txHash);
+                    useRedis.markWithdrawed(withdrawHash, walletAddress, txHash, tokenAddress);
                     //TODO PUSH MSG HERE.
                   }
                 }
