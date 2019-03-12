@@ -28,6 +28,19 @@ useRedis.saveEventWithdraw = function saveEventWithdraw(txHash, amountNet){
   client.quit();
 };
 
+useRedis.findWalletTarget = async function findWalletTarget(withdrawHash) {
+  function findWalletTarget(withdrawHash) {
+    let client = redis.createClient();
+    return new Promise(function (resolve, reject) {
+      client.get("withdrawHash:new:" + withdrawHash, function (err, values) {
+        resolve(values);
+      });
+      client.quit();
+    });
+  }
+  return await findWalletTarget(withdrawHash);
+};
+
 useRedis.saveHash = function saveHash(txHash, walletAddress, amount="0") {
   let client = redis.createClient();
   client.del("txHash:done:" + txHash);
@@ -47,6 +60,45 @@ useRedis.removeFailed = function removeFailed(txHash) {
   let client = redis.createClient();
   client.del("txHash:new:" + txHash);
   client.quit();
+};
+
+useRedis.getAmount = async function getAmount(txHash, walletAddress) {
+  function getAmountValue(txHash, walletAddress) {
+    let client = redis.createClient();
+    return new Promise(function (resolve, reject) {
+      client.hget("txHash:new:" + txHash, walletAddress,function (err, values) {
+        resolve(values);
+      });
+      client.quit();
+    });
+  }
+  return await getAmountValue(txHash, walletAddress);
+};
+
+useRedis.isValidHash = async function isValidHash(txHash, walletAddress) {
+  function getHashValue(txHash, walletAddress) {
+    let client = redis.createClient();
+    return new Promise(function (resolve, reject) {
+      client.hget("txHash:done:" + txHash, walletAddress,function (err, values) {
+        resolve(values);
+      });
+      client.quit();
+    });
+  }
+  return await getHashValue(txHash, walletAddress);
+};
+
+useRedis.getAmountWithdrawNet = async function getAmountWithdrawNet(txHash) {
+  function getAmountWithdrawNet(txHash) {
+    let client = redis.createClient();
+    return new Promise(function (resolve, reject) {
+      client.get("withdrawEvent:new:" + txHash,function (err, values) {
+        resolve(values);
+      });
+      client.quit();
+    });
+  }
+  return await getAmountWithdrawNet(txHash);
 };
 
 module.exports = useRedis;
