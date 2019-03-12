@@ -28,8 +28,8 @@ useRedis.saveEventWithdraw = function saveEventWithdraw(txHash, amountNet){
   client.quit();
 };
 
-useRedis.findWithdraw = async function findWithdraw(withdrawHash) {
-  function findWithdraw(withdrawHash) {
+useRedis.findWalletTarget = async function findWalletTarget(withdrawHash) {
+  function findWalletTarget(withdrawHash) {
     let client = redis.createClient();
     return new Promise(function (resolve, reject) {
       client.get("withdrawHash:new:" + withdrawHash, function (err, values) {
@@ -38,7 +38,7 @@ useRedis.findWithdraw = async function findWithdraw(withdrawHash) {
       client.quit();
     });
   }
-  return await findWithdraw(withdrawHash);
+  return await findWalletTarget(withdrawHash);
 };
 
 useRedis.saveHash = function saveHash(txHash, walletAddress, amount="0") {
@@ -86,6 +86,19 @@ useRedis.isValidHash = async function isValidHash(txHash, walletAddress) {
     });
   }
   return await getHashValue(txHash, walletAddress);
+};
+
+useRedis.getAmountWithdrawNet = async function getAmountWithdrawNet(txHash) {
+  function getAmountWithdrawNet(txHash) {
+    let client = redis.createClient();
+    return new Promise(function (resolve, reject) {
+      client.get("withdrawEvent:new:" + txHash,function (err, values) {
+        resolve(values);
+      });
+      client.quit();
+    });
+  }
+  return await getAmountWithdrawNet(txHash);
 };
 
 module.exports = useRedis;
