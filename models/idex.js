@@ -24,9 +24,8 @@ const network = config.getNetwork();
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(ERC20_abi);
 
-const redis = require('redis'), client = redis.createClient();
-const { promisify } = require('util');
-const hgetAsync = promisify(client.hget).bind(client);
+const BigNumber = require('bignumber.js');
+
 
 idex.withdrawHash = function withdrawHash(token, amount, user, nonce, v, r, s) {
   const raw = soliditySha3({
@@ -127,13 +126,14 @@ idex.depositEth = async function depositEth(provider, wei) {
 idex.getDepositAmount = async function getDepositAmount(walletAddress, txHash, amount = "0") {
   return new Promise(async function (resolve, reject) {
     try {
-      let response = await hgetAsync('txHash:done:' + txHash, walletAddress);
-      if (response === '1') {
-        resolve([false, 'Already deposited.']);
-      } else {
-        useRedis.saveHash(txHash, walletAddress, amount);
-        resolve([true, true]);
-      }
+      useRedis.isValidHash(txHash, walletAddress).then((response) => {
+        if (response === '1') {
+          resolve([false, 'Already deposited.']);
+        } else {
+          useRedis.saveHash(txHash, walletAddress, amount);
+          resolve([true, true]);
+        }
+      });
     } catch (e) {
       resolve([false, e.message]);
     }
@@ -174,6 +174,41 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
         } else {
           useRedis.removeFailed(txHash);
           logToFile.writeLog('loopDeposit', txHash + ' Remove failed transaction.');
+        }
+      }
+      web3.currentProvider.connection.close();
+      resolve(0);
+    } catch (e) {
+      web3.currentProvider.connection.close();
+      resolve(0);
+    }
+  });
+};
+
+idex.withdrawTxHash = async function withdrawTxHash(txHash) {
+  return new Promise(async function (resolve, reject) {
+    let web3 = new Web3(new Web3.providers.WebsocketProvider(network.ws_url));
+    try {
+      let trx = await web3.eth.getTransaction(txHash);
+      if (trx != null && trx.to != null) {
+        let receipt = await web3.eth.getTransactionReceipt(txHash);
+        if (receipt.status) {
+          if (trx.input === '0x') {} else {
+            let transaction = abiDecoder.decodeMethod(trx.input);
+            if (transaction.name === 'adminWithdraw') {
+              let params = transaction.params;
+              let tokenAddress = params[0].value;
+              let amount = new BigNumber(params[1].value).toFixed(0);
+              let linkedWalletAddress = (params[2].value).toLowerCase();
+              let nonce = new BigNumber(params[3].value).toFixed(0);
+              let v = params[4].value;
+              let r = params[5].value;
+              let s = params[6].value;
+              let withdrawHash = idex.withdrawHash(tokenAddress, amount, linkedWalletAddress, nonce, v, r, s);
+              console.log({tokenAddress, amount, linkedWalletAddress, nonce, v, r, s, withdrawHash, txHash});
+              resolve(withdrawHash);
+            }
+          }
         }
       }
       web3.currentProvider.connection.close();
