@@ -39,7 +39,6 @@ async function watchIDEXTransfers (blockNumber) {
       while (true) {
         let block = await web3.eth.getBlock(blockNumber);
         if (block == null) {
-          web3.currentProvider.connection.close();
           return watchIDEXTransfers(blockNumber);
         }
 
