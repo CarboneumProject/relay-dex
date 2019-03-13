@@ -3,10 +3,13 @@ require('babel-polyfill');
 const Web3 = require('web3');
 const idex = require('./models/idex');
 const config = require('./config');
+const network = config.getNetwork();
 const IDEX_abi = require('./abi/IDEX/exchange.json');
 const relayWallet = require('./models/relayWallet');
 const socialTrading = require('./models/socialTradingContract');
 const redis = require('redis'), client = redis.createClient();
+client.select(network.redis_db);
+
 const { promisify } = require('util');
 const getAsync = promisify(client.get).bind(client);
 const hgetAsync = promisify(client.hget).bind(client);
@@ -15,8 +18,6 @@ const numeral = require('numeral');
 const push = require('./models/push');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
-
-const network = config.getNetwork();
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 

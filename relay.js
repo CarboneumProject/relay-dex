@@ -3,8 +3,6 @@ const abi = require('./abi/socialtrading/SocialTrading.json');
 const config = require('./config');
 const network = config.getNetwork();
 
-var redis = require("redis"), client = redis.createClient();
-
 const web3 = new Web3(
   new Web3.providers.WebsocketProvider(network.ws_url),
 );
@@ -16,6 +14,7 @@ const c8Contract = new web3.eth.Contract(
 
 const follow = c8Contract.events.Follow({}, (error, event) => {
     const redis = require("redis"), client = redis.createClient();
+    client.select(network.redis_db);
     if (error) return console.error(error);
     console.log('Successfully followed!', event);
 
@@ -32,6 +31,7 @@ const follow = c8Contract.events.Follow({}, (error, event) => {
 
 const unfollow = c8Contract.events.UnFollow({ }, (error, event) => {
     const redis = require("redis"), client = redis.createClient();
+    client.select(network.redis_db);
     if (error) return console.error(error, 'sad');
     console.log('Successfully unfollowed!', event);
     if (event.event === 'UnFollow' && event.removed === false) {

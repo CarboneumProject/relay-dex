@@ -15,6 +15,7 @@ const redis = require('redis');
 
 function watchDepositedToLinkWallet() {
   let client = redis.createClient();
+  client.select(network.redis_db);
   client.keys('txHash:new:*', function (err, txHash_dict) {
     if (txHash_dict !== null) {
       if (txHash_dict.length === 0) {

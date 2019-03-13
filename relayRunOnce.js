@@ -3,8 +3,6 @@ const abi = require('./abi/socialtrading/SocialTrading.json');
 const config = require('./config');
 const network = config.getNetwork();
 
-var redis = require("redis"), client = redis.createClient();
-
 const web3 = new Web3(
   new Web3.providers.WebsocketProvider(network.ws_url),
 );
@@ -22,6 +20,8 @@ c8Contract.getPastEvents({
     console.log('Error in myEvent event handler: ' + error);
   }
   const redis = require("redis"), client = redis.createClient();
+  client.select(network.redis_db);
+
   for (let i=0; i < eventResult.length; i++) {
     event = eventResult[i];
     if (event.event === 'Follow' && event.removed === false) {

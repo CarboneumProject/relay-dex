@@ -4,6 +4,8 @@ const network = config.getNetwork();
 const rp = require('request-promise');
 let redis = require("redis");
 let client = redis.createClient();
+client.select(network.redis_db);
+
 async function getMapFromIDEX() {
   return await
     rp({
