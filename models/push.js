@@ -60,7 +60,7 @@ push.sendTransferNotification = function sendTransferNotification (tokenBuy, tok
 push.sendMsgToUser = function sendRawMsg(walletAddress, title, msg){
   let message = {
     data: {
-      destination: 'messageBox',
+      destination: 'menuportfolio',
       id: walletAddress,
       _msg: msg,
     },
@@ -89,7 +89,7 @@ push.sendMsgToUser = function sendRawMsg(walletAddress, title, msg){
         },
       },
     },
-    topic: 'msgTo_' + walletAddress,
+    topic: 'copytrade_' + walletAddress,
   };
 
   // Transfer out
