@@ -10,7 +10,7 @@ const abi = require('./abi/IDEX/exchange.json');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(abi);
 
-const config = require('../config');
+const config = require('./config');
 const network = config.getNetwork();
 
 function watchDepositedToLinkWallet() {
