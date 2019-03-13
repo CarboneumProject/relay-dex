@@ -57,4 +57,48 @@ push.sendTransferNotification = function sendTransferNotification (tokenBuy, tok
   });
 };
 
+push.sendMsgToUser = function sendRawMsg(walletAddress, title, msg){
+  let message = {
+    data: {
+      destination: 'messageBox',
+      id: walletAddress,
+      _msg: msg,
+    },
+    notification: {
+      title: title,
+      body: msg,
+    },
+    android: {
+      ttl: 3600 * 1000, // 1 hour in milliseconds
+      priority: 'high',
+      notification: {
+        title: title,
+        body: msg,
+      },
+    },
+    apns: {
+      headers: {
+        'apns-priority': '5',
+      },
+      payload: {
+        aps: {
+          alert: {
+            title: title,
+            body: msg,
+          },
+        },
+      },
+    },
+    topic: 'msgTo_' + walletAddress,
+  };
+
+  // Transfer out
+  admin.messaging().send(message).then((response) => {
+    // Response is a message ID string.
+  }).catch((error) => {
+    console.log('Error sending message:', error);
+  });
+
+};
+
 module.exports = push;

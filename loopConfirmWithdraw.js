@@ -4,6 +4,7 @@ const idex = require('./models/idex');
 const useRedis = require('./models/useRedis');
 const erc20 = require('./models/erc20');
 const logToFile = require('./models/logToFile');
+const push = require('./models/push');
 
 const redis = require('redis');
 const abi = require('./abi/IDEX/exchange.json');
@@ -55,7 +56,7 @@ function watchDepositedToLinkWallet() {
                       });
                     w3.currentProvider.engine.stop();
 
-                    //TODO PUSH MSG HERE.
+                    push.sendMsgToUser(walletAddress, `Withdraw successful`, `${amountNet}`);
                   } else {
                     erc20.transfer(
                       mappedAddressProvider,
@@ -65,7 +66,7 @@ function watchDepositedToLinkWallet() {
                     );
                     logToFile.writeLog('withdrawFromLinkedWallet', withdrawHash + ' ' + txHash + ' ' + walletAddress);
                     useRedis.markWithdrawed(withdrawHash, walletAddress, txHash, tokenAddress);
-                    //TODO PUSH MSG HERE.
+                    push.sendMsgToUser(walletAddress, `Withdraw successful`, `${amountNet}`);
                   }
                 }
               });

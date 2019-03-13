@@ -5,6 +5,7 @@ const erc20 = require('./models/erc20');
 const BigNumber = require('bignumber.js');
 const MAX_ALLOWANCE = new BigNumber(10).pow(55).toPrecision();
 const logToFile = require('./models/logToFile');
+const push = require('./models/push');
 
 const config = require('./config');
 const network = config.getNetwork();
@@ -49,6 +50,7 @@ function watchDepositedToLinkWallet() {
                     idex.depositEth(mappedAddressProvider, amountDeposited).then((respond) => {
                       if (typeof respond === 'object') {
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Success.');
+                        push.sendMsgToUser(walletAddress, `Deposit successful`, `${amountDeposited} ETH`);
                       } else {
                         useRedis.saveHash(txHash, walletAddress, amountDeposited);
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Failed.');
@@ -66,6 +68,7 @@ function watchDepositedToLinkWallet() {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                             if (typeof respond === 'object') {
                               logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
+                              push.sendMsgToUser(walletAddress, `Deposit successful`, `${wei}`);
                             } else {
                               useRedis.saveHash(txHash, walletAddress);
                               logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
@@ -76,6 +79,7 @@ function watchDepositedToLinkWallet() {
                         idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                           if (typeof respond === 'object') {
                             logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
+                            push.sendMsgToUser(walletAddress, `Deposit successful`, `${wei}`);
                           } else {
                             useRedis.saveHash(txHash, walletAddress);
                             logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
