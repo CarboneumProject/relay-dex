@@ -50,7 +50,7 @@ function watchDepositedToLinkWallet() {
                     idex.depositEth(mappedAddressProvider, amountDeposited).then((respond) => {
                       if (typeof respond === 'object') {
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Success.');
-                        push.sendMsgToUser(walletAddress, `Deposit successful`, `${amountDeposited} ETH`);
+                        push.sendMsgToUser(walletAddress, `CarbonRadars`, `Deposit successful`);
                       } else {
                         useRedis.saveHash(txHash, walletAddress, amountDeposited);
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Failed.');
@@ -68,7 +68,7 @@ function watchDepositedToLinkWallet() {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                             if (typeof respond === 'object') {
                               logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
-                              push.sendMsgToUser(walletAddress, `Deposit successful`, `${wei}`);
+                              push.sendMsgToUser(walletAddress, `CarbonRadars`, `Deposit successful`);
                             } else {
                               useRedis.saveHash(txHash, walletAddress);
                               logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
@@ -79,7 +79,7 @@ function watchDepositedToLinkWallet() {
                         idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                           if (typeof respond === 'object') {
                             logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
-                            push.sendMsgToUser(walletAddress, `Deposit successful`, `${wei}`);
+                            push.sendMsgToUser(walletAddress, `CarbonRadars`, `Deposit successful`);
                           } else {
                             useRedis.saveHash(txHash, walletAddress);
                             logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');

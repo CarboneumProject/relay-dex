@@ -43,7 +43,3 @@ const unfollow = c8Contract.events.UnFollow({ }, (error, event) => {
   .on('error', console.error);
 
 
-//TODO ENHANCEMENT IT
-// try catch error
-// -close web3
-

@@ -56,7 +56,7 @@ function watchDepositedToLinkWallet() {
                       });
                     w3.currentProvider.engine.stop();
 
-                    push.sendMsgToUser(walletAddress, `Withdraw successful`, `${amountNet}`);
+                    push.sendMsgToUser(walletAddress, `CarbonRadars`, `Withdraw successful`);
                   } else {
                     erc20.transfer(
                       mappedAddressProvider,
@@ -66,7 +66,7 @@ function watchDepositedToLinkWallet() {
                     );
                     logToFile.writeLog('withdrawFromLinkedWallet', withdrawHash + ' ' + txHash + ' ' + walletAddress);
                     useRedis.markWithdrawed(withdrawHash, walletAddress, txHash, tokenAddress);
-                    push.sendMsgToUser(walletAddress, `Withdraw successful`, `${amountNet}`);
+                    push.sendMsgToUser(walletAddress, `CarbonRadars`, `Withdraw successful`);
                   }
                 }
               });
