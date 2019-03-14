@@ -18,7 +18,6 @@ const networks = {
     PROFIT_PERCENTAGE: 0.1,
     carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
     chainId: 4,
-    carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
     redis_db: 3
   },
 
@@ -39,13 +38,12 @@ const networks = {
     IDEX_API_BASE_WS: 'ws://api.carbonradars.io:8881',
     REWARD: '44000000000000000000',
     FEE: '44000000000000000000',
-    carboneum: '0x1347d3e87f3335c1e5146cff3020cb86a3c93292',
-    redis_db: 2
     LEADER_REWARD_PERCENT: 0.9,
     SYSTEM_FEE_PERCENT: 0.1,
     PROFIT_PERCENTAGE: 0.1,
     carboneum: '0x1347d3e87f3335c1e5146cff3020cb86a3c93292',
     chainId: 42,
+    redis_db: 2
   },
 
   mainnet: {
@@ -68,7 +66,6 @@ const networks = {
     PROFIT_PERCENTAGE: 0.1,
     carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
     chainId: 1,
-    carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
     redis_db: 1
   },
 };
