@@ -185,14 +185,6 @@ async function watchIDEXTransfers(blockNumber) {
 
                       let msg = `[SELL] ${amountNetSellInMsg} ${tokenSellInMsg} for ${amountNetBuyInMsg} ${tokenBuyInMsg} ${ext}`;
                       push.sendTradeNotification(maker_token, taker_token, amount_maker, amount_taker, copyOrder.leader, copyOrder.follower, msg);
-
-
-                      // let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
-                      // let totalFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD)).div(10 ** c8Decimals);
-                      //
-                      // let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} For ${amountNetSellInMsg} ${tokenSellInMsg}\nReward + Fee ${totalFee} C8`;
-
-                      //////
                     }
                   } else {
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
