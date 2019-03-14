@@ -45,4 +45,36 @@ socialTrading.distributeRewardAll = async function (rewards) {
   }
 };
 
+socialTrading.distributeRewardOne = async function (
+  leader,
+  follower,
+  reward,
+  relayFee,
+  orderHashes,
+) {
+  const provider = infuraProvider(process.env.NETWORK || network.name);
+  let w3 = new Web3(provider);
+  let socialTradingContract = new w3.eth.Contract(
+    SocialTradingABI,
+    contractAddress,
+  );
+  let gasPrice = await w3.eth.getGasPrice();
+  try {
+    await socialTradingContract.methods.distributeReward(
+      leader,
+      follower,
+      reward,
+      relayFee,
+      orderHashes,
+    ).send({
+      from: provider.addresses[0],
+      value: 0,
+      gasLimit: 310000,
+      gasPrice: gasPrice,
+    });
+  } catch (error) {
+    console.log(error.message, ' error!!');
+  }
+};
+
 module.exports = socialTrading;
