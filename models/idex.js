@@ -250,7 +250,7 @@ idex.getNextNonce = async function getNextNonce(address) {
   return await rp(nextNonce);
 };
 
-idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountBuy, amountSell) {
+idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountBuy, amountSell, txHashLeader) {
   let contractAddress = network.IDEX_exchange;
   let expires = 0;
   let address = provider.addresses[0];
@@ -318,7 +318,8 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
         amountSell: amountSell,
         address: address,
         nonce: nonce,
-        expires: expires
+        expires: expires,
+        txLeader: txHashLeader,
       })
     }
   });

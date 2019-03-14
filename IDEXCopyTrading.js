@@ -107,7 +107,7 @@ async function watchIDEXTransfers (blockNumber) {
                           let followerWallet = mappedAddressProvider.addresses[0];
                           let volAbleTrade = await idex.balance(tokenSell, followerWallet);
                           if (volAbleTrade >= parseInt(amountNetSell)) {
-                            let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenBuy, tokenSell, amountNetBuy, amountNetSell);
+                            let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenBuy, tokenSell, amountNetBuy, amountNetSell, txHash);
                             let order = {
                               leader: maker,
                               follower: follower,
@@ -128,7 +128,7 @@ async function watchIDEXTransfers (blockNumber) {
                           let followerWallet = mappedAddressProvider.addresses[0];
                           let volAbleTrade = await idex.balance(tokenBuy, followerWallet);
                           if (volAbleTrade >= parseInt(amountNetBuy)) {
-                            let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
+                            let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenSell, tokenBuy, amountNetSell, amountNetBuy, txHash);
                             let order = {
                               leader: taker,
                               follower: follower,
