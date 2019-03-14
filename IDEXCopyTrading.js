@@ -193,63 +193,63 @@ async function watchIDEXTransfers(blockNumber) {
                       // let msg = `Trade ${amountNetBuyInMsg} ${tokenBuyInMsg} For ${amountNetSellInMsg} ${tokenSellInMsg}\nReward + Fee ${totalFee} C8`;
 
                       //////
-                    } else {
-                      client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
-                        if (follow_dict !== null) {
-                          await Object.keys(follow_dict).forEach(async function (follower) {
-                            let allowance = await erc20.allowance(
-                              web3,
-                              network.carboneum,
-                              follower,
-                              network.socialtrading, //spender address
-                            );
-                            if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
-                              await processCopyTrade(
-                                maker,
-                                follower,
-                                tokenBuy,
-                                tokenSell,
-                                amountNetBuy,
-                                amountNetSell,
-                                amountNetSell,
-                                txHash);
-                            } else {
-                              //Inform user to Adjust allowance
-                              let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
-                              push.sendAdjustC8Allowance(copyOrder.follower, msg);
-                            }
-                          });
-                        }
-                      });
-
-                      client.hgetall('leader:' + taker, async function (err, follow_dict) {   // taker is buy __, sell ETH
-                        if (follow_dict !== null) {
-                          await Object.keys(follow_dict).forEach(async function (follower) {
-                            let allowance = await erc20.allowance(
-                              web3,
-                              network.carboneum,
-                              follower,
-                              network.socialtrading, //spender address
-                            );
-                            if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
-                              await processCopyTrade(
-                                taker,
-                                follower,
-                                tokenSell,
-                                tokenBuy,
-                                amountNetSell,
-                                amountNetBuy,
-                                amountNetBuy,
-                                txHash);
-                            } else {
-                              //Inform user to Adjust allowance
-                              let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
-                              push.sendAdjustC8Allowance(copyOrder.follower, msg);
-                            }
-                          });
-                        }
-                      });
                     }
+                  } else {
+                    client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
+                      if (follow_dict !== null) {
+                        await Object.keys(follow_dict).forEach(async function (follower) {
+                          let allowance = await erc20.allowance(
+                            web3,
+                            network.carboneum,
+                            follower,
+                            network.socialtrading, //spender address
+                          );
+                          if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
+                            await processCopyTrade(
+                              maker,
+                              follower,
+                              tokenBuy,
+                              tokenSell,
+                              amountNetBuy,
+                              amountNetSell,
+                              amountNetSell,
+                              txHash);
+                          } else {
+                            //Inform user to Adjust allowance
+                            let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
+                            push.sendAdjustC8Allowance(copyOrder.follower, msg);
+                          }
+                        });
+                      }
+                    });
+
+                    client.hgetall('leader:' + taker, async function (err, follow_dict) {   // taker is buy __, sell ETH
+                      if (follow_dict !== null) {
+                        await Object.keys(follow_dict).forEach(async function (follower) {
+                          let allowance = await erc20.allowance(
+                            web3,
+                            network.carboneum,
+                            follower,
+                            network.socialtrading, //spender address
+                          );
+                          if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
+                            await processCopyTrade(
+                              taker,
+                              follower,
+                              tokenSell,
+                              tokenBuy,
+                              amountNetSell,
+                              amountNetBuy,
+                              amountNetBuy,
+                              txHash);
+                          } else {
+                            //Inform user to Adjust allowance
+                            let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
+                            push.sendAdjustC8Allowance(copyOrder.follower, msg);
+                          }
+                        });
+                      }
+                    });
                   }
                 }
               }
