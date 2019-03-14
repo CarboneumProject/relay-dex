@@ -26,7 +26,7 @@ function watchDepositedToLinkWallet() {
       }
 
       Object.keys(txHash_dict).forEach(function (row) {
-        console.log(txHash_dict[row]);
+
         if (parseInt(row) === txHash_dict.length - 1) {
           client.quit();
         }
