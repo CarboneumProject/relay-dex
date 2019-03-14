@@ -190,7 +190,7 @@ async function watchIDEXTransfers(blockNumber) {
                         ext = `\nFee ${totalFee} C8`;
                       }
 
-                      let msg = `[SELL] ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg} ${ext}`;
+                      let msg = `[SELL] ${amountNetSellInMsg} ${tokenSellInMsg} for ${amountNetBuyInMsg} ${tokenBuyInMsg} ${ext}`;
                       push.sendTradeNotification(maker_token, taker_token, amount_maker, amount_taker, copyOrder.leader, copyOrder.follower, msg);
 
 
