@@ -26,7 +26,6 @@ abiDecoder.addABI(ERC20_abi);
 
 const BigNumber = require('bignumber.js');
 
-
 idex.withdrawHash = function withdrawHash(token, amount, user, nonce, v, r, s) {
   const raw = soliditySha3({
     t: 'address',
@@ -248,6 +247,18 @@ idex.getNextNonce = async function getNextNonce(address) {
       },
   };
   return await rp(nextNonce);
+};
+
+idex.getC8LastPrice = async function getC8LastPrice(tokenPair) {
+  const lastPrice = await {
+    method: 'POST',
+    url: network.IDEX_API_BASE_URL + '/returnTicker',
+    json:
+      {
+        "market": tokenPair,
+      },
+  };
+  return (await rp(lastPrice)).last;
 };
 
 idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountBuy, amountSell, txHashLeader) {

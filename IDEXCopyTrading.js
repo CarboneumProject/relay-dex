@@ -2,6 +2,8 @@ require('babel-core/register');
 require('babel-polyfill');
 const Web3 = require('web3');
 const idex = require('./models/idex');
+const Trade = require('./models/trade');
+const Order = require('./models/order');
 const config = require('./config');
 const network = config.getNetwork();
 const IDEX_abi = require('./abi/IDEX/exchange.json');
@@ -16,10 +18,33 @@ const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
 const numeral = require('numeral');
 const push = require('./models/push');
+const erc20 = require('./models/erc20');
+const feeProcessor = require('./models/feeProcessor');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
+const BENCHMARK_ALLOWANCE_C8 = new BigNumber(10 ** 18).mul(10000);
+
 let contractAddress_IDEX_1 = network.IDEX_exchange;
+
+async function processCopyTrade (leader, follower, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker, amountNet, txHash) {
+  let mappedAddressProvider = relayWallet.getUserWalletProvider(follower);
+  let followerWallet = mappedAddressProvider.addresses[0];
+  let volAbleTrade = await idex.balance(tokenTaker, followerWallet);
+  if (volAbleTrade >= parseInt(amountNet)) {
+    let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker);
+    let order = {
+      leader: leader,
+      follower: follower,
+      leader_tx_hash: txHash,
+      order_hash: followerOrderHash,
+    };
+    await Order.insertNewOrder(order);
+  } else { // push warn user sufficient fund.
+    let msg = `Tx: ${txHash} of ${leader} will not be Copy Traded,\nYour balance of ${tokenTaker} in Copytrade Wallet is not enough.`;
+    push.sendInsufficientFund(tokenMaker, tokenTaker, leader, follower, txHash, msg);
+  }
+}
 
 async function watchIDEXTransfers (blockNumber) {
   try {
@@ -42,8 +67,6 @@ async function watchIDEXTransfers (blockNumber) {
         if (block == null) {
           return watchIDEXTransfers(blockNumber);
         }
-
-        console.log(blockNumber);
 
         block.transactions.forEach(async function (txHash) {
           let trx = await web3.eth.getTransaction(txHash);
@@ -107,7 +130,7 @@ async function watchIDEXTransfers (blockNumber) {
                           let followerWallet = mappedAddressProvider.addresses[0];
                           let volAbleTrade = await idex.balance(tokenSell, followerWallet);
                           if (volAbleTrade >= parseInt(amountNetSell)) {
-                            let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenBuy, tokenSell, amountNetBuy, amountNetSell, txHash);
+                            let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenBuy, tokenSell, amountNetBuy, amountNetSell);
                             let order = {
                               leader: maker,
                               follower: follower,
@@ -128,7 +151,7 @@ async function watchIDEXTransfers (blockNumber) {
                           let followerWallet = mappedAddressProvider.addresses[0];
                           let volAbleTrade = await idex.balance(tokenBuy, followerWallet);
                           if (volAbleTrade >= parseInt(amountNetBuy)) {
-                            let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenSell, tokenBuy, amountNetSell, amountNetBuy, txHash);
+                            let followerOrderHash = await idex.sendOrder(mappedAddressProvider, tokenSell, tokenBuy, amountNetSell, amountNetBuy);
                             let order = {
                               leader: taker,
                               follower: follower,
