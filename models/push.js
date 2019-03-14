@@ -10,7 +10,7 @@ const push = {};
 push.sendAdjustC8Allowance = function sendAdjustC8Allowance(follower, msg){
   let message = {
     data: {
-      destination: 'messageBox',
+      destination: 'menuportfolio',
       id: follower,
       _msg: msg,
     },
@@ -39,7 +39,7 @@ push.sendAdjustC8Allowance = function sendAdjustC8Allowance(follower, msg){
         },
       },
     },
-    topic: 'allowance_' + follower,
+    topic: 'copytrade_' + follower,
   };
 
   // Transfer out
@@ -54,7 +54,7 @@ push.sendAdjustC8Allowance = function sendAdjustC8Allowance(follower, msg){
 push.sendInsufficientFund = function sendInsufficientFund(tokenBuy, tokenSell, leader, follower, txHash, msg){
   let message = {
     data: {
-      destination: 'messageBox',
+      destination: 'menuportfolio',
       id: leader,
       _tokenBuy: tokenBuy,
       _tokenSell: tokenSell,
@@ -87,7 +87,7 @@ push.sendInsufficientFund = function sendInsufficientFund(tokenBuy, tokenSell, l
         },
       },
     },
-    topic: 'Insufficient_' + follower,
+    topic: 'copytrade_' + follower,
   };
 
   // Transfer out
