@@ -155,7 +155,7 @@ async function watchIDEXTransfers(blockNumber) {
                       let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
                       let repeatDecimalC8 = '0'.repeat(c8Decimals);
 
-                      let sumFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD)).div(10 ** c8Decimals);
+                      let sumFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD));
                       let ext = ``;
                       if (sumFee > new BigNumber(0)) {
                         sumFee = sumFee.div(10 ** c8Decimals);
@@ -201,7 +201,7 @@ async function watchIDEXTransfers(blockNumber) {
                       );
 
                       //push msg to user
-                      let sumFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD)).div(10 ** c8Decimals);
+                      let sumFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD));
                       let ext = ``;
                       if (sumFee > new BigNumber(0)) {
                         sumFee = sumFee.div(10 ** c8Decimals);
