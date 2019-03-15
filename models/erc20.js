@@ -38,9 +38,7 @@ erc20.allowance = async function allowance(provider, tokenAddress, owner, spende
     tokenAddress,
   );
   let result = await erc20ContractSign.methods.allowance(owner, spender).call();
-  // provider.engine.stop();
-  web3Sign.currentProvider.connection.close();
-
+  provider.engine.stop();
   return result;
 };
 
