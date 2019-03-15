@@ -8,7 +8,7 @@ const providerWithMnemonic = (mnemonic, rpcEndpoint) =>
   new HDWalletProvider(mnemonic, rpcEndpoint);
 const infuraProvider = network => providerWithMnemonic(
   process.env.MNEMONIC || config.mnemonic,
-  process.env.RPC_URL || `https://${network}.infura.io/${process.env.INFURA_API_KEY}`,
+  process.env.RPC_URL || `https://${network.name}.infura.io/${process.env.INFURA_API_KEY}`,
 );
 
 const contractAddress = network.socialtrading;

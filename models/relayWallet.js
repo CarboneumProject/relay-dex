@@ -17,10 +17,9 @@ String.prototype.hashCode = function () {
 
 relayWallet.getUserWalletProvider = function getUserWalletProvider(userAddress) {
   let accountIndex = Math.abs(userAddress.toLowerCase().hashCode()); // use absolute to fit HD wallet limit 0x80000000
-
   return new HDWalletProvider(
     process.env.MNEMONIC || config.mnemonic,
-    process.env.RPC_URL || `https://${network}.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    process.env.RPC_URL || `https://${network.name}.infura.io/${process.env.INFURA_API_KEY}`,
     accountIndex,
     1
   );
