@@ -48,7 +48,8 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
     };
     await Order.insertNewOrder(order);
   } else { // push warn user sufficient fund.
-    let msg = `Tx: ${txHash} of ${leader} will not be Copy Traded,\nYour balance of ${tokenTaker} in Copytrade Wallet is not enough.`;
+    let tokenTakerInMsg = await hgetAsync('tokenMap:' + tokenTaker, 'token');
+    let msg = `Tx: ${txHash} of ${leader} will not be Copy Traded,\nYour balance of ${tokenTakerInMsg} in Copytrade Wallet is not enough.`;
     push.sendInsufficientFund(tokenMaker, tokenTaker, leader, follower, txHash, msg);
   }
 }
