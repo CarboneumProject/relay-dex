@@ -22,6 +22,14 @@ const feeProcessor = require('./models/feeProcessor');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(IDEX_abi);
 
+const HDWalletProvider = require('truffle-hdwallet-provider');
+const providerWithMnemonic = (mnemonic, rpcEndpoint) =>
+  new HDWalletProvider(mnemonic, rpcEndpoint);
+const infuraProvider = network => providerWithMnemonic(
+  process.env.MNEMONIC || config.mnemonic,
+  process.env.RPC_URL || `https://${network.name}.infura.io/${process.env.INFURA_API_KEY}`,
+);
+
 const BENCHMARK_ALLOWANCE_C8 = new BigNumber(10 ** 18).mul(10000);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
@@ -47,6 +55,7 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
 
 async function watchIDEXTransfers(blockNumber) {
   try {
+    //TODO Small try catch
     const web3 = new Web3(
       new Web3.providers.WebsocketProvider(network.ws_url),
     );
@@ -72,6 +81,8 @@ async function watchIDEXTransfers(blockNumber) {
           if (trx != null && trx.to != null) {
             if (trx.to.toLowerCase() === contractAddress_IDEX_1) {
               let receipt = await web3.eth.getTransactionReceipt(txHash);
+
+              //TODO try catch TypeError: Cannot read property 'status' of null
               if (receipt.status) {
                 let transaction = abiDecoder.decodeMethod(trx.input);
                 if (transaction.name === 'trade') {
@@ -216,12 +227,15 @@ async function watchIDEXTransfers(blockNumber) {
                     client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                       if (follow_dict !== null) {
                         await Object.keys(follow_dict).forEach(async function (follower) {
+                          let provider = infuraProvider(process.env.NETWORK || network.name);
                           let allowance = await erc20.allowance(
-                            web3,
+                            provider,
                             network.carboneum,
                             follower,
                             network.socialtrading, //spender address
                           );
+                          provider.engine.stop();
+
                           if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
                             await processCopyTrade(
                               maker,
@@ -244,12 +258,14 @@ async function watchIDEXTransfers(blockNumber) {
                     client.hgetall('leader:' + taker, async function (err, follow_dict) {   // taker is buy __, sell ETH
                       if (follow_dict !== null) {
                         await Object.keys(follow_dict).forEach(async function (follower) {
+                          let provider = infuraProvider(process.env.NETWORK || network.name);
                           let allowance = await erc20.allowance(
-                            web3,
+                            provider,
                             network.carboneum,
                             follower,
                             network.socialtrading, //spender address
                           );
+                          provider.engine.stop();
                           if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
                             await processCopyTrade(
                               taker,
