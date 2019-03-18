@@ -30,4 +30,8 @@ IDEXContract.events.Withdraw({}, async (error, event) => {
     useRedis.saveEventWithdraw(txHash, amountNet);
   }
 
-}).on('error', console.error);
+}).on('error', function (error) {
+  console.log('error');
+  console.error();
+  process.exit()
+});
