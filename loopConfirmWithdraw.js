@@ -2,7 +2,7 @@ const Web3 = require('web3');
 const relayWallet = require('./models/relayWallet');
 const idex = require('./models/idex');
 const useRedis = require('./models/useRedis');
-const erc20 = require('./models/erc20');
+const erc20_abi = require('./abi/ERC20/token.json');
 const logToFile = require('./models/logToFile');
 const push = require('./models/push');
 
@@ -58,14 +58,26 @@ function watchDepositedToLinkWallet() {
 
                     push.sendMsgToUser(walletAddress, `CarbonRadars`, `Withdraw successful`);
                   } else {
-                    erc20.transfer(
-                      mappedAddressProvider,
+
+                    const w3 = new Web3(mappedAddressProvider);
+                    let erc20ContractSign = new w3.eth.Contract(
+                      erc20_abi,
                       tokenAddress,
-                      walletAddress,
-                      amountNet
                     );
-                    logToFile.writeLog('withdrawFromLinkedWallet', withdrawHash + ' ' + txHash + ' ' + walletAddress);
-                    useRedis.markWithdrawed(withdrawHash, walletAddress, txHash, tokenAddress);
+                    let gasPrice = await w3.eth.getGasPrice();
+                    await erc20ContractSign.methods.transfer(walletAddress, amountNet).send({
+                      from: mappedAddressProvider.addresses[0],
+                      value: 0,
+                      gasLimit: 210000,
+                      gasPrice: gasPrice
+                    }, function (err, transactionHash) {
+                      if (!err) {
+                        useRedis.markWithdrawed(withdrawHash, walletAddress, txHash, tokenAddress);
+                        logToFile.writeLog('withdrawFromLinkedWallet', withdrawHash + ' ' + txHash + ' ' + walletAddress + ' ' + transactionHash);
+                      }
+                    });
+                    w3.currentProvider.engine.stop();
+
                     push.sendMsgToUser(walletAddress, `CarbonRadars`, `Withdraw successful`);
                   }
                 }
