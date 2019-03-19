@@ -37,8 +37,8 @@ function watchDepositedToLinkWallet() {
             if (res) {
               let [withdrawHash, tokenAddress] = res;
               useRedis.findWalletTarget(withdrawHash).then(async (walletAddress) => {
-
                 if (walletAddress) {
+                  console.log(walletAddress, txHash);
                   let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
                   if (tokenAddress === '0x0000000000000000000000000000000000000000') {
 
@@ -70,6 +70,8 @@ function watchDepositedToLinkWallet() {
                   }
                 }
               });
+            } else {
+              console.log('not match', txHash);
             }
           });
         });

@@ -19,7 +19,6 @@ const IDEXContract = new web3.eth.Contract(
 );
 
 IDEXContract.events.Withdraw({}, async (error, event) => {
-
   if (event.event === 'Withdraw' && event.removed === false) {
     // let token =  event.returnValues.token;
     // let linkedWalletAddress = event.returnValues.user;
