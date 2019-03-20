@@ -7,7 +7,8 @@ admin.initializeApp({
 
 const push = {};
 
-push.sendAdjustC8Allowance = function sendAdjustC8Allowance(follower, msg){
+push.sendAdjustC8Allowance = function sendAdjustC8Allowance(target, msg){
+  let follower = target.toLowerCase();
   let message = {
     data: {
       destination: 'menuportfolio',
@@ -51,7 +52,8 @@ push.sendAdjustC8Allowance = function sendAdjustC8Allowance(follower, msg){
 
 };
 
-push.sendInsufficientFund = function sendInsufficientFund(tokenBuy, tokenSell, leader, follower, txHash, msg){
+push.sendInsufficientFund = function sendInsufficientFund(tokenBuy, tokenSell, leader, target, txHash, msg){
+  let follower = target.toLowerCase();
   let message = {
     data: {
       destination: 'menuportfolio',
@@ -98,7 +100,8 @@ push.sendInsufficientFund = function sendInsufficientFund(tokenBuy, tokenSell, l
   });
 };
 
-push.sendTradeNotification = function sendTradeNotification (tokenBuy, tokenSell, amountBuy, amountSell, leader, follower, msg) {
+push.sendTradeNotification = function sendTradeNotification (tokenBuy, tokenSell, amountBuy, amountSell, leader, target, msg) {
+  let follower = target.toLowerCase();
   let message = {
     data: {
       destination: 'menuportfolio',
@@ -147,7 +150,8 @@ push.sendTradeNotification = function sendTradeNotification (tokenBuy, tokenSell
   });
 };
 
-push.sendMsgToUser = function sendRawMsg(walletAddress, title, msg){
+push.sendMsgToUser = function sendRawMsg(target, title, msg){
+  let walletAddress = target.toLowerCase();
   let message = {
     data: {
       destination: 'menuportfolio',
