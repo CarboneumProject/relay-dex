@@ -32,13 +32,17 @@ erc20.approve = async function approve(provider, tokenAddress, spender, value) {
 };
 
 erc20.allowance = async function allowance(provider, tokenAddress, owner, spender) {
-  let web3Sign = new Web3(provider);
-  let erc20ContractSign = new web3Sign.eth.Contract(
-    erc20_abi,
-    tokenAddress,
-  );
-  let result = await erc20ContractSign.methods.allowance(owner, spender).call();
-  return result;
+  try {
+    let web3Sign = new Web3(provider);
+    let erc20ContractSign = new web3Sign.eth.Contract(
+      erc20_abi,
+      tokenAddress,
+    );
+    return await erc20ContractSign.methods.allowance(owner, spender).call();
+  } catch (error) {
+    console.log(error, ' error');
+    return error;
+  }
 };
 
 erc20.etherTokenAddress = '0x0000000000000000000000000000000000000000';

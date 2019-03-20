@@ -63,8 +63,24 @@ function watchDepositedToLinkWallet() {
                       mappedAddressProvider.addresses[0],
                       network.IDEX_exchange //IDEX contract
                     ).then((allowance) => {
-                      if (allowance <= MAX_ALLOWANCE / 2) {
-                        erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then(() => {
+                      if (typeof allowance === 'object') {
+                        useRedis.saveHash(txHash, walletAddress);
+                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
+                      }
+                      else {
+                        if (allowance <= MAX_ALLOWANCE / 2) {
+                          erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then(() => {
+                            idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
+                              if (typeof respond === 'object') {
+                                logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
+                                push.sendMsgToUser(walletAddress, `CarbonRadars`, `Deposit successful`);
+                              } else {
+                                useRedis.saveHash(txHash, walletAddress);
+                                logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
+                              }
+                            });
+                          });
+                        } else {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
                             if (typeof respond === 'object') {
                               logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
@@ -74,17 +90,7 @@ function watchDepositedToLinkWallet() {
                               logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
                             }
                           });
-                        });
-                      } else {
-                        idex.depositToken(mappedAddressProvider, tokenAddress, wei).then((respond) => {
-                          if (typeof respond === 'object') {
-                            logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
-                            push.sendMsgToUser(walletAddress, `CarbonRadars`, `Deposit successful`);
-                          } else {
-                            useRedis.saveHash(txHash, walletAddress);
-                            logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
-                          }
-                        });
+                        }
                       }
                     });
                   }
