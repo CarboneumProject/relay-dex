@@ -294,7 +294,6 @@ async function watchIDEXTransfers(blockNumber) {
             }
           }
         }
-        web3.currentProvider.connection.close();
 
         console.log(blockNumber);
         blockNumber++;
