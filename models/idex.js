@@ -317,7 +317,7 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
   }, async function (err, resp, body) {
     if (body.hasOwnProperty('error')) {
       logToFile.writeLog('trade',
-        address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Error.' + body);
+        address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Error ' + body.error);
     } else {
       logToFile.writeLog('trade',
         address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Success.');
