@@ -52,6 +52,7 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
     let msg = `Transaction by ${leader} will not be Copy Traded,\nYour balance of ${tokenTakerInMsg} in Copytrade Wallet is not enough.`;
     push.sendInsufficientFund(tokenMaker, tokenTaker, leader, follower, txHash, msg);
   }
+  mappedAddressProvider.engine.stop();
 }
 
 async function watchIDEXTransfers(blockNumber) {
