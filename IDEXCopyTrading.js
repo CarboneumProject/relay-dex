@@ -76,8 +76,8 @@ async function watchIDEXTransfers(blockNumber) {
         if (block == null) {
           return watchIDEXTransfers(blockNumber);
         }
-
-        block.transactions.forEach(async function (txHash) {
+        for (let i=0; i < block.transactions.length; i++) {
+          let txHash = block.transactions[i];
           let trx = await web3.eth.getTransaction(txHash);
           if (trx != null && trx.to != null) {
             if (trx.to.toLowerCase() === contractAddress_IDEX_1) {
@@ -293,7 +293,9 @@ async function watchIDEXTransfers(blockNumber) {
 
             }
           }
-        });
+        }
+        web3.currentProvider.connection.close();
+
         console.log(blockNumber);
         blockNumber++;
         client.hset('lastBlock', 'IDEXCopyTrading', blockNumber);
