@@ -152,7 +152,9 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
             let fromAddress = trx.from.toLowerCase();
             let toAddress = trx.to.toLowerCase();
             let wei = trx.value;
-            const linkedWallet = relayWallet.getUserWalletProvider(fromAddress).addresses[0];
+            let mappedAddressProvider = relayWallet.getUserWalletProvider(fromAddress);
+            const linkedWallet = mappedAddressProvider.addresses[0];
+            mappedAddressProvider.engine.stop();
             if (linkedWallet === toAddress) {
               resolve([fromAddress, wei, tokenAddress]);
             }
@@ -164,7 +166,9 @@ idex.verifyTxHash = async function verifyTxHash(txHash) {
               let fromAddress = trx.from.toLowerCase();
               let toAddress = transaction.params[0].value.toLowerCase();
               let wei = transaction.params[1].value;
-              const linkedWallet = relayWallet.getUserWalletProvider(fromAddress).addresses[0];
+              let mappedAddressProvider = relayWallet.getUserWalletProvider(fromAddress);
+              const linkedWallet = mappedAddressProvider.addresses[0];
+              mappedAddressProvider.engine.stop();
               if (linkedWallet === toAddress) {
                 resolve([fromAddress, wei, tokenAddress]);
               }
