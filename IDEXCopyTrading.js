@@ -47,10 +47,6 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
       order_hash: followerOrderHash,
     };
     await Order.insertNewOrder(order);
-  } else { // push warn user sufficient fund.
-    let tokenTakerInMsg = await hgetAsync('tokenMap:' + tokenTaker, 'token');
-    let msg = `Transaction by ${leader} will not be Copy Traded,\nYour balance of ${tokenTakerInMsg} in Copytrade Wallet is not enough.`;
-    push.sendInsufficientFund(tokenMaker, tokenTaker, leader, follower, txHash, msg);
   }
   mappedAddressProvider.engine.stop();
 }
