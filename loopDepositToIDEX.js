@@ -54,7 +54,7 @@ function watchDepositedToLinkWallet() {
                       if (typeof respond === 'object') {
                         let amountETH = numeral(amountDeposited / Math.pow(10, 18)).format(`0,0.[000000000000000000]`);
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ' + amountETH + 'ETH Success.');
-                        let msg = `Deposit ${amountETH} ETH successful`;
+                        let msg = `${amountETH} ETH: Deposit successful`;
                         push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
                       } else {
                         useRedis.saveHash(txHash, walletAddress, amountDeposited);
@@ -81,8 +81,8 @@ function watchDepositedToLinkWallet() {
                                   let tokenName = await hgetAsync('tokenMap:' + tokenAddress, 'token');
                                   let tokenDecimals = await hgetAsync('tokenMap:' + tokenAddress, 'decimals');
                                   let repeatDecimal = '0'.repeat(tokenDecimals);
-                                  let amountToken = numeral(wei / Math.pow(10, 18)).format(`0,0.[${repeatDecimal}]`);
-                                  let msg = `Deposit ${amountToken} ${tokenName} successful`;
+                                  let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
+                                  let msg = `${amountToken} ${tokenName}: Deposit successful`;
                                   logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
                                   push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
                                 } else {
@@ -101,8 +101,8 @@ function watchDepositedToLinkWallet() {
                               let tokenName = await hgetAsync('tokenMap:' + tokenAddress, 'token');
                               let tokenDecimals = await hgetAsync('tokenMap:' + tokenAddress, 'decimals');
                               let repeatDecimal = '0'.repeat(tokenDecimals);
-                              let amountToken = numeral(wei / Math.pow(10, 18)).format(`0,0.[${repeatDecimal}]`);
-                              let msg = `Deposit ${amountToken} ${tokenName} successful`;
+                              let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
+                              let msg = `${amountToken} ${tokenName}: Deposit successful`;
                               logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' +  tokenAddress + ' ' + amountToken + tokenName + ' Success.');
                               push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
                             } else {

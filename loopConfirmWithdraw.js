@@ -11,12 +11,16 @@ const abi = require('./abi/IDEX/exchange.json');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(abi);
 
+const numeral = require('numeral');
+const {promisify} = require('util');
+
 const config = require('./config');
 const network = config.getNetwork();
 
 function watchDepositedToLinkWallet() {
   let client = redis.createClient();
   client.select(network.redis_db);
+  const hgetAsync = promisify(client.hget).bind(client);
   client.keys('withdrawEvent:new:*', function (err, txHash_dict) {
 
     if (txHash_dict !== null) {
@@ -54,9 +58,12 @@ function watchDepositedToLinkWallet() {
                           logToFile.writeLog('withdrawFromLinkedWallet', withdrawHash + ' ' + txHash + ' ' + walletAddress + ' ' + transactionHash);
                         }
                       });
-                    w3.currentProvider.engine.stop();
 
-                    push.sendMsgToUser(walletAddress, `CarbonRadars`, `Withdraw successful`);
+                    let amountETH = numeral(amountNet / Math.pow(10, 18)).format(`0,0.[000000000000000000]`);
+                    let msg = `${amountETH} ETH: Withdraw successful`;
+
+                    push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
+                    w3.currentProvider.engine.stop();
                   } else {
 
                     const w3 = new Web3(mappedAddressProvider);
@@ -76,9 +83,15 @@ function watchDepositedToLinkWallet() {
                         logToFile.writeLog('withdrawFromLinkedWallet', withdrawHash + ' ' + txHash + ' ' + walletAddress + ' ' + transactionHash);
                       }
                     });
-                    w3.currentProvider.engine.stop();
 
-                    push.sendMsgToUser(walletAddress, `CarbonRadars`, `Withdraw successful`);
+                    let tokenName = await hgetAsync('tokenMap:' + tokenAddress, 'token');
+                    let tokenDecimals = await hgetAsync('tokenMap:' + tokenAddress, 'decimals');
+                    let repeatDecimal = '0'.repeat(tokenDecimals);
+                    let amountToken = numeral(amountNet / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
+
+                    let msg = `${amountToken} ${tokenName}: Withdraw successful`;
+                    push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
+                    w3.currentProvider.engine.stop();
                   }
                 }
               });
