@@ -18,8 +18,8 @@ const {promisify} = require('util');
 
 function watchDepositedToLinkWallet() {
   let client = redis.createClient();
-  const hgetAsync = promisify(client.hget).bind(client);
   client.select(network.redis_db);
+  const hgetAsync = promisify(client.hget).bind(client);
   client.keys('txHash:new:*', function (err, txHash_dict) {
     if (txHash_dict !== null) {
       if (txHash_dict.length === 0) {
@@ -52,10 +52,10 @@ function watchDepositedToLinkWallet() {
 
                     idex.depositEth(mappedAddressProvider, amountDeposited).then((respond) => {
                       if (typeof respond === 'object') {
-                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Success.');
-
                         let amountETH = numeral(amountDeposited / Math.pow(10, 18)).format(`0,0.[000000000000000000]`);
-                        push.sendMsgToUser(walletAddress, `CarbonRadars`, `Deposit ${amountETH} ETH successful`);
+                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ' + amountETH + 'ETH Success.');
+                        let msg = `Deposit ${amountETH} ETH successful`;
+                        push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
                       } else {
                         useRedis.saveHash(txHash, walletAddress, amountDeposited);
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Failed.');
@@ -78,12 +78,13 @@ function watchDepositedToLinkWallet() {
                             if (typeof respond === 'object') {
                               idex.depositToken(mappedAddressProvider, tokenAddress, wei).then(async (respond) => {
                                 if (typeof respond === 'object') {
-                                  logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
                                   let tokenName = await hgetAsync('tokenMap:' + tokenAddress, 'token');
                                   let tokenDecimals = await hgetAsync('tokenMap:' + tokenAddress, 'decimals');
                                   let repeatDecimal = '0'.repeat(tokenDecimals);
                                   let amountToken = numeral(wei / Math.pow(10, 18)).format(`0,0.[${repeatDecimal}]`);
-                                  push.sendMsgToUser(walletAddress, `CarbonRadars`, `Deposit ${amountToken} ${tokenName} successful`);
+                                  let msg = `Deposit ${amountToken} ${tokenName} successful`;
+                                  logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
+                                  push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
                                 } else {
                                   useRedis.saveHash(txHash, walletAddress);
                                   logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
@@ -97,12 +98,13 @@ function watchDepositedToLinkWallet() {
                         } else {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then(async (respond) => {
                             if (typeof respond === 'object') {
-                              logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Success.');
                               let tokenName = await hgetAsync('tokenMap:' + tokenAddress, 'token');
                               let tokenDecimals = await hgetAsync('tokenMap:' + tokenAddress, 'decimals');
                               let repeatDecimal = '0'.repeat(tokenDecimals);
                               let amountToken = numeral(wei / Math.pow(10, 18)).format(`0,0.[${repeatDecimal}]`);
-                              push.sendMsgToUser(walletAddress, `CarbonRadars`, `Deposit ${amountToken} ${tokenName} successful`);
+                              let msg = `Deposit ${amountToken} ${tokenName} successful`;
+                              logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' +  tokenAddress + ' ' + amountToken + tokenName + ' Success.');
+                              push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
                             } else {
                               useRedis.saveHash(txHash, walletAddress);
                               logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
