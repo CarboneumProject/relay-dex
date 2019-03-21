@@ -58,9 +58,10 @@ function watchDepositedToLinkWallet() {
                       });
 
                     let amountETH = numeral(amountNet / Math.pow(10, 18)).format(`0,0.[000000000000000000]`);
-                    let msg = `${amountETH} ETH: Withdraw successful`;
+                    let title = `Withdraw successful`;
+                    let msg = `${amountETH} ETH`;
 
-                    push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
+                    push.sendMsgToUser(walletAddress, title, msg);
                     w3.currentProvider.engine.stop();
                   } else {
 
@@ -87,8 +88,9 @@ function watchDepositedToLinkWallet() {
                     let repeatDecimal = '0'.repeat(tokenDecimals);
                     let amountToken = numeral(amountNet / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
 
-                    let msg = `${amountToken} ${tokenName}: Withdraw successful`;
-                    push.sendMsgToUser(walletAddress, `CarbonRadars`, msg);
+                    let msg = `${amountToken} ${tokenName}`;
+                    let title = `Withdraw successful`;
+                    push.sendMsgToUser(walletAddress, title, msg);
                     w3.currentProvider.engine.stop();
                   }
                 }
