@@ -113,4 +113,18 @@ useRedis.getAmountWithdrawNet = async function getAmountWithdrawNet(txHash) {
   return await getAmountWithdrawNet(txHash);
 };
 
+useRedis.getTokenMap = async function getTokenMap(tokenAddress, type) {
+  function getTokenMap(tokenAddress, type) {
+    let client = redis.createClient();
+    client.select(network.redis_db);
+    return new Promise(function (resolve, reject) {
+      client.hget("tokenMap:" + tokenAddress, type, function (err, values) {
+        resolve(values);
+      });
+      client.quit();
+    });
+  }
+  return await getTokenMap(tokenAddress, type);
+};
+
 module.exports = useRedis;

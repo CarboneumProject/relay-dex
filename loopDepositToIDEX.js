@@ -14,12 +14,10 @@ const RESERVED_ETH = '2100000000000000';
 const redis = require('redis');
 
 const numeral = require('numeral');
-const {promisify} = require('util');
 
 function watchDepositedToLinkWallet() {
   let client = redis.createClient();
   client.select(network.redis_db);
-  const hgetAsync = promisify(client.hget).bind(client);
   client.keys('txHash:new:*', function (err, txHash_dict) {
     if (txHash_dict !== null) {
       if (txHash_dict.length === 0) {
@@ -78,8 +76,9 @@ function watchDepositedToLinkWallet() {
                             if (typeof respond === 'object') {
                               idex.depositToken(mappedAddressProvider, tokenAddress, wei).then(async (respond) => {
                                 if (typeof respond === 'object') {
-                                  let tokenName = await hgetAsync('tokenMap:' + tokenAddress, 'token');
-                                  let tokenDecimals = await hgetAsync('tokenMap:' + tokenAddress, 'decimals');
+
+                                  let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
+                                  let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
                                   let repeatDecimal = '0'.repeat(tokenDecimals);
                                   let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
                                   let msg = `${amountToken} ${tokenName}: Deposit successful`;
@@ -98,8 +97,8 @@ function watchDepositedToLinkWallet() {
                         } else {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then(async (respond) => {
                             if (typeof respond === 'object') {
-                              let tokenName = await hgetAsync('tokenMap:' + tokenAddress, 'token');
-                              let tokenDecimals = await hgetAsync('tokenMap:' + tokenAddress, 'decimals');
+                              let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
+                              let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
                               let repeatDecimal = '0'.repeat(tokenDecimals);
                               let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
                               let msg = `${amountToken} ${tokenName}: Deposit successful`;
