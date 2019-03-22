@@ -26,6 +26,7 @@ IDEXContract.events.Withdraw({}, async (error, event) => {
     let amountNet = new BigNumber(event.returnValues.amount).toFixed(0);
     let txHash = event.transactionHash;
 
+    console.log(txHash, amountNet);
     useRedis.saveEventWithdraw(txHash, amountNet);
   }
 
