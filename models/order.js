@@ -17,11 +17,25 @@ order.insertNewOrder = async function insertNewOrder(order) {
   ]);
 };
 
-
 order.find = async function find(orderHash) {
   return (await mysql.query(`
     SELECT * FROM carboneum.sent_order WHERE order_hash = ?
   `, [orderHash]))[0];
+};
+
+order.getOrderhashForCancel = async function getOrderhashForCancel () {
+  return await mysql.query(`
+    SELECT id, follower, order_hash, isCancel
+    FROM carboneum.sent_order
+    WHERE TIMESTAMPDIFF(HOUR, order_time,now()) >= 8
+      AND isCancel is NULL;
+  `);
+};
+
+order.updateCancelOrder = async function updateCancelOrder (isCancel, id) {
+  return await mysql.query(`
+    UPDATE carboneum.sent_order SET isCancel = ? WHERE id = ?
+  `, [isCancel, id]);
 };
 
 module.exports = order;

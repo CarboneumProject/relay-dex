@@ -18,6 +18,7 @@ const rp = require('request-promise');
 const useRedis = require('../models/useRedis');
 const relayWallet = require('../models/relayWallet');
 const logToFile = require("../models/logToFile");
+const order = require('../models/order');
 
 const network = config.getNetwork();
 
@@ -262,6 +263,64 @@ idex.getC8LastPrice = async function getC8LastPrice(tokenPair) {
       },
   };
   return (await rp(lastPrice)).last;
+};
+
+idex.getOrderStatus = async function getOrderStatus(orderHash){
+  try {
+    const orderStatus = await {
+      method: 'POST',
+      url: network.IDEX_API_BASE_URL + '/returnOrderStatus',
+      json:
+        {
+          "orderHash": orderHash,
+        },
+    };
+    return {status: 'yes', message:(await rp(orderStatus))} ;
+  } catch (error) {
+  return {status: 'no', message: error.message};
+}
+};
+
+idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id){
+  let address = provider.addresses[0];
+  let privateKeyBuffer = provider.wallets[address]['_privKey'];
+
+  const raw = soliditySha3(
+    {
+      t: 'uint256',
+      v: orderHash,
+    },
+    {
+      t: 'uint256',
+      v: nonce,
+    },
+  );
+
+  const salted = hashPersonalMessage(toBuffer(raw));
+  const {
+    v,
+    r,
+    s
+  } = mapValues(ecsign(salted, privateKeyBuffer), (value, key) => key === 'v' ? value : bufferToHex(value));
+
+  request({
+    method: 'POST',
+    url: network.IDEX_API_BASE_URL + '/cancel',
+    json: {
+      orderHash: orderHash,
+      nonce: nonce,
+      address:address,
+      v:v,
+      r:r,
+      s:s
+    }
+  }, async function (err, resp, body) {
+    if (body.hasOwnProperty('error')) {
+      console.log(' Error ' + body.error);
+    } else {
+      await order.updateCancelOrder('1', id)
+    }
+  });
 };
 
 idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountBuy, amountSell, txHashLeader) {

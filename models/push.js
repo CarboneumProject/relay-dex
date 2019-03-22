@@ -65,14 +65,14 @@ push.sendInsufficientFund = function sendInsufficientFund(tokenBuy, tokenSell, l
       _msg: msg,
     },
     notification: {
-      title: `Insufficient Fund`,
+      title: `Copytrading failed : Insufficient Fund`,
       body: msg,
     },
     android: {
       ttl: 3600 * 1000, // 1 hour in milliseconds
       priority: 'high',
       notification: {
-        title: `Insufficient Fund`,
+        title: `Copytrading failed : Insufficient Fund`,
         body: msg,
       },
     },
@@ -83,7 +83,7 @@ push.sendInsufficientFund = function sendInsufficientFund(tokenBuy, tokenSell, l
       payload: {
         aps: {
           alert: {
-            title: `Insufficient Fund`,
+            title: `Copytrading failed : Insufficient Fund`,
             body: msg,
           },
         },
@@ -193,6 +193,10 @@ push.sendMsgToUser = function sendRawMsg(target, title, msg){
     console.log('Error sending message:', error);
   });
 
+};
+
+push.turnOff = () => {
+  admin.app().delete();
 };
 
 module.exports = push;
