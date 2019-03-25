@@ -5,6 +5,8 @@ const useRedis = require('./models/useRedis');
 const erc20_abi = require('./abi/ERC20/token.json');
 const logToFile = require('./models/logToFile');
 const push = require('./models/push');
+const feeProcessor = require('./models/feeProcessor');
+const Trade = require('./models/trade');
 
 const redis = require('redis');
 const abi = require('./abi/IDEX/exchange.json');
@@ -37,7 +39,7 @@ function watchDepositedToLinkWallet() {
 
           idex.withdrawTxHash(txHash).then((res) => {
             if (res) {
-              let [withdrawHash, tokenAddress] = res;
+              let [withdrawHash, tokenAddress, amountRequest] = res;
               useRedis.findWalletTarget(withdrawHash).then(async (walletAddress) => {
                 if (walletAddress) {
                   console.log(walletAddress, txHash);
@@ -76,10 +78,16 @@ function watchDepositedToLinkWallet() {
                       value: 0,
                       gasLimit: 210000,
                       gasPrice: gasPrice
-                    }, function (err, transactionHash) {
+                    }, async function (err, transactionHash) {
                       if (!err) {
                         useRedis.markWithdrawed(withdrawHash, walletAddress, txHash, tokenAddress);
                         logToFile.writeLog('withdrawFromLinkedWallet', withdrawHash + ' ' + txHash + ' ' + walletAddress + ' ' + transactionHash);
+                        let openTrades = await Trade.getAvailableTrade(tokenAddress, walletAddress);
+                        let returnObj = await feeProcessor.withdrawToken(openTrades, amountRequest);
+                        let updateAmounts = returnObj.updateAmounts;
+                        updateAmounts.forEach(async function (order) {
+                          await Trade.updateAmountLeft(order.amountLeft, order.orderId);
+                        });
                       }
                     });
 

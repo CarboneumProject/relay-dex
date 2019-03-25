@@ -83,4 +83,25 @@ feeProcessor.percentageFee = async function (openTrades, copyOrder, closeTrade, 
 
 };
 
+feeProcessor.withdrawToken = async function (openTrades, withdraw_amount) {
+  let sub_amountLeft = new BigNumber(withdraw_amount);// withdraw token
+  let updateAmounts = [];
+
+  let openedPosition = openTrades.length;
+  if (openedPosition > 0) {
+    for (let i = 0; i < openedPosition && sub_amountLeft > 0; i++) {
+      let openOrder = openTrades[i];
+      let lastAmount = new BigNumber(openOrder.amount_left);
+      sub_amountLeft = sub_amountLeft.sub(lastAmount);
+
+      if (sub_amountLeft >= 0) {
+        updateAmounts.push({'amountLeft': '0', 'orderId': openOrder.id});
+      } else {
+        updateAmounts.push({'amountLeft': sub_amountLeft.abs().toFixed(0), 'orderId': openOrder.id});
+      }
+    }
+  }
+  return {'updateAmounts': updateAmounts};
+};
+
 module.exports = feeProcessor;

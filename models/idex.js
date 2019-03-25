@@ -209,7 +209,7 @@ idex.withdrawTxHash = async function withdrawTxHash(txHash) {
               let r = params[5].value;
               let s = params[6].value;
               let withdrawHash = idex.withdrawHash(tokenAddress, amount, linkedWalletAddress, nonce, v, r, s);
-              resolve([withdrawHash, tokenAddress]);
+              resolve([withdrawHash, tokenAddress, amount]);
             }
           }
         }
