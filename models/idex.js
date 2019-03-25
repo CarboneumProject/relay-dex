@@ -323,7 +323,13 @@ idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id){
   });
 };
 
-idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountBuy, amountSell, txHashLeader) {
+idex.sendOrder = async function sendOrder(provider, orderDetail) {
+
+  let tokenBuy = orderDetail.tokenMaker;
+  let tokenSell = orderDetail.tokenTaker;
+  let amountBuy = orderDetail.amountNetMaker;
+  let amountSell = orderDetail.amountNetTaker;
+
   let contractAddress = network.IDEX_exchange;
   let expires = 0;
   let address = provider.addresses[0];
@@ -362,6 +368,13 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
     s
   } = mapValues(ecsign(salted, privateKeyBuffer), (value, key) => key === 'v' ? value : bufferToHex(value));
 
+  let newOrder = {
+    leader: orderDetail.leader,
+    follower: orderDetail.follower,
+    leader_tx_hash: orderDetail.leader_tx_hash,
+    order_hash: bufferToHex(toBuffer(raw)),
+  };
+
   request({
     method: 'POST',
     url: network.IDEX_API_BASE_URL + '/order',
@@ -392,8 +405,9 @@ idex.sendOrder = async function sendOrder(provider, tokenBuy, tokenSell, amountB
         address: address,
         nonce: nonce,
         expires: expires,
-        txLeader: txHashLeader,
-      })
+        txLeader: orderDetail.leader_tx_hash,
+      });
+      await order.insertNewOrder(newOrder);
     }
   });
   return bufferToHex(toBuffer(raw));
