@@ -314,7 +314,7 @@ idex.getOrderStatus = async function getOrderStatus(orderHash){
 }
 };
 
-idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id, walletAddress, msg){
+idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id) {
   let address = provider.addresses[0];
   let privateKeyBuffer = provider.wallets[address]['_privKey'];
 
@@ -336,27 +336,31 @@ idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id, wa
     s
   } = mapValues(ecsign(salted, privateKeyBuffer), (value, key) => key === 'v' ? value : bufferToHex(value));
 
-  request({
-    method: 'POST',
-    url: network.IDEX_API_BASE_URL + '/cancel',
-    json: {
-      orderHash: orderHash,
-      nonce: nonce,
-      address:address,
-      v:v,
-      r:r,
-      s:s
-    }
-  }, async function (err, resp, body) {
-    if (body.hasOwnProperty('error')) {
-      console.log(' Error ' + body.error);
-    } else {
-      await order.updateCancelOrder('1', id);
-      let title = `Cancelled Order`;
-      msg = msg + `\nYour order has been cancelled.`;
-      push.sendMsgToUser(walletAddress, title, msg);
-    }
-  });
+  function connect() {
+    return new Promise(function (resolve, reject) {
+      request({
+        method: 'POST',
+        url: network.IDEX_API_BASE_URL + '/cancel',
+        json: {
+          orderHash: orderHash,
+          nonce: nonce,
+          address: address,
+          v: v,
+          r: r,
+          s: s
+        }
+      }, async function (err, resp, body) {
+        if (body.hasOwnProperty('error')) {
+          console.log(' Error ' + body.error);
+          resolve(0)
+        } else {
+          await order.updateCancelOrder('1', id);
+          resolve(1)
+        }
+      });
+    });
+  }
+  return await connect();
 };
 
 idex.sendOrder = async function sendOrder(provider, orderDetail) {
@@ -412,30 +416,11 @@ idex.sendOrder = async function sendOrder(provider, orderDetail) {
   };
 
   function connect() {
-    request({
-      method: 'POST',
-      url: network.IDEX_API_BASE_URL + '/order',
-      json: {
-        tokenBuy: tokenBuy,
-        amountBuy: amountBuy,
-        tokenSell: tokenSell,
-        amountSell: amountSell,
-        address: address,
-        nonce: nonce,
-        expires: expires,
-        v: v,
-        r: r,
-        s: s
-      }
-    }, async function (err, resp, body) {
-      if (body.hasOwnProperty('error')) {
-        logToFile.writeLog('trade',
-          address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Error ' + body.error);
-        resolve(0);
-      } else {
-        logToFile.writeLog('trade',
-          address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Success.');
-        console.log('Success sending order', {
+    return new Promise(function (resolve, reject) {
+      request({
+        method: 'POST',
+        url: network.IDEX_API_BASE_URL + '/order',
+        json: {
           tokenBuy: tokenBuy,
           amountBuy: amountBuy,
           tokenSell: tokenSell,
@@ -443,11 +428,32 @@ idex.sendOrder = async function sendOrder(provider, orderDetail) {
           address: address,
           nonce: nonce,
           expires: expires,
-          txLeader: orderDetail.leader_tx_hash,
-        });
-        await order.insertNewOrder(newOrder);
-        resolve(1);
-      }
+          v: v,
+          r: r,
+          s: s
+        }
+      }, async function (err, resp, body) {
+        if (body.hasOwnProperty('error')) {
+          logToFile.writeLog('trade',
+            address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Error ' + body.error);
+          resolve(0);
+        } else {
+          logToFile.writeLog('trade',
+            address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Success.');
+          console.log('Success sending order', {
+            tokenBuy: tokenBuy,
+            amountBuy: amountBuy,
+            tokenSell: tokenSell,
+            amountSell: amountSell,
+            address: address,
+            nonce: nonce,
+            expires: expires,
+            txLeader: orderDetail.leader_tx_hash,
+          });
+          await order.insertNewOrder(newOrder);
+          resolve(1);
+        }
+      });
     });
   }
   return await connect();

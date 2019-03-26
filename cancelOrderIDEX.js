@@ -46,10 +46,18 @@ async function main(orderHash, id, walletAddress) {
       msg = `Order: Sell ${amountNetSellInMsg} ${tokenSell} for ${amountNetBuyInMsg} ${tokenBuy} ${ext}`;
     }
 
-    let timestampNow = Math.round(new Date().getTime()/1000);
+    let timestampNow = Math.round(new Date().getTime() / 1000);
     if (status === 'open') {
       if (timestampNow - timestampOrder > RANGETIMESTAMP) {
-        idex.cancelOrder(mappedAddressProvider, orderHash, nonce, id, walletAddress, msg);
+        idex.cancelOrder(mappedAddressProvider, orderHash, nonce, id).then((respond) => {
+            if (respond) {
+              let title = `Cancelled Order`;
+              msg = msg + `\nYour order has been cancelled.`;
+              push.sendMsgToUser(walletAddress, title, msg);
+            }
+          }
+        );
+
         mappedAddressProvider.engine.stop()
       }
     } else if (status === 'cancelled'){
