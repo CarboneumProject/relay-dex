@@ -359,7 +359,7 @@ idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id, wa
   });
 };
 
-idex.sendOrder = async function sendOrder(provider, orderDetail, walletAddress, msg) {
+idex.sendOrder = async function sendOrder(provider, orderDetail) {
 
   let tokenBuy = orderDetail.tokenMaker;
   let tokenSell = orderDetail.tokenTaker;
@@ -411,29 +411,11 @@ idex.sendOrder = async function sendOrder(provider, orderDetail, walletAddress, 
     order_hash: bufferToHex(toBuffer(raw)),
   };
 
-  request({
-    method: 'POST',
-    url: network.IDEX_API_BASE_URL + '/order',
-    json: {
-      tokenBuy: tokenBuy,
-      amountBuy: amountBuy,
-      tokenSell: tokenSell,
-      amountSell: amountSell,
-      address: address,
-      nonce: nonce,
-      expires: expires,
-      v: v,
-      r: r,
-      s: s
-    }
-  }, async function (err, resp, body) {
-    if (body.hasOwnProperty('error')) {
-      logToFile.writeLog('trade',
-        address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Error ' + body.error);
-    } else {
-      logToFile.writeLog('trade',
-        address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Success.');
-      console.log('Success sending order', {
+  function connect() {
+    request({
+      method: 'POST',
+      url: network.IDEX_API_BASE_URL + '/order',
+      json: {
         tokenBuy: tokenBuy,
         amountBuy: amountBuy,
         tokenSell: tokenSell,
@@ -441,17 +423,34 @@ idex.sendOrder = async function sendOrder(provider, orderDetail, walletAddress, 
         address: address,
         nonce: nonce,
         expires: expires,
-        txLeader: orderDetail.leader_tx_hash,
-      });
-      await order.insertNewOrder(newOrder);
-
-      msg = msg + `\nFollowing your leader, your order is placing.`;
-      let title = `Leader Transaction`;
-      push.sendMsgToUser(walletAddress, title, msg);
-
-    }
-  });
-  return bufferToHex(toBuffer(raw));
+        v: v,
+        r: r,
+        s: s
+      }
+    }, async function (err, resp, body) {
+      if (body.hasOwnProperty('error')) {
+        logToFile.writeLog('trade',
+          address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Error ' + body.error);
+        resolve(0);
+      } else {
+        logToFile.writeLog('trade',
+          address + ' ' + tokenBuy + ' ' + tokenSell + ' ' + amountBuy + ' ' + amountSell + ' Success.');
+        console.log('Success sending order', {
+          tokenBuy: tokenBuy,
+          amountBuy: amountBuy,
+          tokenSell: tokenSell,
+          amountSell: amountSell,
+          address: address,
+          nonce: nonce,
+          expires: expires,
+          txLeader: orderDetail.leader_tx_hash,
+        });
+        await order.insertNewOrder(newOrder);
+        resolve(1);
+      }
+    });
+  }
+  return await connect();
 };
 
 idex.withdraw = async function withdraw(provider, token, amount) {

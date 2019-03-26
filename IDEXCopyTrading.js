@@ -53,7 +53,13 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
       follower: follower,
       leader_tx_hash: txHash,
     };
-    await idex.sendOrder(mappedAddressProvider, order, follower, msg);
+    await idex.sendOrder(mappedAddressProvider, order).then((respond) => {
+      if (respond) {
+        msg = msg + `\nFollowing your leader, your order is placing.`;
+        let title = `Leader Transaction`;
+        push.sendMsgToUser(follower, title, msg);
+      }
+    });
 
   } else {
     let tokenTakerInMsg = await hgetAsync('tokenMap:' + tokenTaker, 'token');

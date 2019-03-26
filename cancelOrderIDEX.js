@@ -57,8 +57,6 @@ async function main(orderHash, id, walletAddress) {
     }
     else if (status === 'complete'){
       await order.updateCancelOrder('0', id);
-      let title = `CopyTrading Completed !`;
-      push.sendMsgToUser(walletAddress, title, msg);
     }
     else {
       console.log('not handle')
