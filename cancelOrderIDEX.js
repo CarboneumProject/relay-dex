@@ -41,9 +41,9 @@ async function main(orderHash, id, walletAddress) {
 
 
 
-    let msg = `Order: Buy ${tokenBuy} ${amountNetBuyInMsg} by ${amountNetSellInMsg} ${tokenSell} ${ext}`;
+    let msg = `Order: Buy ${tokenBuy} ${amountNetBuyInMsg} by ${amountNetSellInMsg} ${tokenSell}`;
     if (tokenSell !== 'ETH') {
-      msg = `Order: Sell ${amountNetSellInMsg} ${tokenSell} for ${amountNetBuyInMsg} ${tokenBuy} ${ext}`;
+      msg = `Order: Sell ${amountNetSellInMsg} ${tokenSell} for ${amountNetBuyInMsg} ${tokenBuy}`;
     }
 
     let timestampNow = Math.round(new Date().getTime() / 1000);
