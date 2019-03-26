@@ -254,6 +254,18 @@ idex.getNextNonce = async function getNextNonce(address) {
   return await rp(nextNonce);
 };
 
+idex.getCompleteBalance = async function getCompleteBalance(address) {
+  const nextNonce = await {
+    method: 'POST',
+    url: network.IDEX_API_BASE_URL + '/returnCompleteBalances',
+    json:
+      {
+        address: address,
+      },
+  };
+  return await rp(nextNonce);
+};
+
 idex.getC8LastPrice = async function getC8LastPrice(tokenPair) {
   const lastPrice = await {
     method: 'POST',

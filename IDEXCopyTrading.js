@@ -52,9 +52,14 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
 
   } else {
     let tokenTakerInMsg = await hgetAsync('tokenMap:' + tokenTaker, 'token');
-    let title = `Leader Transaction`;
-    msg = msg + `\nYour balance of ${tokenTakerInMsg} in Copytrade Wallet is not enough.`;
-    push.sendMsgToUser(follower, title, msg);
+    let obj =  await idex.getCompleteBalance(followerWallet);
+    Object.entries(obj).forEach(([key]) => {
+      if (key === tokenTakerInMsg){
+        let title = `Leader Transaction`;
+        msg = msg + `\nYour balance of ${tokenTakerInMsg} in Copytrade Wallet is not enough.`;
+        push.sendMsgToUser(follower, title, msg);
+      }
+    });
   }
   mappedAddressProvider.engine.stop();
 }
