@@ -266,6 +266,26 @@ idex.getCompleteBalance = async function getCompleteBalance(address) {
   return await rp(nextNonce);
 };
 
+idex.getTokenBalance = async function getTokenBalance(tokenName, address) {
+  return new Promise(async function (resolve, reject) {
+    const nextNonce = await {
+      method: 'POST',
+      url: network.IDEX_API_BASE_URL + '/returnBalances',
+      json:
+        {
+          address: address,
+        },
+    };
+    let obj = await rp(nextNonce);
+    Object.entries(obj).forEach(([key, value]) => {
+      if (key === tokenName) {
+        resolve(obj[tokenName]);
+      }
+    });
+    resolve(0);
+  });
+};
+
 idex.getC8LastPrice = async function getC8LastPrice(tokenPair) {
   const lastPrice = await {
     method: 'POST',

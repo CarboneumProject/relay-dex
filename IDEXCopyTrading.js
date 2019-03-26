@@ -37,8 +37,13 @@ let contractAddress_IDEX_1 = network.IDEX_exchange;
 async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker, amountNet, txHash, msg) {
   let mappedAddressProvider = relayWallet.getUserWalletProvider(follower);
   let followerWallet = mappedAddressProvider.addresses[0];
-  let volAbleTrade = await idex.balance(tokenTaker, followerWallet);
-  if (volAbleTrade >= parseInt(amountNet)) {
+
+  let tokenTakerDecimals = await hgetAsync('tokenMap:' + tokenTaker, 'decimals');
+  let tokenSymbol = await hgetAsync('tokenMap:' + tokenTaker, 'token');
+  let amount = amountNet / Math.pow(10, tokenTakerDecimals);
+
+  let volAbleTrade = await idex.getTokenBalance(tokenSymbol.toUpperCase(), followerWallet);
+  if (volAbleTrade > amount) {
     let order = {
       tokenMaker: tokenMaker,
       tokenTaker: tokenTaker,
