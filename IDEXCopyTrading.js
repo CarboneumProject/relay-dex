@@ -34,7 +34,7 @@ const BENCHMARK_ALLOWANCE_C8 = new BigNumber(10 ** 18).mul(10000);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 
-async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker, amountNet, txHash) {
+async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker, amountNet, txHash, msg) {
   let mappedAddressProvider = relayWallet.getUserWalletProvider(follower);
   let followerWallet = mappedAddressProvider.addresses[0];
   let volAbleTrade = await idex.balance(tokenTaker, followerWallet);
@@ -48,7 +48,13 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
       follower: follower,
       leader_tx_hash: txHash,
     };
-    await idex.sendOrder(mappedAddressProvider, order);
+    await idex.sendOrder(mappedAddressProvider, order, follower, msg);
+
+  } else {
+    let tokenTakerInMsg = await hgetAsync('tokenMap:' + tokenTaker, 'token');
+    let title = `Leader Transaction`;
+    msg = msg + `\nYour balance of ${tokenTakerInMsg} in Copytrade Wallet is not enough.`;
+    push.sendMsgToUser(follower, title, msg);
   }
   mappedAddressProvider.engine.stop();
 }
@@ -172,7 +178,7 @@ async function watchIDEXTransfers(blockNumber) {
                           ext = `\nFee ${totalFee} C8`;
                         }
 
-                        let msg = `[BUY] ${amountNetBuyInMsg} ${tokenBuyInMsg} by ${amountNetSellInMsg} ${tokenSellInMsg}  ${ext}`;
+                        let msg = `Order: BUY ${amountNetBuyInMsg} ${tokenBuyInMsg} by ${amountNetSellInMsg} ${tokenSellInMsg}  ${ext}`;
                         push.sendTradeNotification(maker_token, taker_token, amount_maker, amount_taker, copyOrder.leader, copyOrder.follower, msg);
                       } else if (maker_token === '0x0000000000000000000000000000000000000000') {
 
@@ -218,10 +224,20 @@ async function watchIDEXTransfers(blockNumber) {
                           ext = `\nFee ${totalFee} C8`;
                         }
 
-                        let msg = `[SELL] ${amountNetSellInMsg} ${tokenSellInMsg} for ${amountNetBuyInMsg} ${tokenBuyInMsg} ${ext}`;
+                        let msg = `Order: SELL ${amountNetSellInMsg} ${tokenSellInMsg} for ${amountNetBuyInMsg} ${tokenBuyInMsg} ${ext}`;
                         push.sendTradeNotification(maker_token, taker_token, amount_maker, amount_taker, copyOrder.leader, copyOrder.follower, msg);
                       }
                     } else {
+
+                      let tokenBuyInMsg = await hgetAsync('tokenMap:' + tokenBuy, 'token');
+                      let tokenSellInMsg = await hgetAsync('tokenMap:' + tokenSell, 'token');
+                      let tokenBuyDecimals = await hgetAsync('tokenMap:' + tokenBuy, 'decimals');
+                      let tokenSellDecimals = await hgetAsync('tokenMap:' + tokenSell, 'decimals');
+                      let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals);
+                      let repeatDecimalSell = '0'.repeat(tokenSellDecimals);
+                      let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.[${repeatDecimalBuy}]`);
+                      let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.[${repeatDecimalSell}]`);
+
                       client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                         if (follow_dict !== null) {
                           await Object.keys(follow_dict).forEach(async function (follower) {
@@ -235,6 +251,11 @@ async function watchIDEXTransfers(blockNumber) {
                             provider.engine.stop();
 
                             if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
+                              let msg = `Order: Buy ${amountNetBuyInMsg} ${tokenBuyInMsg} by ${amountNetSellInMsg} ${tokenSellInMsg}`;
+                              if (tokenSellInMsg !== 'ETH') {
+                                msg = `Order: Sell ${amountNetSellInMsg} ${tokenSellInMsg} for ${amountNetBuyInMsg} ${tokenBuyInMsg}`;
+                              }
+
                               await processCopyTrade(
                                 maker,
                                 follower,
@@ -243,7 +264,8 @@ async function watchIDEXTransfers(blockNumber) {
                                 amountNetBuy,
                                 amountNetSell,
                                 amountNetSell,
-                                txHash);
+                                txHash,
+                                msg);
                             } else {
                               //Inform user to Adjust allowance
                               let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
@@ -265,6 +287,11 @@ async function watchIDEXTransfers(blockNumber) {
                             );
                             provider.engine.stop();
                             if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
+                              let msg = `Order: Buy ${amountNetSellInMsg} ${tokenSellInMsg} by ${amountNetBuyInMsg} ${tokenBuyInMsg}`;
+                              if (tokenBuyInMsg !== 'ETH') {
+                                msg = `Order: Sell ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg}`;
+                              }
+
                               await processCopyTrade(
                                 taker,
                                 follower,
@@ -273,7 +300,8 @@ async function watchIDEXTransfers(blockNumber) {
                                 amountNetSell,
                                 amountNetBuy,
                                 amountNetBuy,
-                                txHash);
+                                txHash,
+                                msg);
                             } else {
                               //Inform user to Adjust allowance
                               let msg = `Please adjust allowance of C8 for be able to transfer a token.`;

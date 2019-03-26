@@ -1,6 +1,8 @@
 const order = require('./models/order');
 const idex = require('./models/idex');
 const relayWallet = require('./models/relayWallet');
+const push = require('./models/push');
+const numeral = require('numeral');
 
 const RANGETIMESTAMP = 8 * 60 * 60; // 8 hour (28,800 sec)
 async function getOrder() {
@@ -26,19 +28,37 @@ async function main(orderHash, id, walletAddress) {
     let timestampOrder = ordered.timestamp;
     let nonce = ordered.params.nonce;
 
+    let tokenBuy = ordered.params.buySymbol;
+    let tokenSell = ordered.params.sellSymbol;
+    let amountNetBuy = ordered.params.amountBuy;
+    let amountNetSell = ordered.params.amountSell;
+    let tokenBuyDecimals = ordered.params.buyPrecision;
+    let tokenSellDecimals = ordered.params.sellPrecision;
+    let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals);
+    let repeatDecimalSell = '0'.repeat(tokenSellDecimals);
+    let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.[${repeatDecimalBuy}]`);
+    let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.[${repeatDecimalSell}]`);
+
+
+
+    let msg = `Order: Buy ${tokenBuy} ${amountNetBuyInMsg} by ${amountNetSellInMsg} ${tokenSell} ${ext}`;
+    if (tokenSell !== 'ETH') {
+      msg = `Order: Sell ${amountNetSellInMsg} ${tokenSell} for ${amountNetBuyInMsg} ${tokenBuy} ${ext}`;
+    }
 
     let timestampNow = Math.round(new Date().getTime()/1000);
     if (status === 'open') {
       if (timestampNow - timestampOrder > RANGETIMESTAMP) {
-        idex.cancelOrder(mappedAddressProvider, orderHash, nonce, id);
+        idex.cancelOrder(mappedAddressProvider, orderHash, nonce, id, walletAddress, msg);
         mappedAddressProvider.engine.stop()
-
       }
     } else if (status === 'cancelled'){
       await order.updateCancelOrder('1', id);
     }
     else if (status === 'complete'){
       await order.updateCancelOrder('0', id);
+      let title = `CopyTrading Completed !`;
+      push.sendMsgToUser(walletAddress, title, msg);
     }
     else {
       console.log('not handle')

@@ -19,6 +19,7 @@ const useRedis = require('../models/useRedis');
 const relayWallet = require('../models/relayWallet');
 const logToFile = require("../models/logToFile");
 const order = require('../models/order');
+const push = require('../models/push');
 
 const network = config.getNetwork();
 
@@ -281,7 +282,7 @@ idex.getOrderStatus = async function getOrderStatus(orderHash){
 }
 };
 
-idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id){
+idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id, walletAddress, msg){
   let address = provider.addresses[0];
   let privateKeyBuffer = provider.wallets[address]['_privKey'];
 
@@ -318,12 +319,15 @@ idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id){
     if (body.hasOwnProperty('error')) {
       console.log(' Error ' + body.error);
     } else {
-      await order.updateCancelOrder('1', id)
+      await order.updateCancelOrder('1', id);
+      let title = `Cancelled Order`;
+      msg = msg + `\nYour order has been cancelled.`;
+      push.sendMsgToUser(walletAddress, title, msg);
     }
   });
 };
 
-idex.sendOrder = async function sendOrder(provider, orderDetail) {
+idex.sendOrder = async function sendOrder(provider, orderDetail, walletAddress, msg) {
 
   let tokenBuy = orderDetail.tokenMaker;
   let tokenSell = orderDetail.tokenTaker;
@@ -408,6 +412,11 @@ idex.sendOrder = async function sendOrder(provider, orderDetail) {
         txLeader: orderDetail.leader_tx_hash,
       });
       await order.insertNewOrder(newOrder);
+
+      msg = msg + `\nFollowing your leader, your order is placing.`;
+      let title = `Leader Transaction`;
+      push.sendMsgToUser(walletAddress, title, msg);
+
     }
   });
   return bufferToHex(toBuffer(raw));
