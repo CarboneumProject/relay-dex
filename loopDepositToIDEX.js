@@ -74,7 +74,7 @@ function watchDepositedToLinkWallet() {
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
                       }
                       else {
-                        if (allowance <= MAX_ALLOWANCE / 2) {
+                        if ((new BigNumber(allowance)).lte((new BigNumber(MAX_ALLOWANCE)).div(2))) {
                           erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then((respond) => {
                             if (typeof respond === 'object') {
                               idex.depositToken(mappedAddressProvider, tokenAddress, wei).then(async (respond) => {

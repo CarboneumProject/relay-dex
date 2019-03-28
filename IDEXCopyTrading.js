@@ -201,7 +201,7 @@ async function watchIDEXTransfers(blockNumber) {
 
                         let sumFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD));
                         let ext = ``;
-                        if (sumFee > new BigNumber(0)) {
+                        if (sumFee.gt(0)) {
                           sumFee = sumFee.div(10 ** c8Decimals);
                           let totalFee = numeral(sumFee).format(`0,0.0000[${repeatDecimalC8}]`);
                           ext = `\nFee ${totalFee} C8`;
@@ -247,7 +247,7 @@ async function watchIDEXTransfers(blockNumber) {
                         //push msg to user
                         let sumFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD));
                         let ext = ``;
-                        if (sumFee > new BigNumber(0)) {
+                        if (sumFee.gt(0)) {
                           sumFee = sumFee.div(10 ** c8Decimals);
                           let totalFee = numeral(sumFee).format(`0,0.0000[${repeatDecimalC8}]`);
                           ext = `\nFee ${totalFee} C8`;
