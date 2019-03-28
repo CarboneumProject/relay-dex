@@ -31,6 +31,7 @@ const infuraProvider = network => providerWithMnemonic(
 );
 
 const BENCHMARK_ALLOWANCE_C8 = new BigNumber(10 ** 18).mul(10000);
+const BENCHMARK_BALANCE_C8 = new BigNumber(10 ** 18).mul(888);
 
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 
@@ -277,28 +278,34 @@ async function watchIDEXTransfers(blockNumber) {
                               follower,
                               network.socialtrading, //spender address
                             );
+                            let c8Balance = await erc20.balance(provider, network.carboneum, follower);
                             provider.engine.stop();
+                            if (BigNumber(c8Balance) >= BENCHMARK_BALANCE_C8) {
+                              if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
+                                let msg = `Order: Buy ${amountNetBuyInMsg} ${tokenBuyInMsg} by ${amountNetSellInMsg} ${tokenSellInMsg}`;
+                                if (tokenSellInMsg !== 'ETH') {
+                                  msg = `Order: Sell ${amountNetSellInMsg} ${tokenSellInMsg} for ${amountNetBuyInMsg} ${tokenBuyInMsg}`;
+                                }
 
-                            if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
-                              let msg = `Order: Buy ${amountNetBuyInMsg} ${tokenBuyInMsg} by ${amountNetSellInMsg} ${tokenSellInMsg}`;
-                              if (tokenSellInMsg !== 'ETH') {
-                                msg = `Order: Sell ${amountNetSellInMsg} ${tokenSellInMsg} for ${amountNetBuyInMsg} ${tokenBuyInMsg}`;
+                                await processCopyTrade(
+                                  maker,
+                                  follower,
+                                  tokenBuy,
+                                  tokenSell,
+                                  amountNetBuy,
+                                  amountNetSell,
+                                  amountNetSell,
+                                  txHash,
+                                  msg);
+                              } else {
+                                //Inform user to Adjust allowance
+                                let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
+                                push.sendAdjustC8Allowance(copyOrder.follower, msg);
                               }
-
-                              await processCopyTrade(
-                                maker,
-                                follower,
-                                tokenBuy,
-                                tokenSell,
-                                amountNetBuy,
-                                amountNetSell,
-                                amountNetSell,
-                                txHash,
-                                msg);
                             } else {
-                              //Inform user to Adjust allowance
-                              let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
-                              push.sendAdjustC8Allowance(copyOrder.follower, msg);
+                              let msg = `Copytrading on CarbonRadars requires minimum 888 C8 in "My Wallet".`;
+                              let title = `Insufficient C8 token`;
+                              push.sendMsgToUser(follower, title, msg);
                             }
                           });
                         }
@@ -314,27 +321,35 @@ async function watchIDEXTransfers(blockNumber) {
                               follower,
                               network.socialtrading, //spender address
                             );
+                            let c8Balance = await erc20.balance(provider, network.carboneum, follower);
                             provider.engine.stop();
-                            if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
-                              let msg = `Order: Buy ${amountNetSellInMsg} ${tokenSellInMsg} by ${amountNetBuyInMsg} ${tokenBuyInMsg}`;
-                              if (tokenBuyInMsg !== 'ETH') {
-                                msg = `Order: Sell ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg}`;
-                              }
+                            if (BigNumber(c8Balance) >= BENCHMARK_BALANCE_C8) {
 
-                              await processCopyTrade(
-                                taker,
-                                follower,
-                                tokenSell,
-                                tokenBuy,
-                                amountNetSell,
-                                amountNetBuy,
-                                amountNetBuy,
-                                txHash,
-                                msg);
+                              if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
+                                let msg = `Order: Buy ${amountNetSellInMsg} ${tokenSellInMsg} by ${amountNetBuyInMsg} ${tokenBuyInMsg}`;
+                                if (tokenBuyInMsg !== 'ETH') {
+                                  msg = `Order: Sell ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg}`;
+                                }
+
+                                await processCopyTrade(
+                                  taker,
+                                  follower,
+                                  tokenSell,
+                                  tokenBuy,
+                                  amountNetSell,
+                                  amountNetBuy,
+                                  amountNetBuy,
+                                  txHash,
+                                  msg);
+                              } else {
+                                //Inform user to Adjust allowance
+                                let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
+                                push.sendAdjustC8Allowance(copyOrder.follower, msg);
+                              }
                             } else {
-                              //Inform user to Adjust allowance
-                              let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
-                              push.sendAdjustC8Allowance(copyOrder.follower, msg);
+                              let msg = `Copytrading on CarbonRadars requires minimum 888 C8 in "My Wallet".`;
+                              let title = `Insufficient C8 token`;
+                              push.sendMsgToUser(follower, title, msg);
                             }
                           });
                         }

@@ -50,6 +50,20 @@ erc20.allowance = async function allowance(provider, tokenAddress, owner, spende
   }
 };
 
+erc20.balance = async function balance(provider, tokenAddress, owner) {
+  try {
+    let web3Sign = new Web3(provider);
+    let erc20ContractSign = new web3Sign.eth.Contract(
+      erc20_abi,
+      tokenAddress,
+    );
+    return await erc20ContractSign.methods.balanceOf(owner).call();
+  } catch (error) {
+    console.log(error, ' error');
+    return 0;
+  }
+};
+
 erc20.etherTokenAddress = '0x0000000000000000000000000000000000000000';
 
 module.exports = erc20;
