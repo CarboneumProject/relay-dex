@@ -2,7 +2,8 @@ const order = require('./models/order');
 const idex = require('./models/idex');
 const relayWallet = require('./models/relayWallet');
 const push = require('./models/push');
-const numeral = require('numeral');
+const utils = require('./models/utils');
+
 
 const RANGETIMESTAMP = 60 * 60; // 1 hour (3,600 sec)
 async function getOrder() {
@@ -37,10 +38,9 @@ async function main(orderHash, id, walletAddress) {
     let amountNetSell = ordered.params.amountSell;
     let tokenBuyDecimals = ordered.params.buyPrecision;
     let tokenSellDecimals = ordered.params.sellPrecision;
-    let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals - 4);
-    let repeatDecimalSell = '0'.repeat(tokenSellDecimals - 4);
-    let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.0000[${repeatDecimalBuy}]`);
-    let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.0000[${repeatDecimalSell}]`);
+
+    let amountNetBuyInMsg = utils.decimalFormat(tokenBuyDecimals, amountNetBuy);
+    let amountNetSellInMsg = utils.decimalFormat(tokenSellDecimals, amountNetSell);
 
 
 

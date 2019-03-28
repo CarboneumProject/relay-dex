@@ -16,6 +16,7 @@ const {promisify} = require('util');
 const hgetAsync = promisify(client.hget).bind(client);
 const BigNumber = require('bignumber.js');
 const numeral = require('numeral');
+const utils = require('./models/utils');
 const push = require('./models/push');
 const erc20 = require('./models/erc20');
 const feeProcessor = require('./models/feeProcessor');
@@ -179,10 +180,9 @@ async function watchIDEXTransfers(blockNumber) {
                       let tokenSellInMsg = await hgetAsync('tokenMap:' + taker_token, 'token');
                       let tokenBuyDecimals = await hgetAsync('tokenMap:' + maker_token, 'decimals');
                       let tokenSellDecimals = await hgetAsync('tokenMap:' + taker_token, 'decimals');
-                      let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals - 4);
-                      let repeatDecimalSell = '0'.repeat(tokenSellDecimals - 4);
-                      let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.0000[${repeatDecimalBuy}]`);
-                      let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.0000[${repeatDecimalSell}]`);
+
+                      let amountNetBuyInMsg = utils.decimalFormat(tokenBuyDecimals, amountNetBuy);
+                      let amountNetSellInMsg = utils.decimalFormat(tokenSellDecimals, amountNetSell);
 
                       if (taker_token === '0x0000000000000000000000000000000000000000') {
                         await Trade.insertNewTrade(trade);
@@ -262,10 +262,9 @@ async function watchIDEXTransfers(blockNumber) {
                       let tokenSellInMsg = await hgetAsync('tokenMap:' + tokenSell, 'token');
                       let tokenBuyDecimals = await hgetAsync('tokenMap:' + tokenBuy, 'decimals');
                       let tokenSellDecimals = await hgetAsync('tokenMap:' + tokenSell, 'decimals');
-                      let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals - 4);
-                      let repeatDecimalSell = '0'.repeat(tokenSellDecimals - 4);
-                      let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.0000[${repeatDecimalBuy}]`);
-                      let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.0000[${repeatDecimalSell}]`);
+
+                      let amountNetBuyInMsg = utils.decimalFormat(tokenBuyDecimals, amountNetBuy);
+                      let amountNetSellInMsg = utils.decimalFormat(tokenSellDecimals, amountNetSell);
 
                       client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                         if (follow_dict !== null) {

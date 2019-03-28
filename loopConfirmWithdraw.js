@@ -13,7 +13,7 @@ const abi = require('./abi/IDEX/exchange.json');
 const abiDecoder = require('abi-decoder');
 abiDecoder.addABI(abi);
 
-const numeral = require('numeral');
+const utils = require('./models/utils');
 
 const config = require('./config');
 const network = config.getNetwork();
@@ -60,8 +60,7 @@ function watchDepositedToLinkWallet() {
                           logToFile.writeLog('withdrawFromLinkedWallet', withdrawHash + ' ' + txHash + ' ' + walletAddress + ' ' + transactionHash);
                         }
                       });
-
-                    let amountETH = numeral(amountNet / Math.pow(10, 18)).format(`0,0.0000[00000000000000]`);
+                    let amountETH = utils.decimalFormat(18, amountNet);
                     let title = `Withdraw successful`;
                     let msg = `${amountETH} ETH`;
 
@@ -93,8 +92,7 @@ function watchDepositedToLinkWallet() {
 
                         let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
                         let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
-                        let repeatDecimal = '0'.repeat(tokenDecimals - 4);
-                        let amountToken = numeral(amountNet / Math.pow(10, tokenDecimals)).format(`0,0.0000[${repeatDecimal}]`);
+                        let amountToken = utils.decimalFormat(tokenDecimals, amountNet);
 
                         let msg = `${amountToken} ${tokenName}`;
                         let title = `Withdraw successful`;
