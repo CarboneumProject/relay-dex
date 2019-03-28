@@ -4,7 +4,7 @@ const relayWallet = require('./models/relayWallet');
 const push = require('./models/push');
 const numeral = require('numeral');
 
-const RANGETIMESTAMP = 8 * 60 * 60; // 8 hour (28,800 sec)
+const RANGETIMESTAMP = 60 * 60; // 1 hour (3,600 sec)
 async function getOrder() {
   const delay = ms => new Promise(res => setTimeout(res, ms));
   let orderHash = await order.getOrderhashForCancel();
