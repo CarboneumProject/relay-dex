@@ -88,17 +88,19 @@ function watchDepositedToLinkWallet() {
                         updateAmounts.forEach(async function (order) {
                           await Trade.updateAmountLeft(order.amountLeft, order.orderId);
                         });
+
+                        let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
+                        let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
+                        let repeatDecimal = '0'.repeat(tokenDecimals);
+                        let amountToken = numeral(amountNet / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
+
+                        let msg = `${amountToken} ${tokenName}`;
+                        let title = `Withdraw successful`;
+
+                        push.sendMsgToUser(walletAddress, title, msg);
                       }
                     });
 
-                    let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
-                    let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
-                    let repeatDecimal = '0'.repeat(tokenDecimals);
-                    let amountToken = numeral(amountNet / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
-
-                    let msg = `${amountToken} ${tokenName}`;
-                    let title = `Withdraw successful`;
-                    push.sendMsgToUser(walletAddress, title, msg);
                     w3.currentProvider.engine.stop();
                   }
                 }
