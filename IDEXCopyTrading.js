@@ -279,8 +279,8 @@ async function watchIDEXTransfers(blockNumber) {
                             );
                             let c8Balance = await erc20.balance(provider, network.carboneum, follower);
                             provider.engine.stop();
-                            if (new BigNumber(c8Balance) > 0) {
-                              if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
+                            if ((new BigNumber(c8Balance)).gt(0)) {
+                              if ((new BigNumber(allowance)).gt(BENCHMARK_ALLOWANCE_C8)) {
                                 let msg = `Order: Buy ${amountNetBuyInMsg} ${tokenBuyInMsg} by ${amountNetSellInMsg} ${tokenSellInMsg}`;
                                 if (tokenSellInMsg !== 'ETH') {
                                   msg = `Order: Sell ${amountNetSellInMsg} ${tokenSellInMsg} for ${amountNetBuyInMsg} ${tokenBuyInMsg}`;
@@ -322,9 +322,8 @@ async function watchIDEXTransfers(blockNumber) {
                             );
                             let c8Balance = await erc20.balance(provider, network.carboneum, follower);
                             provider.engine.stop();
-                            if (new BigNumber(c8Balance) > 0) {
-
-                              if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
+                            if ((new BigNumber(c8Balance)).gt(0)) {
+                              if ((new BigNumber(allowance)).gt(BENCHMARK_ALLOWANCE_C8)) {
                                 let msg = `Order: Buy ${amountNetSellInMsg} ${tokenSellInMsg} by ${amountNetBuyInMsg} ${tokenBuyInMsg}`;
                                 if (tokenBuyInMsg !== 'ETH') {
                                   msg = `Order: Sell ${amountNetBuyInMsg} ${tokenBuyInMsg} for ${amountNetSellInMsg} ${tokenSellInMsg}`;
