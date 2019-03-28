@@ -280,7 +280,7 @@ async function watchIDEXTransfers(blockNumber) {
                             );
                             let c8Balance = await erc20.balance(provider, network.carboneum, follower);
                             provider.engine.stop();
-                            if (BigNumber(c8Balance) >= BENCHMARK_BALANCE_C8) {
+                            if (new BigNumber(c8Balance) >= BENCHMARK_BALANCE_C8) {
                               if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
                                 let msg = `Order: Buy ${amountNetBuyInMsg} ${tokenBuyInMsg} by ${amountNetSellInMsg} ${tokenSellInMsg}`;
                                 if (tokenSellInMsg !== 'ETH') {
@@ -323,7 +323,7 @@ async function watchIDEXTransfers(blockNumber) {
                             );
                             let c8Balance = await erc20.balance(provider, network.carboneum, follower);
                             provider.engine.stop();
-                            if (BigNumber(c8Balance) >= BENCHMARK_BALANCE_C8) {
+                            if (new BigNumber(c8Balance) >= BENCHMARK_BALANCE_C8) {
 
                               if (new BigNumber(allowance) > BENCHMARK_ALLOWANCE_C8) {
                                 let msg = `Order: Buy ${amountNetSellInMsg} ${tokenSellInMsg} by ${amountNetBuyInMsg} ${tokenBuyInMsg}`;
