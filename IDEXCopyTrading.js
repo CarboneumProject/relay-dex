@@ -179,10 +179,10 @@ async function watchIDEXTransfers(blockNumber) {
                       let tokenSellInMsg = await hgetAsync('tokenMap:' + taker_token, 'token');
                       let tokenBuyDecimals = await hgetAsync('tokenMap:' + maker_token, 'decimals');
                       let tokenSellDecimals = await hgetAsync('tokenMap:' + taker_token, 'decimals');
-                      let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals);
-                      let repeatDecimalSell = '0'.repeat(tokenSellDecimals);
-                      let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.[${repeatDecimalBuy}]`);
-                      let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.[${repeatDecimalSell}]`);
+                      let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals - 4);
+                      let repeatDecimalSell = '0'.repeat(tokenSellDecimals - 4);
+                      let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.0000[${repeatDecimalBuy}]`);
+                      let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.0000[${repeatDecimalSell}]`);
 
                       if (taker_token === '0x0000000000000000000000000000000000000000') {
                         await Trade.insertNewTrade(trade);
@@ -197,13 +197,13 @@ async function watchIDEXTransfers(blockNumber) {
 
                         //push msg to user
                         let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
-                        let repeatDecimalC8 = '0'.repeat(c8Decimals);
+                        let repeatDecimalC8 = '0'.repeat(c8Decimals - 4);
 
                         let sumFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD));
                         let ext = ``;
                         if (sumFee > new BigNumber(0)) {
                           sumFee = sumFee.div(10 ** c8Decimals);
-                          let totalFee = numeral(sumFee).format(`0,0.[${repeatDecimalC8}]`);
+                          let totalFee = numeral(sumFee).format(`0,0.0000[${repeatDecimalC8}]`);
                           ext = `\nFee ${totalFee} C8`;
                         }
 
@@ -226,7 +226,7 @@ async function watchIDEXTransfers(blockNumber) {
                         let c8LastPrice = await idex.getC8LastPrice('ETH_C8');  // 1 C8 = x ETH
                         c8LastPrice = new BigNumber(c8LastPrice);
                         let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
-                        let repeatDecimalC8 = '0'.repeat(c8Decimals);
+                        let repeatDecimalC8 = '0'.repeat(c8Decimals - 4);
                         let returnObj = await feeProcessor.percentageFee(openTrades, copyOrder, closeTrade, c8LastPrice);
 
                         //update db
@@ -249,7 +249,7 @@ async function watchIDEXTransfers(blockNumber) {
                         let ext = ``;
                         if (sumFee > new BigNumber(0)) {
                           sumFee = sumFee.div(10 ** c8Decimals);
-                          let totalFee = numeral(sumFee).format(`0,0.[${repeatDecimalC8}]`);
+                          let totalFee = numeral(sumFee).format(`0,0.0000[${repeatDecimalC8}]`);
                           ext = `\nFee ${totalFee} C8`;
                         }
 
@@ -262,10 +262,10 @@ async function watchIDEXTransfers(blockNumber) {
                       let tokenSellInMsg = await hgetAsync('tokenMap:' + tokenSell, 'token');
                       let tokenBuyDecimals = await hgetAsync('tokenMap:' + tokenBuy, 'decimals');
                       let tokenSellDecimals = await hgetAsync('tokenMap:' + tokenSell, 'decimals');
-                      let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals);
-                      let repeatDecimalSell = '0'.repeat(tokenSellDecimals);
-                      let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.[${repeatDecimalBuy}]`);
-                      let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.[${repeatDecimalSell}]`);
+                      let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals - 4);
+                      let repeatDecimalSell = '0'.repeat(tokenSellDecimals - 4);
+                      let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.0000[${repeatDecimalBuy}]`);
+                      let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.0000[${repeatDecimalSell}]`);
 
                       client.hgetall('leader:' + maker, async function (err, follow_dict) {   // maker is sell __, buy ETH
                         if (follow_dict !== null) {

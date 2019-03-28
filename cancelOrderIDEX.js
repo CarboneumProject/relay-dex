@@ -37,10 +37,10 @@ async function main(orderHash, id, walletAddress) {
     let amountNetSell = ordered.params.amountSell;
     let tokenBuyDecimals = ordered.params.buyPrecision;
     let tokenSellDecimals = ordered.params.sellPrecision;
-    let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals);
-    let repeatDecimalSell = '0'.repeat(tokenSellDecimals);
-    let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.[${repeatDecimalBuy}]`);
-    let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.[${repeatDecimalSell}]`);
+    let repeatDecimalBuy = '0'.repeat(tokenBuyDecimals - 4);
+    let repeatDecimalSell = '0'.repeat(tokenSellDecimals - 4);
+    let amountNetBuyInMsg = numeral(amountNetBuy / Math.pow(10, tokenBuyDecimals)).format(`0,0.0000[${repeatDecimalBuy}]`);
+    let amountNetSellInMsg = numeral(amountNetSell / Math.pow(10, tokenSellDecimals)).format(`0,0.0000[${repeatDecimalSell}]`);
 
 
 

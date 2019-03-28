@@ -61,7 +61,7 @@ function watchDepositedToLinkWallet() {
                         }
                       });
 
-                    let amountETH = numeral(amountNet / Math.pow(10, 18)).format(`0,0.[000000000000000000]`);
+                    let amountETH = numeral(amountNet / Math.pow(10, 18)).format(`0,0.0000[00000000000000]`);
                     let title = `Withdraw successful`;
                     let msg = `${amountETH} ETH`;
 
@@ -93,8 +93,8 @@ function watchDepositedToLinkWallet() {
 
                         let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
                         let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
-                        let repeatDecimal = '0'.repeat(tokenDecimals);
-                        let amountToken = numeral(amountNet / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
+                        let repeatDecimal = '0'.repeat(tokenDecimals - 4);
+                        let amountToken = numeral(amountNet / Math.pow(10, tokenDecimals)).format(`0,0.0000[${repeatDecimal}]`);
 
                         let msg = `${amountToken} ${tokenName}`;
                         let title = `Withdraw successful`;
