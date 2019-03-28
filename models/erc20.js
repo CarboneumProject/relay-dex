@@ -9,11 +9,12 @@ erc20.transfer = async function transfer(provider, tokenAddress, to, value) {
     erc20_abi,
     tokenAddress,
   );
+  let gasPrice = await web3Sign.eth.getGasPrice();
   return await erc20ContractSign.methods.transfer(to, value).send({
     from: provider.addresses[0],
     value: 0,
     gasLimit: 210000,
-    gasPrice: await web3Sign.eth.getGasPrice()
+    gasPrice: gasPrice
   });
 };
 
@@ -24,11 +25,12 @@ erc20.approve = async function approve(provider, tokenAddress, spender, value) {
       erc20_abi,
       tokenAddress,
     );
+    let gasPrice = await web3Sign.eth.getGasPrice()
     return await erc20ContractSign.methods.approve(spender, value).send({
       from: provider.addresses[0],
       value: 0,
       gasLimit: 210000,
-      gasPrice: await web3Sign.eth.getGasPrice()
+      gasPrice: gasPrice
     });
   } catch (error) {
     console.log(error, ' error');

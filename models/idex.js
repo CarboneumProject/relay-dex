@@ -112,15 +112,24 @@ idex.depositEth = async function depositEth(provider, wei) {
       IDEX_abi,
       network.IDEX_exchange,
     );
-    return await idexContractSign.methods.deposit().send({
-      from: provider.addresses[0],
-      value: wei,
-      gasLimit: 90000,
-      gasPrice: await web3Sign.eth.getGasPrice()
+    let gasPrice = await web3Sign.eth.getGasPrice();
+    return await new Promise(async function (resolve, reject) {
+      await idexContractSign.methods.deposit().send({
+        from: provider.addresses[0],
+        value: wei,
+        gasLimit: 90000,
+        gasPrice: gasPrice
+      }, function (err, transactionHash) {
+        if (!err) {
+          console.log(transactionHash)
+        } else {
+          resolve(0);
+        }
+      }).on('receipt', (receipt) => {resolve(receipt.transactionHash)});
     });
   } catch (error) {
     console.log(error, ' error');
-    return error.message;
+    return 0;
   }
 };
 
@@ -231,11 +240,12 @@ idex.depositToken = async function depositToken(provider, token, amount) {
       IDEX_abi,
       network.IDEX_exchange,
     );
+    let gasPrice = await web3Sign.eth.getGasPrice();
     return await idexContractSign.methods.depositToken(token, amount).send({
       from: provider.addresses[0],
       value: 0,
       gasLimit: 210000,
-      gasPrice: await web3Sign.eth.getGasPrice()
+      gasPrice: gasPrice
     });
   } catch (error) {
     return error.message;

@@ -50,13 +50,19 @@ function watchDepositedToLinkWallet() {
                       amountDeposited =  new BigNumber(amount).toFixed(0);
                     }
 
-                    idex.depositEth(mappedAddressProvider, amountDeposited).then((respond) => {
-                      if (typeof respond === 'object') {
-                        let amountETH = numeral(amountDeposited / Math.pow(10, 18)).format(`0,0.0000[00000000000000]`);
-                        logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ' + amountETH + 'ETH Success.');
-                        let msg = `${amountETH} ETH`;
-                        let title = `Deposit successful`;
-                        push.sendMsgToUser(walletAddress, title, msg);
+                    idex.depositEth(mappedAddressProvider, amountDeposited).then(async (respond) => {
+                      if (respond) {
+                        await web3.eth.getTransactionReceipt(respond).then(async (receipt) => {
+                          if (receipt.status) {
+                            let amountETH = numeral(amountDeposited / Math.pow(10, 18)).format(`0,0.0000[00000000000000]`);
+                            logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ' + amountETH + 'ETH Success.');
+                            let msg = `${amountETH} ETH`;
+                            let title = `Deposit successful`;
+                            push.sendMsgToUser(walletAddress, title, msg);
+                          } else {
+                            useRedis.markFalse(txHash, walletAddress, amountDeposited);
+                          }
+                        });
                       } else {
                         useRedis.saveHash(txHash, walletAddress, amountDeposited);
                         logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ETH Failed.');
