@@ -27,7 +27,7 @@ order.getOrderhashForCancel = async function getOrderhashForCancel () {
   return await mysql.query(`
     SELECT id, follower, order_hash, isCancel
     FROM carboneum.sent_order
-    WHERE TIMESTAMPDIFF(HOUR, order_time,now()) >= 8
+    WHERE TIMESTAMPDIFF(HOUR, order_time,now()) >= 1
       AND isCancel is NULL;
   `);
 };
