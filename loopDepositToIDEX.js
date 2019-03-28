@@ -82,8 +82,8 @@ function watchDepositedToLinkWallet() {
 
                                   let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
                                   let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
-                                  let repeatDecimal = '0'.repeat(tokenDecimals);
-                                  let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.[${repeatDecimal}]`);
+                                  let repeatDecimal = '0'.repeat(tokenDecimals - 4);
+                                  let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.0000[${repeatDecimal}]`);
                                   let msg = `${amountToken} ${tokenName}`;
                                   let title = `Deposit successful`;
                                   logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
