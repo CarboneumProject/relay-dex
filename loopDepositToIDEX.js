@@ -28,6 +28,8 @@ function watchDepositedToLinkWallet() {
       Object.keys(txHash_dict).forEach(function (row) {
         if (parseInt(row) === txHash_dict.length - 1) {
           client.quit();
+          const delay = ms => new Promise(res => setTimeout(res, ms));
+          delay(1000 * 60 * 10).then(()=>{process.exit()});
         }
         let txHash = txHash_dict[row].split('txHash:new:')[1];
         idex.verifyTxHash(txHash).then((res) => {

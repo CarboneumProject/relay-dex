@@ -33,6 +33,8 @@ function watchDepositedToLinkWallet() {
 
         if (parseInt(row) === txHash_dict.length - 1) {
           client.quit();
+          const delay = ms => new Promise(res => setTimeout(res, ms));
+          delay(1000 * 60 * 10).then(()=>{process.exit()});
         }
         let txHash = txHash_dict[row].split('withdrawEvent:new:')[1];
         useRedis.getAmountWithdrawNet(txHash).then(async (amountNet) => {
