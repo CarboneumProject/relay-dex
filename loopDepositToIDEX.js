@@ -29,7 +29,9 @@ function watchDepositedToLinkWallet() {
         if (parseInt(row) === txHash_dict.length - 1) {
           client.quit();
           const delay = ms => new Promise(res => setTimeout(res, ms));
-          delay(1000 * 60 * 10).then(()=>{process.exit()});
+          delay(1000 * 60 * 10).then(() => {
+            process.exit()
+          });
         }
         let txHash = txHash_dict[row].split('txHash:new:')[1];
         idex.verifyTxHash(txHash).then((res) => {
@@ -52,6 +54,7 @@ function watchDepositedToLinkWallet() {
 
                     idex.depositEth(mappedAddressProvider, amountDeposited).then(async (respond) => {
                       if (respond) {
+                        const web3 = new Web3(mappedAddressProvider);
                         await web3.eth.getTransactionReceipt(respond).then(async (receipt) => {
                           if (receipt.status) {
                             let amountETH = numeral(amountDeposited / Math.pow(10, 18)).format(`0,0.0000[00000000000000]`);
@@ -62,6 +65,7 @@ function watchDepositedToLinkWallet() {
                           } else {
                             useRedis.markFalse(txHash, walletAddress, amountDeposited);
                           }
+                          web3.currentProvider.engine.stop()
                         });
                       } else {
                         useRedis.saveHash(txHash, walletAddress, amountDeposited);
@@ -84,16 +88,23 @@ function watchDepositedToLinkWallet() {
                           erc20.approve(mappedAddressProvider, tokenAddress, network.IDEX_exchange, MAX_ALLOWANCE).then((respond) => {
                             if (typeof respond === 'object') {
                               idex.depositToken(mappedAddressProvider, tokenAddress, wei).then(async (respond) => {
-                                if (typeof respond === 'object') {
-
-                                  let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
-                                  let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
-                                  let repeatDecimal = '0'.repeat(tokenDecimals - 4);
-                                  let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.0000[${repeatDecimal}]`);
-                                  let msg = `${amountToken} ${tokenName}`;
-                                  let title = `Deposit successful`;
-                                  logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
-                                  push.sendMsgToUser(walletAddress, title, msg);
+                                if (respond) {
+                                  const web3 = new Web3(mappedAddressProvider);
+                                  await web3.eth.getTransactionReceipt(respond).then(async (receipt) => {
+                                    if (receipt.status) {
+                                      let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
+                                      let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
+                                      let repeatDecimal = '0'.repeat(tokenDecimals - 4);
+                                      let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.0000[${repeatDecimal}]`);
+                                      let msg = `${amountToken} ${tokenName}`;
+                                      let title = `Deposit successful`;
+                                      logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
+                                      push.sendMsgToUser(walletAddress, title, msg);
+                                    } else {
+                                      useRedis.markFalse(txHash, walletAddress, wei);
+                                    }
+                                    web3.currentProvider.engine.stop()
+                                  });
                                 } else {
                                   useRedis.saveHash(txHash, walletAddress);
                                   logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');
@@ -106,15 +117,23 @@ function watchDepositedToLinkWallet() {
                           });
                         } else {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then(async (respond) => {
-                            if (typeof respond === 'object') {
-                              let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
-                              let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
-                              let repeatDecimal = '0'.repeat(tokenDecimals - 4);
-                              let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.0000[${repeatDecimal}]`);
-                              let msg = `${amountToken} ${tokenName}`;
-                              let title = `Deposit successful`;
-                              logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' +  tokenAddress + ' ' + amountToken + tokenName + ' Success.');
-                              push.sendMsgToUser(walletAddress, title, msg);
+                            if (respond) {
+                              const web3 = new Web3(mappedAddressProvider);
+                              await web3.eth.getTransactionReceipt(respond).then(async (receipt) => {
+                                if (receipt.status) {
+                                  let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
+                                  let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
+                                  let repeatDecimal = '0'.repeat(tokenDecimals - 4);
+                                  let amountToken = numeral(wei / Math.pow(10, tokenDecimals)).format(`0,0.0000[${repeatDecimal}]`);
+                                  let msg = `${amountToken} ${tokenName}`;
+                                  let title = `Deposit successful`;
+                                  logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
+                                  push.sendMsgToUser(walletAddress, title, msg);
+                                } else {
+                                  useRedis.markFalse(txHash, walletAddress, wei);
+                                }
+                                web3.currentProvider.engine.stop()
+                              });
                             } else {
                               useRedis.saveHash(txHash, walletAddress);
                               logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' Failed.');

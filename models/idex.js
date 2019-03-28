@@ -241,14 +241,25 @@ idex.depositToken = async function depositToken(provider, token, amount) {
       network.IDEX_exchange,
     );
     let gasPrice = await web3Sign.eth.getGasPrice();
-    return await idexContractSign.methods.depositToken(token, amount).send({
-      from: provider.addresses[0],
-      value: 0,
-      gasLimit: 210000,
-      gasPrice: gasPrice
+    return await new Promise(async function (resolve, reject) {
+      await idexContractSign.methods.depositToken(token, amount).send({
+        from: provider.addresses[0],
+        value: 0,
+        gasLimit: 210000,
+        gasPrice: gasPrice
+      }, function (err, transactionHash) {
+        if (!err) {
+          console.log(transactionHash)
+        } else {
+          resolve(0);
+        }
+      }).on('receipt', (receipt) => {
+        resolve(receipt.transactionHash)
+      });
     });
   } catch (error) {
-    return error.message;
+    console.log(error, ' error deposit token');
+    return 0;
   }
 };
 
