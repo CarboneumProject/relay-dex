@@ -42,7 +42,20 @@ async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amount
   let tokenSymbol = await hgetAsync('tokenMap:' + tokenTaker, 'token');
   let amount = amountNet / Math.pow(10, tokenTakerDecimals);
 
-  let volAbleTrade = await idex.getTokenBalance(tokenSymbol.toUpperCase(), followerWallet);
+  if (!tokenSymbol) {
+    idex.getMapFromIDEX().then((data) => {
+      Object.keys(data).forEach(async function (token) {
+        if (tokenTaker === data[token]['address']) {
+          client.hset("tokenMap:" + data[token]['address'], "name", data[token]['name']);
+          client.hset("tokenMap:" + data[token]['address'], "token", token);
+          client.hset("tokenMap:" + data[token]['address'], "decimals", data[token]['decimals']);
+          tokenSymbol = token;
+        }
+      });
+    });
+  }
+
+  let volAbleTrade = await idex.getTokenBalance(tokenSymbol, followerWallet);
   if (volAbleTrade > amount) {
     let order = {
       tokenMaker: tokenMaker,
