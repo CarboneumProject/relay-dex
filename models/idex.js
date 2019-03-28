@@ -266,6 +266,20 @@ idex.getCompleteBalance = async function getCompleteBalance(address) {
   return await rp(nextNonce);
 };
 
+idex.getMapFromIDEX = async function getMapFromIDEX(){
+  return await
+    rp({
+      method: 'POST',
+      url: network.IDEX_API_BASE_URL + '/returnCurrencies',
+      json: true,
+    });
+};
+
+idex.delay = async function delay(){
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+  delay(3000).then(()=>{console.log('dec')});
+};
+
 idex.getTokenBalance = async function getTokenBalance(tokenName, address) {
   return new Promise(async function (resolve, reject) {
     const nextNonce = await {
