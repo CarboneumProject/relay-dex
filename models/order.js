@@ -32,10 +32,10 @@ order.getOrderhashForCancel = async function getOrderhashForCancel () {
   `);
 };
 
-order.updateCancelOrder = async function updateCancelOrder (isCancel, id) {
+order.updateCancelOrder = async function updateCancelOrder (isCancel, id, filled, initialAmount) {
   return await mysql.query(`
-    UPDATE carboneum.sent_order SET isCancel = ? WHERE id = ?
-  `, [isCancel, id]);
+    UPDATE carboneum.sent_order SET isCancel = ?, filled = ?, initialAmount = ?  WHERE id = ?
+  `, [isCancel, filled, initialAmount, id]);
 };
 
 module.exports = order;

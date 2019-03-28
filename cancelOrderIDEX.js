@@ -28,6 +28,9 @@ async function main(orderHash, id, walletAddress) {
     let timestampOrder = ordered.timestamp;
     let nonce = ordered.params.nonce;
 
+    let filled = ordered.filled;
+    let initialAmount = ordered.initialAmount;
+
     let tokenBuy = ordered.params.buySymbol;
     let tokenSell = ordered.params.sellSymbol;
     let amountNetBuy = ordered.params.amountBuy;
@@ -49,7 +52,7 @@ async function main(orderHash, id, walletAddress) {
     let timestampNow = Math.round(new Date().getTime() / 1000);
     if (status === 'open') {
       if (timestampNow - timestampOrder > RANGETIMESTAMP) {
-        idex.cancelOrder(mappedAddressProvider, orderHash, nonce, id).then((respond) => {
+        idex.cancelOrder(mappedAddressProvider, orderHash, nonce, id, filled, initialAmount).then((respond) => {
             if (respond) {
               let title = `Cancelled Order`;
               msg = msg + `\nYour order has been cancelled.`;
@@ -61,10 +64,10 @@ async function main(orderHash, id, walletAddress) {
         mappedAddressProvider.engine.stop()
       }
     } else if (status === 'cancelled'){
-      await order.updateCancelOrder('1', id);
+      await order.updateCancelOrder('1', id, filled, initialAmount);
     }
     else if (status === 'complete'){
-      await order.updateCancelOrder('0', id);
+      await order.updateCancelOrder('0', id, filled, initialAmount);
     }
     else {
       console.log('not handle')

@@ -328,7 +328,7 @@ idex.getOrderStatus = async function getOrderStatus(orderHash){
 }
 };
 
-idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id) {
+idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id, filled, initialAmount) {
   let address = provider.addresses[0];
   let privateKeyBuffer = provider.wallets[address]['_privKey'];
 
@@ -368,7 +368,7 @@ idex.cancelOrder = async function cancelOrder(provider, orderHash, nonce, id) {
           console.log(' Error ' + body.error);
           resolve(0)
         } else {
-          await order.updateCancelOrder('1', id);
+          await order.updateCancelOrder('1', id, filled, initialAmount);
           resolve(1)
         }
       });
