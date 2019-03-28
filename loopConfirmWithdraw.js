@@ -107,8 +107,6 @@ function watchDepositedToLinkWallet() {
                   }
                 }
               });
-            } else {
-              console.log('not match', txHash);
             }
           });
         });
