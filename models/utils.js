@@ -12,8 +12,3 @@ utils.decimalFormat = function decimalFormat(decimal, amount) {
 
 module.exports = utils;
 
-
-const utils = require('./models/utils');
-console.log(utils.decimalFormat(18, 110000000000000000));
-
-utils.decimalFormat(18, 110000000000000000)
