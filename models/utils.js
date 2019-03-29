@@ -1,14 +1,16 @@
 const utils = {};
 const numeral = require('numeral');
 
+const FLOATING_DECIMAL = 4;
+
 utils.decimalFormat = function decimalFormat(decimal, amount) {
-  if (decimal <= 4) {
-    return numeral(amount / Math.pow(10, decimal)).format(`0,0.0000`);
+  let repeatFront = '0'.repeat(FLOATING_DECIMAL);
+  if (decimal <= FLOATING_DECIMAL) {
+    return numeral(amount / Math.pow(10, decimal)).format(`0,0.${repeatFront}`);
   } else {
-    let repeatDecimal = '0'.repeat(decimal - 4);
-    return numeral(amount / Math.pow(10, decimal)).format(`0,0.0000[${repeatDecimal}]`);
+    let repeatDecimal = '0'.repeat(decimal - FLOATING_DECIMAL);
+    return numeral(amount / Math.pow(10, decimal)).format(`0,0.${repeatFront}[${repeatDecimal}]`);
   }
 };
 
 module.exports = utils;
-
