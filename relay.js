@@ -16,13 +16,15 @@ const follow = c8Contract.events.Follow({}, (error, event) => {
   const redis = require("redis"), client = redis.createClient();
   client.select(network.redis_db);
   if (error) return console.error(error);
-  console.log('Successfully followed!', event);
 
   if (event.event === 'Follow' && event.removed === false) {
     let leader = event.returnValues.leader.toLowerCase();
     let follower = event.returnValues.follower.toLowerCase();
     let percentage = event.returnValues.percentage / 10 ** 18;
+    console.log('Successfully followed!', {leader, follower, percentage});
     client.hset('leader:' + leader, follower, percentage);
+    client.hset('lastBlock', 'eventFollow', event.blockNumber);
+    client.quit();
   }
 
 }).on('error', function (error) {
@@ -35,11 +37,13 @@ const unfollow = c8Contract.events.UnFollow({}, (error, event) => {
   const redis = require("redis"), client = redis.createClient();
   client.select(network.redis_db);
   if (error) return console.error(error, 'sad');
-  console.log('Successfully unfollowed!', event);
   if (event.event === 'UnFollow' && event.removed === false) {
     let leader = event.returnValues.leader.toLowerCase();
     let follower = event.returnValues.follower.toLowerCase();
+    console.log('Successfully unfollowed!', {leader, follower});
     client.hdel('leader:' + leader, follower);
+    client.hset('lastBlock', 'eventUnfollow', event.blockNumber);
+    client.quit();
   }
 }).on('error', function (error) {
   console.log('error: ', error);
