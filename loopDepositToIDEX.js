@@ -6,6 +6,7 @@ const BigNumber = require('bignumber.js');
 const MAX_ALLOWANCE = new BigNumber(10).pow(55).toPrecision();
 const logToFile = require('./models/logToFile');
 const push = require('./models/push');
+const Web3 = require('web3');
 
 const config = require('./config');
 const network = config.getNetwork();
