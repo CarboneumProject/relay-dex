@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-const relayWallet = require('./models/relayWallet');
+const mainnetProvider = require('./models/mainnetProvider');
 const idex = require('./models/idex');
 const useRedis = require('./models/useRedis');
 const erc20_abi = require('./abi/ERC20/token.json');
@@ -45,7 +45,7 @@ function watchDepositedToLinkWallet() {
               useRedis.findWalletTarget(withdrawHash).then(async (walletAddress) => {
                 if (walletAddress) {
                   console.log(walletAddress, txHash);
-                  let mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
+                  let mappedAddressProvider = mainnetProvider.getUserWalletProvider(walletAddress);
                   if (tokenAddress === '0x0000000000000000000000000000000000000000') {
 
                     const w3 = new Web3(mappedAddressProvider);

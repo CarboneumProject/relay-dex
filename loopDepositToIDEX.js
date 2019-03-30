@@ -1,4 +1,4 @@
-const relayWallet = require('./models/relayWallet');
+const mainnetProvider = require('./models/mainnetProvider');
 const idex = require('./models/idex');
 const useRedis = require('./models/useRedis');
 const erc20 = require('./models/erc20');
@@ -46,11 +46,11 @@ function watchDepositedToLinkWallet() {
                 useRedis.getAmount(txHash, walletAddress.toLowerCase()).then((amount) => {
                   useRedis.markDeposited(txHash, walletAddress);
                   console.log(txHash, ': is depositing.');
-                  const mappedAddressProvider = relayWallet.getUserWalletProvider(walletAddress);
+                  const mappedAddressProvider = mainnetProvider.getUserWalletProvider(walletAddress);
                   if (tokenAddress === '0x0000000000000000000000000000000000000000') {
                     let amountDeposited = new BigNumber(wei).sub(new BigNumber(RESERVED_ETH)).toFixed(0);
                     if (amount && amount !== '0') {
-                      amountDeposited =  new BigNumber(amount).toFixed(0);
+                      amountDeposited = new BigNumber(amount).toFixed(0);
                     }
 
                     idex.depositEth(mappedAddressProvider, amountDeposited).then(async (respond) => {
