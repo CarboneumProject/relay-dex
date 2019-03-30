@@ -19,7 +19,7 @@ mainnetProvider.getUserWalletProvider = function getUserWalletProvider(userAddre
   let accountIndex = Math.abs(userAddress.toLowerCase().hashCode()); // use absolute to fit HD wallet limit 0x80000000
   return new HDWalletProvider(
     process.env.MNEMONIC || config.mnemonic,
-     `https://${network.name}.infura.io/`,
+    `https://${network.name}.infura.io/v3/${process.env.INFURA_API_KEY}`,
     accountIndex,
     1
   );
