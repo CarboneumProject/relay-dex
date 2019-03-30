@@ -7,7 +7,7 @@ const Order = require('./models/order');
 const config = require('./config');
 const network = config.getNetwork();
 const IDEX_abi = require('./abi/IDEX/exchange.json');
-const mainnetProvider = require('./models/mainnetProvider');
+const relayWallet = require('./models/relayWallet');
 const socialTrading = require('./models/socialTradingContract');
 const redis = require('redis'), client = redis.createClient();
 client.select(network.redis_db);
@@ -36,7 +36,7 @@ const BENCHMARK_ALLOWANCE_C8 = new BigNumber(10 ** 18).mul(10000);
 let contractAddress_IDEX_1 = network.IDEX_exchange;
 
 async function processCopyTrade(leader, follower, tokenMaker, tokenTaker, amountNetMaker, amountNetTaker, amountNet, txHash, msg) {
-  let mappedAddressProvider = mainnetProvider.getUserWalletProvider(follower);
+  let mappedAddressProvider = relayWallet.getUserWalletProvider(follower);
   let followerWallet = mappedAddressProvider.addresses[0];
 
   let tokenTakerDecimals = await hgetAsync('tokenMap:' + tokenTaker, 'decimals');
