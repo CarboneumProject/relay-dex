@@ -1,5 +1,6 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const config = require('../config');
+const network = config.getNetwork();
 
 const mainnetProvider = {};
 
@@ -18,7 +19,7 @@ mainnetProvider.getUserWalletProvider = function getUserWalletProvider(userAddre
   let accountIndex = Math.abs(userAddress.toLowerCase().hashCode()); // use absolute to fit HD wallet limit 0x80000000
   return new HDWalletProvider(
     process.env.MNEMONIC || config.mnemonic,
-     `https://mainnet.infura.io/`,
+     `https://${network.name}.infura.io/`,
     accountIndex,
     1
   );
