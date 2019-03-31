@@ -30,7 +30,7 @@ function watchDepositedToLinkWallet() {
         if (parseInt(row) === txHash_dict.length - 1) {
           client.quit();
           const delay = ms => new Promise(res => setTimeout(res, ms));
-          delay(1000 * 60 * 10).then(() => {
+          delay(1000 * 60 * 20).then(() => {
             process.exit()
           });
         }
