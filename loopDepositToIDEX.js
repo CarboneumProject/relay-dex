@@ -63,8 +63,6 @@ function watchDepositedToLinkWallet() {
                           let msg = `${amountETH} ETH`;
                           let title = `Deposit successful`;
                           push.sendMsgToUser(walletAddress, title, msg);
-
-                          web3.currentProvider.engine.stop()
                         });
                       } else {
                         useRedis.saveHash(txHash, walletAddress, amountDeposited);
@@ -97,8 +95,6 @@ function watchDepositedToLinkWallet() {
                                     let title = `Deposit successful`;
                                     logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
                                     push.sendMsgToUser(walletAddress, title, msg);
-
-                                    web3.currentProvider.engine.stop()
                                   });
                                 } else {
                                   useRedis.saveHash(txHash, walletAddress);
@@ -122,7 +118,6 @@ function watchDepositedToLinkWallet() {
                                 let title = `Deposit successful`;
                                 logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
                                 push.sendMsgToUser(walletAddress, title, msg);
-                                web3.currentProvider.engine.stop()
                               });
                             } else {
                               useRedis.saveHash(txHash, walletAddress);
