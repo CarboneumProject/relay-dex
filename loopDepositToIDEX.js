@@ -56,16 +56,14 @@ function watchDepositedToLinkWallet() {
                     idex.depositEth(mappedAddressProvider, amountDeposited).then(async (respond) => {
                       if (respond) {
                         const web3 = new Web3(mappedAddressProvider);
-                        await web3.eth.getTransactionReceipt(respond).then(async (receipt) => {
-                          if (receipt.status) {
-                            let amountETH = utils.decimalFormat(18, amountDeposited);
-                            logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ' + amountETH + 'ETH Success.');
-                            let msg = `${amountETH} ETH`;
-                            let title = `Deposit successful`;
-                            push.sendMsgToUser(walletAddress, title, msg);
-                          } else {
-                            useRedis.markFalse(txHash, walletAddress, amountDeposited);
-                          }
+                        await web3.eth.getTransactionReceipt(respond).then(async () => {
+
+                          let amountETH = utils.decimalFormat(18, amountDeposited);
+                          logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + amountDeposited + ' ' + amountETH + 'ETH Success.');
+                          let msg = `${amountETH} ETH`;
+                          let title = `Deposit successful`;
+                          push.sendMsgToUser(walletAddress, title, msg);
+
                           web3.currentProvider.engine.stop()
                         });
                       } else {
@@ -91,18 +89,15 @@ function watchDepositedToLinkWallet() {
                               idex.depositToken(mappedAddressProvider, tokenAddress, wei).then(async (respond) => {
                                 if (respond) {
                                   const web3 = new Web3(mappedAddressProvider);
-                                  await web3.eth.getTransactionReceipt(respond).then(async (receipt) => {
-                                    if (receipt.status) {
-                                      let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
-                                      let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
-                                      let amountToken = utils.decimalFormat(tokenDecimals, wei);
-                                      let msg = `${amountToken} ${tokenName}`;
-                                      let title = `Deposit successful`;
-                                      logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
-                                      push.sendMsgToUser(walletAddress, title, msg);
-                                    } else {
-                                      useRedis.markFalse(txHash, walletAddress, wei);
-                                    }
+                                  await web3.eth.getTransactionReceipt(respond).then(async () => {
+                                    let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
+                                    let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
+                                    let amountToken = utils.decimalFormat(tokenDecimals, wei);
+                                    let msg = `${amountToken} ${tokenName}`;
+                                    let title = `Deposit successful`;
+                                    logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
+                                    push.sendMsgToUser(walletAddress, title, msg);
+
                                     web3.currentProvider.engine.stop()
                                   });
                                 } else {
@@ -119,18 +114,14 @@ function watchDepositedToLinkWallet() {
                           idex.depositToken(mappedAddressProvider, tokenAddress, wei).then(async (respond) => {
                             if (respond) {
                               const web3 = new Web3(mappedAddressProvider);
-                              await web3.eth.getTransactionReceipt(respond).then(async (receipt) => {
-                                if (receipt.status) {
-                                  let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
-                                  let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
-                                  let amountToken = utils.decimalFormat(tokenDecimals, wei);
-                                  let msg = `${amountToken} ${tokenName}`;
-                                  let title = `Deposit successful`;
-                                  logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
-                                  push.sendMsgToUser(walletAddress, title, msg);
-                                } else {
-                                  useRedis.markFalse(txHash, walletAddress, wei);
-                                }
+                              await web3.eth.getTransactionReceipt(respond).then(async () => {
+                                let tokenName = await useRedis.getTokenMap(tokenAddress, 'token');
+                                let tokenDecimals = await useRedis.getTokenMap(tokenAddress, 'decimals');
+                                let amountToken = utils.decimalFormat(tokenDecimals, wei);
+                                let msg = `${amountToken} ${tokenName}`;
+                                let title = `Deposit successful`;
+                                logToFile.writeLog('loopDeposit', txHash + ' ' + walletAddress + ' ' + wei + ' ' + tokenAddress + ' ' + amountToken + tokenName + ' Success.');
+                                push.sendMsgToUser(walletAddress, title, msg);
                                 web3.currentProvider.engine.stop()
                               });
                             } else {

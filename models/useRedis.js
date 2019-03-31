@@ -56,13 +56,6 @@ useRedis.saveHash = function saveHash(txHash, walletAddress, amount="0") {
   client.quit();
 };
 
-useRedis.markFalse = function markFalse(txHash, walletAddress, amount="0") {
-  let client = redis.createClient();
-  client.select(network.redis_db);
-  client.hset("txHash:false:" + txHash, walletAddress.toLowerCase(), amount);
-  client.quit();
-};
-
 useRedis.markDeposited = function markDeposited(txHash, walletAddress) {
   let client = redis.createClient();
   client.select(network.redis_db);
