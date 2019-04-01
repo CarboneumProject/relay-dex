@@ -16,6 +16,9 @@ router.post('/register', async (req, res, next) => {
       res.status(400);
       return res.send({'status': 'no','message': 'Invalid signature.'});
     }
+    const provider = relayWallet.getUserWalletProvider(walletAddress);
+    const linkedWallet = provider.addresses[0];
+    provider.engine.stop();
 
     const linkedWallet = relayWallet.getUserWalletProvider(walletAddress).addresses[0];
     return res.send({'walletAddress': walletAddress, 'linkedAddress': linkedWallet});
@@ -58,6 +61,8 @@ router.post('/withdraw', async (req, res, next) => {
         res.status(400);
         return res.send({'status': 'no', 'message': 'Please contact admin.'});
       }
+
+      mappedAddressProvider.engine.stop();
       });
   } catch (e) {
     logToFile.writeLog('withdraw', 'Failed.' + ' ' + e.message);
