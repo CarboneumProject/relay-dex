@@ -20,7 +20,6 @@ router.post('/register', async (req, res, next) => {
     const linkedWallet = provider.addresses[0];
     provider.engine.stop();
 
-    const linkedWallet = relayWallet.getUserWalletProvider(walletAddress).addresses[0];
     return res.send({'walletAddress': walletAddress, 'linkedAddress': linkedWallet});
   } catch (e) {
     console.error(e);
