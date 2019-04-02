@@ -298,11 +298,6 @@ idex.getMapFromIDEX = async function getMapFromIDEX(){
     });
 };
 
-idex.delay = async function delay(){
-  const delay = ms => new Promise(res => setTimeout(res, ms));
-  delay(3000).then(()=>{console.log('dec')});
-};
-
 idex.getTokenBalance = async function getTokenBalance(tokenName, address) {
   return new Promise(async function (resolve, reject) {
     const nextNonce = await {
