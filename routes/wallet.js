@@ -51,8 +51,8 @@ router.post('/withdraw', async (req, res, next) => {
           logToFile.writeLog('withdraw', respond.withdrawHash + ' ' + tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
         } else {
           res.status(400);
+          res.send({'status': respond.status, 'message': respond.message});
           logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Failed.');
-          return res.send({'status': respond.status, 'message': respond.message});
         }
 
       } else {
