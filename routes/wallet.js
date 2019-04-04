@@ -50,14 +50,14 @@ router.post('/withdraw', async (req, res, next) => {
           useRedis.saveWithdraw(respond.withdrawHash, walletAddress.toLowerCase());
           logToFile.writeLog('withdraw', respond.withdrawHash + ' ' + tokenAddress + ' ' + walletAddress + ' ' + amount + ' Success.');
         } else {
-          res.status(400);
+          res.status(200);
           res.send({'status': respond.status, 'message': respond.message});
           logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Failed.');
         }
 
       } else {
         logToFile.writeLog('withdraw', tokenAddress + ' ' + walletAddress + ' ' + amount + ' Please contact admin.');
-        res.status(400);
+        res.status(200);
         return res.send({'status': 'no', 'message': 'Please contact admin.'});
       }
 
@@ -91,7 +91,7 @@ router.post('/deposit_idex', async (req, res, next) => {
         return res.send({'status': 'yes', 'message': 'success'});
       } else {
         logToFile.writeLog('deposit', txHash + ' ' + walletAddress + ' ' + 'Fail.' + errorMsg);
-        res.status(400);
+        res.status(200);
         return res.send({'status': 'no', 'message': errorMsg});
       }
     });
@@ -121,10 +121,11 @@ router.post('/deposit_idex_amount', async (req, res, next) => {
       let [status, errorMsg] = response;
       if (status) {
         logToFile.writeLog('deposit_amount', txHash + ' ' + walletAddress + ' ' + amount + ' Success.');
+        res.status(200);
         return res.send({'status': 'yes', 'message': 'success'});
       } else {
         logToFile.writeLog('deposit_amount', txHash + ' ' + walletAddress + ' ' + amount + ' Fail.' + errorMsg);
-        res.status(400);
+        res.status(200);
         return res.send({'status': 'no', 'message': errorMsg});
       }
     });
