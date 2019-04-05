@@ -104,14 +104,15 @@ function watchDepositedToLinkWallet() {
                         }
                       });
 
-                    w3.currentProvider.engine.stop();
+                      w3.currentProvider.engine.stop();
+                    }
                   }
                 }
               });
             }
           });
         });
-      });
+      }
     } else {
       client.quit();
       process.exit();
