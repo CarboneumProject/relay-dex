@@ -298,7 +298,11 @@ async function watchIDEXTransfers(blockNumber) {
                               } else {
                                 //Inform user to Adjust allowance
                                 let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
-                                push.sendAdjustC8Allowance(copyOrder.follower, msg);
+                                if (copyOrder.follower) {
+                                  push.sendAdjustC8Allowance(copyOrder.follower, msg);
+                                } else {
+                                  console.log(follower, ' has problem.')
+                                }
                               }
                             } else {
                               let msg = `To start Copytrading, please deposit C8 to your Ethereum Wallet.`;
@@ -341,7 +345,11 @@ async function watchIDEXTransfers(blockNumber) {
                               } else {
                                 //Inform user to Adjust allowance
                                 let msg = `Please adjust allowance of C8 for be able to transfer a token.`;
-                                push.sendAdjustC8Allowance(copyOrder.follower, msg);
+                                if (copyOrder.follower) {
+                                  push.sendAdjustC8Allowance(copyOrder.follower, msg);
+                                } else {
+                                  console.log(follower, ' has problem.')
+                                }
                               }
                             } else {
                               let msg = `To start Copytrading, please deposit C8 to your Ethereum Wallet.`;
