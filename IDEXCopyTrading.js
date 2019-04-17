@@ -187,26 +187,7 @@ async function watchIDEXTransfers(blockNumber) {
                       if (taker_token === '0x0000000000000000000000000000000000000000') {
                         await Trade.insertNewTrade(trade);
 
-                        socialTrading.distributeRewardOne(
-                          leader,
-                          follower,
-                          network.REWARD,
-                          network.FEE,
-                          [leader_tx_hash, '0x', tx_hash, '0x'],
-                        );
-
                         //push msg to user
-                        let c8Decimals = await hgetAsync('tokenMap:' + network.carboneum, 'decimals');
-                        let repeatDecimalC8 = '0'.repeat(c8Decimals - 4);
-
-                        let sumFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD));
-                        let ext = ``;
-                        if (sumFee.gt(0)) {
-                          sumFee = sumFee.div(10 ** c8Decimals);
-                          let totalFee = numeral(sumFee).format(`0,0.0000[${repeatDecimalC8}]`);
-                          ext = `\nFee ${totalFee} C8`;
-                        }
-
                         let msg = `Order: BUY ${amountNetBuyInMsg} ${tokenBuyInMsg} by ${amountNetSellInMsg} ${tokenSellInMsg}  ${ext}`;
                         push.sendTradeNotification(maker_token, taker_token, amount_maker, amount_taker, copyOrder.leader, copyOrder.follower, msg);
                       } else if (maker_token === '0x0000000000000000000000000000000000000000') {
@@ -236,16 +217,11 @@ async function watchIDEXTransfers(blockNumber) {
                         });
 
                         //call social contract's distribute reward
-                        socialTrading.distributeRewardOne(
-                          leader,
-                          follower,
-                          network.REWARD,
-                          network.FEE,
-                          [leader_tx_hash, '0x', tx_hash, '0x'],
-                        );
+                        let processedFees = returnObj.processedFees;
+                        socialTrading.distributeRewardAll(processedFees);
 
                         //push msg to user
-                        let sumFee = new BigNumber(network.FEE).add(new BigNumber(network.REWARD));
+                        let sumFee = returnObj.sumFee;
                         let ext = ``;
                         if (sumFee.gt(0)) {
                           sumFee = sumFee.div(10 ** c8Decimals);
