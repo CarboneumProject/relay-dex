@@ -218,7 +218,7 @@ async function watchIDEXTransfers(blockNumber) {
 
                         //call social contract's distribute reward
                         let processedFees = returnObj.processedFees;
-                        socialTrading.distributeRewardAll(processedFees);
+                        await socialTrading.distributeRewardAll(processedFees);
 
                         //push msg to user
                         let sumFee = returnObj.sumFee;
