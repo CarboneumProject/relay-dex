@@ -18,7 +18,8 @@ const networks = {
     PROFIT_PERCENTAGE: 0.1,
     carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
     chainId: 4,
-    redis_db: 3
+    redis_db: 3,
+    contractCreated: 3706658
   },
 
   kovan: {
@@ -43,7 +44,8 @@ const networks = {
     PROFIT_PERCENTAGE: 0.1,
     carboneum: '0x1347d3e87f3335c1e5146cff3020cb86a3c93292',
     chainId: 42,
-    redis_db: 2
+    redis_db: 2,
+    contractCreated: 8719391
   },
 
   mainnet: {
@@ -65,7 +67,8 @@ const networks = {
     PROFIT_PERCENTAGE: 0.1,
     carboneum: '0xd42debe4edc92bd5a3fbb4243e1eccf6d63a4a5d',
     chainId: 1,
-    redis_db: 1
+    redis_db: 1,
+    contractCreated: 7218496
   },
 };
 
