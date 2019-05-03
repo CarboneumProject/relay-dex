@@ -5,6 +5,7 @@ const router = express.Router();
 const idex = require("../models/idex");
 const logToFile = require("../models/logToFile");
 const useRedis = require('../models/useRedis');
+const unrealized = require('../models/unrealized');
 
 
 router.post('/register', async (req, res, next) => {
@@ -135,6 +136,30 @@ router.post('/deposit_idex_amount', async (req, res, next) => {
     logToFile.writeLog('deposit_amount', 'Failed.' + ' ' + e.message);
     res.status(500);
     return res.send({'status': 'no', 'message': e.message});
+  }
+});
+
+router.post('/unrealized', async (req, res, next) => {
+
+  try {
+    const walletAddress = req.body.walletAddress;
+    const signature = req.body.signature;
+    const addressSigner = validateSignature(signature);
+    if (addressSigner !== walletAddress.toLowerCase()) {
+      res.status(400);
+      return res.send({'status': 'no','message': 'Invalid signature.'});
+    }
+    const provider = relayWallet.getUserWalletProvider(walletAddress);
+    const linkedWallet = provider.addresses[0];
+    provider.engine.stop();
+
+    let respond = await unrealized.returnCompleteBalances(walletAddress, linkedWallet);
+    res.status(200);
+    return res.send(respond);
+  } catch (e) {
+    console.error(e);
+    res.status(500);
+    return res.send({'status': 'no','message': e.message});
   }
 });
 

@@ -10,6 +10,23 @@ trade.getAvailableTrade = async function getAvailableTrade (token, owner) {
   `, [token, owner]);
 };
 
+trade.getAvailableTradeAll = async function getAvailableTrade (owner) {
+  return await mysql.query(`
+    SELECT *
+    FROM carboneum.trade
+    WHERE follower = ? AND amount_left != '0'
+    ORDER BY order_time ASC
+  `, [owner]);
+};
+
+trade.allToken = async function allToken (owner) {
+  return await mysql.query(`
+    SELECT DISTINCT maker_token 
+    FROM carboneum.trade
+    WHERE follower = ? AND amount_left != '0'
+  `, [owner]);
+};
+
 trade.updateAmountLeft = async function updateAmountLeft (amount_left, id) {
   return await mysql.query(`
     UPDATE carboneum.trade SET amount_left = ? WHERE id = ?
