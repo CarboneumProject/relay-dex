@@ -98,9 +98,13 @@ unrealized.returnCompleteBalances = async function returnCompleteBalances(myWall
   for (let i = 0; i < res.length; i++) {
     let symbol = res[i][0];
     let avgPrice = res[i][1];
-    let lastPrice = balance[symbol].last;
-    balance[res[i][0]].avg = avgPrice;
-    balance[res[i][0]].percent = ((lastPrice - avgPrice) / avgPrice * 100).toFixed(2)
+    try {
+      let lastPrice = balance[symbol].last;
+      balance[res[i][0]].avg = avgPrice;
+      balance[res[i][0]].percent = ((lastPrice - avgPrice) / avgPrice * 100).toFixed(2)
+    } catch (e) {
+
+    }
 
   }
   client.quit();
